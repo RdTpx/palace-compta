@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.3</title>
+    <title>LE PALACE - Comptabilité v2.5.4</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -195,6 +195,12 @@
         .form-section h3 {
             margin-bottom: 15px;
             color: #333;
+        }
+
+        .form-section h4 {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1em;
         }
 
         .form-row {
@@ -404,6 +410,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
 
         .modal.active {
@@ -417,6 +424,7 @@
             max-width: 500px;
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin: 20px auto;
         }
 
         .modal-content h3 {
@@ -429,6 +437,7 @@
             gap: 10px;
             justify-content: flex-end;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .text-danger {
@@ -770,6 +779,33 @@
             margin-bottom: 15px;
             margin-top: 30px;
         }
+
+        /* ============= MODAL EDIT VENTE ============= */
+        .edit-product-row {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .edit-product-row input {
+            padding: 8px;
+            font-size: 0.9em;
+        }
+
+        .edit-product-row button {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
+        .qty-input-edit {
+            width: 80px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -778,7 +814,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.3</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.4</p>
             </div>
 
             <div class="login-section">
@@ -1121,6 +1157,28 @@
 
             <!-- TAB 6: STOCK -->
             <div id="stock" class="tab-content">
+                <div class="form-section" id="addStockSection" style="display: none;">
+                    <h3>Ajouter du Stock</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addStockProductSelect">Produit</label>
+                            <select id="addStockProductSelect">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Actuel</label>
+                            <input type="text" id="addCurrentStockDisplay" disabled style="background: #f0f0f0;">
+                        </div>
+                        <div class="form-group">
+                            <label for="addStockQuantity">Quantité à Ajouter</label>
+                            <input type="number" id="addStockQuantity" placeholder="0" min="0">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="addStock()">✓ Ajouter au Stock</button>
+                    <div id="addStockMessage"></div>
+                </div>
+
                 <div class="form-section" id="correctStockSection" style="display: none;">
                     <h3>Corriger le Stock d'un Produit</h3>
                     <div class="form-row">
@@ -1253,7 +1311,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.3 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.4 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1262,19 +1320,41 @@
 
     <!-- MODALS -->
     <div id="editSaleModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 750px;">
             <h3>Modifier la Vente</h3>
-            <div class="form-group">
-                <label for="editSaleAmount">Montant ($)</label>
-                <input type="number" id="editSaleAmount" placeholder="0.00" step="0.01">
+            
+            <div class="form-section" style="margin-top: 20px;">
+                <h4>Informations Principales</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editSalePaymentMode">Mode de Paiement</label>
+                        <select id="editSalePaymentMode">
+                            <option value="liquide">Liquide</option>
+                            <option value="virement">Virement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Montant Total</label>
+                        <input type="text" id="editSaleTotalAmount" disabled style="background: #f0f0f0; font-weight: bold;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editSaleNotes">Notes</label>
+                    <textarea id="editSaleNotes" rows="2" placeholder="Notes sur la vente..."></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="editSaleNotes">Notes</label>
-                <textarea id="editSaleNotes" rows="3"></textarea>
+
+            <div class="form-section">
+                <h4>Produits (Modifier les Quantités)</h4>
+                <div id="editSaleProductsList"></div>
             </div>
+
+            <div id="editSaleMessage"></div>
+
             <div class="modal-buttons">
                 <button class="btn-secondary" onclick="closeModal('editSaleModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveSaleEdit()">Enregistrer</button>
+                <button class="btn-danger" onclick="confirmDeleteSale()">🗑️ Supprimer la Vente</button>
+                <button class="btn-primary" onclick="saveSaleEdit()">✓ Enregistrer</button>
             </div>
         </div>
     </div>
@@ -1357,6 +1437,19 @@
         </div>
     </div>
 
+    <div id="confirmDeleteSaleModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Supprimer la Vente</h3>
+            <p style="color: #666; margin-bottom: 15px;">Cette action va supprimer la vente et restaurer le stock.</p>
+            <p style="color: #ef4444; font-weight: bold;">Êtes-vous sûr de vouloir procéder ?</p>
+            <div id="deleteSaleMessage"></div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('confirmDeleteSaleModal')">Annuler</button>
+                <button class="btn-danger" onclick="executeSaleDelete()">✓ Supprimer</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // CONFIGURATION SUPABASE
@@ -1391,9 +1484,11 @@
         let settingsData = null;
         let productQuantities = {};
         let editingSaleId = null;
+        let editingSaleData = null;
         let editingProductId = null;
         let lastSalesReset = null;
         let liquidPendingTotal = 0;
+        let deletingSaleId = null;
 
         // ============================================
         // LOGIN / LOGOUT
@@ -1427,7 +1522,6 @@
                 currentUser = data;
                 errorDiv.style.display = 'none';
 
-                // Masquer la section login
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('mainApp').classList.add('active');
 
@@ -1492,6 +1586,12 @@
                 document.getElementById('correctStockSection').style.display = 'block';
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
                 document.getElementById('settingsSection').style.display = 'block';
+            }
+
+            // Employés : peuvent AJOUTER du stock (pas corriger)
+            if (currentUser.role === 'employe' || currentUser.role === 'admin' || currentUser.role === 'gerant') {
+                document.getElementById('addStockSection').style.display = 'block';
+                document.getElementById('stockTab').style.display = 'block';
             }
 
             if (currentUser.role === 'admin') {
@@ -1755,17 +1855,37 @@
                 });
             }
 
-            const select = document.getElementById('stockProductSelect');
-            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            // Populate Add Stock Select
+            const addSelect = document.getElementById('addStockProductSelect');
+            addSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
             data.forEach(product => {
                 const option = document.createElement('option');
                 option.value = product.id;
                 option.textContent = `${product.name} (Stock: ${product.stock || 0})`;
                 option.dataset.stock = product.stock || 0;
-                select.appendChild(option);
+                addSelect.appendChild(option);
             });
 
-            select.onchange = function() {
+            addSelect.onchange = function() {
+                if (this.value) {
+                    const selected = data.find(p => p.id == this.value);
+                    document.getElementById('addCurrentStockDisplay').value = selected.stock || 0;
+                    document.getElementById('addStockQuantity').value = '';
+                }
+            };
+
+            // Populate Correct Stock Select
+            const corrSelect = document.getElementById('stockProductSelect');
+            corrSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
+            data.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (Stock: ${product.stock || 0})`;
+                option.dataset.stock = product.stock || 0;
+                corrSelect.appendChild(option);
+            });
+
+            corrSelect.onchange = function() {
                 if (this.value) {
                     const selected = data.find(p => p.id == this.value);
                     document.getElementById('currentStockDisplay').value = selected.stock || 0;
@@ -1821,20 +1941,23 @@
             if (salesData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
             } else {
-                tbody.innerHTML = salesData.map(sale => `
-                    <tr>
-                        <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
-                        <td>${sale.collaborator_name}</td>
-                        <td class="success">$${sale.amount.toFixed(2)}</td>
-                        <td>${sale.payment_mode}</td>
-                        <td>${sale.product_details || '-'}</td>
-                        <td>${sale.notes || '-'}</td>
-                        <td>
-                            <button class="btn-secondary btn-small" onclick="editSale(${sale.id}, ${sale.amount}, '${(sale.notes || '').replace(/'/g, "\\'")}')">Modifier</button>
-                            ${currentUser.role === 'admin' ? `<button class="btn-danger btn-small" onclick="deleteSale(${sale.id})">Supprimer</button>` : ''}
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = salesData.map(sale => {
+                    const canEdit = currentUser.role !== 'employe' || (sale.collaborator_id === currentUser.id);
+                    return `
+                        <tr>
+                            <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
+                            <td>${sale.collaborator_name}</td>
+                            <td class="success">$${sale.amount.toFixed(2)}</td>
+                            <td>${sale.payment_mode}</td>
+                            <td>${sale.product_details || '-'}</td>
+                            <td>${sale.notes || '-'}</td>
+                            <td>
+                                <button class="btn-secondary btn-small" onclick="editSale(${sale.id})">Modifier</button>
+                                ${currentUser.role === 'admin' ? `<button class="btn-danger btn-small" onclick="quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
 
             updateStats();
@@ -1854,14 +1977,12 @@
 
             const sales = data || [];
 
-            // Filtrer les ventes depuis le reset
             let salesSinceReset = sales;
             if (lastSalesReset) {
                 const resetDate = new Date(lastSalesReset);
                 salesSinceReset = sales.filter(s => new Date(s.created_at) >= resetDate);
             }
 
-            // Calculer les totaux depuis reset
             const totalVentes = salesSinceReset.reduce((sum, s) => sum + parseFloat(s.amount), 0);
             const nombreTransactions = salesSinceReset.length;
             const ticketMoyen = nombreTransactions > 0 ? totalVentes / nombreTransactions : 0;
@@ -1877,7 +1998,6 @@
                 document.getElementById('comptaDerniereReinit').textContent = 'Jamais';
             }
 
-            // === TABLE 1: Ventes depuis reset ===
             const byCollabReset = {};
             salesSinceReset.forEach(sale => {
                 if (!byCollabReset[sale.collaborator_name]) {
@@ -1922,7 +2042,6 @@
 
             tbody1.innerHTML = html1;
 
-            // === TABLE 2: Total depuis toujours ===
             const byCollabTotal = {};
             sales.forEach(sale => {
                 if (!byCollabTotal[sale.collaborator_name]) {
@@ -2055,17 +2174,11 @@
             updateCommissionHeader();
         }
 
-        // ============================================
-        // UPDATE COMMISSION HEADER
-        // ============================================
         function updateCommissionHeader() {
             const rate = settingsData?.commission_rate || 30;
             document.getElementById('commissionHeader').textContent = `📊 Commission (${rate}%)`;
         }
 
-        // ============================================
-        // STATISTICS
-        // ============================================
         function updateStats() {
             let totalToday = 0;
             let dateRange = '';
@@ -2102,7 +2215,6 @@
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' $';
             document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' $';
 
-            // Calculer le liquide en attente (ventes en liquide depuis reset - les dépôts liquide en attente)
             let liquidSalesTotal = 0;
             if (lastSalesReset) {
                 const resetDate = new Date(lastSalesReset);
@@ -2120,7 +2232,6 @@
                 liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
             }
 
-            // Soustraire les dépôts liquide en attente
             let liquidDeposits = 0;
             movementsData.forEach(mov => {
                 if (mov.type === 'depot_liquide') {
@@ -2173,7 +2284,16 @@
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
                 const productDetailsStr = productDetails.join(', ');
 
-                const { error: saleError } = await supabaseClient
+                // Store product quantities for later reference
+                const productQuantitiesData = {};
+                productsData.forEach(product => {
+                    const qty = productQuantities[product.id] || 0;
+                    if (qty > 0) {
+                        productQuantitiesData[product.id] = qty;
+                    }
+                });
+
+                const { data: saleData, error: saleError } = await supabaseClient
                     .from('sales')
                     .insert([{
                         collaborator_id: collaboratorId,
@@ -2181,10 +2301,12 @@
                         amount: totalAmount,
                         payment_mode: paymentMode,
                         product_details: productDetailsStr,
+                        product_quantities: productQuantitiesData,
                         notes: notes,
                         is_active: true,
                         updated_by: currentUser.name
-                    }]);
+                    }])
+                    .select();
 
                 if (saleError) throw saleError;
 
@@ -2241,68 +2363,266 @@
             }
         }
 
-        function editSale(saleId, amount, notes) {
+        async function editSale(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (!sale) return;
+
             editingSaleId = saleId;
-            document.getElementById('editSaleAmount').value = amount;
-            document.getElementById('editSaleNotes').value = notes;
+            editingSaleData = sale;
+
+            document.getElementById('editSalePaymentMode').value = sale.payment_mode;
+            document.getElementById('editSaleNotes').value = sale.notes || '';
+            document.getElementById('editSaleTotalAmount').value = '$' + sale.amount.toFixed(2);
+
+            // Build product list with current quantities
+            const productsList = document.getElementById('editSaleProductsList');
+            const productQuantitiesInSale = sale.product_quantities || {};
+
+            let html = '';
+            productsData.forEach(product => {
+                const currentQty = productQuantitiesInSale[product.id] || 0;
+                if (currentQty > 0) {
+                    html += `
+                        <div class="edit-product-row">
+                            <div>${product.name}</div>
+                            <div style="text-align: center;">$${product.price.toFixed(2)}</div>
+                            <input type="number" class="qty-input-edit" id="editQty_${product.id}" value="${currentQty}" min="0">
+                            <div style="text-align: right;" id="editSubtotal_${product.id}">$${(product.price * currentQty).toFixed(2)}</div>
+                            <button class="btn-danger btn-small" onclick="removeProductFromEdit(${product.id})">Retirer</button>
+                        </div>
+                    `;
+                }
+            });
+
+            if (html === '') {
+                html = '<p style="color: #999;">Aucun produit dans cette vente</p>';
+            }
+
+            productsList.innerHTML = html;
+
+            // Add event listeners for quantity changes
+            productsData.forEach(product => {
+                const input = document.getElementById(`editQty_${product.id}`);
+                if (input) {
+                    input.addEventListener('change', () => updateEditSaleTotal());
+                    input.addEventListener('input', () => updateEditSaleTotal());
+                }
+            });
+
+            updateEditSaleTotal();
             document.getElementById('editSaleModal').classList.add('active');
         }
 
-        async function saveSaleEdit() {
-            if (!editingSaleId) return;
+        function removeProductFromEdit(productId) {
+            const input = document.getElementById(`editQty_${productId}`);
+            if (input) {
+                input.value = '0';
+                updateEditSaleTotal();
+            }
+        }
 
-            const newAmount = parseFloat(document.getElementById('editSaleAmount').value);
+        function updateEditSaleTotal() {
+            let total = 0;
+            let productCount = 0;
+
+            productsData.forEach(product => {
+                const input = document.getElementById(`editQty_${product.id}`);
+                if (input) {
+                    const qty = parseInt(input.value) || 0;
+                    if (qty > 0) {
+                        const subtotal = product.price * qty;
+                        total += subtotal;
+                        productCount++;
+
+                        const subtotalEl = document.getElementById(`editSubtotal_${product.id}`);
+                        if (subtotalEl) {
+                            subtotalEl.textContent = '$' + subtotal.toFixed(2);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('editSaleTotalAmount').value = '$' + total.toFixed(2);
+        }
+
+        async function saveSaleEdit() {
+            if (!editingSaleId || !editingSaleData) return;
+
+            const newPaymentMode = document.getElementById('editSalePaymentMode').value;
             const newNotes = document.getElementById('editSaleNotes').value;
 
-            if (!newAmount || newAmount <= 0) {
-                showMessage('saleMessage', 'Montant invalide', 'error');
+            const newProductQuantities = {};
+            let newTotal = 0;
+            let productDetails = [];
+
+            productsData.forEach(product => {
+                const input = document.getElementById(`editQty_${product.id}`);
+                if (input) {
+                    const qty = parseInt(input.value) || 0;
+                    if (qty > 0) {
+                        newProductQuantities[product.id] = qty;
+                        newTotal += product.price * qty;
+                        productDetails.push(`${product.name} x${qty}`);
+                    }
+                }
+            });
+
+            if (Object.keys(newProductQuantities).length === 0) {
+                showMessage('editSaleMessage', 'Vous devez conserver au moins un produit', 'error');
                 return;
             }
 
             try {
-                const { error } = await supabaseClient
+                // Get old quantities
+                const oldQuantities = editingSaleData.product_quantities || {};
+
+                // Update sale
+                const { error: updateError } = await supabaseClient
                     .from('sales')
                     .update({
-                        amount: newAmount,
+                        amount: newTotal,
+                        payment_mode: newPaymentMode,
+                        product_details: productDetails.join(', '),
+                        product_quantities: newProductQuantities,
                         notes: newNotes,
                         updated_by: currentUser.name,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', editingSaleId);
 
-                if (error) throw error;
+                if (updateError) throw updateError;
 
-                showMessage('saleMessage', '✓ Vente modifiée!', 'success');
-                closeModal('editSaleModal');
+                // Update stock for all products
+                for (const product of productsData) {
+                    const oldQty = oldQuantities[product.id] || 0;
+                    const newQty = newProductQuantities[product.id] || 0;
+                    const diff = oldQty - newQty; // Positive = add back to stock, Negative = remove more
+
+                    if (diff !== 0) {
+                        const currentStock = product.stock || 0;
+                        const newStock = currentStock + diff;
+                        const { error: stockError } = await supabaseClient
+                            .from('products')
+                            .update({ stock: newStock })
+                            .eq('id', product.id);
+
+                        if (stockError) throw stockError;
+                    }
+                }
+
+                // Update cash balance if payment mode changed or amount changed
+                const oldAmount = editingSaleData.amount;
+                const amountDiff = newTotal - oldAmount;
+
+                if (amountDiff !== 0 && newPaymentMode === 'virement') {
+                    let currentBalance = 0;
+                    if (movementsData.length > 0) {
+                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    }
+                    const newBalance = currentBalance + amountDiff;
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'correction',
+                            description: `Ajustement vente modifiée - ${editingSaleData.collaborator_name}`,
+                            amount: Math.abs(amountDiff),
+                            balance_after: newBalance
+                        }]);
+
+                    if (movementError) throw movementError;
+                }
+
+                showMessage('editSaleMessage', '✓ Vente modifiée!', 'success');
+                setTimeout(() => {
+                    closeModal('editSaleModal');
+                }, 1000);
+                
                 editingSaleId = null;
+                editingSaleData = null;
                 loadSales();
+                loadMovements();
+                loadStock();
             } catch (err) {
-                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
+                showMessage('editSaleMessage', 'Erreur: ' + err.message, 'error');
             }
         }
 
-        async function deleteSale(saleId) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer une vente');
-                return;
-            }
+        function confirmDeleteSale() {
+            if (!editingSaleId) return;
+            deletingSaleId = editingSaleId;
+            closeModal('editSaleModal');
+            document.getElementById('confirmDeleteSaleModal').classList.add('active');
+        }
 
-            if (!confirm('Êtes-vous sûr? Cette vente sera marquée comme supprimée.')) {
-                return;
-            }
+        function quickDeleteSale(saleId) {
+            deletingSaleId = saleId;
+            document.getElementById('confirmDeleteSaleModal').classList.add('active');
+        }
+
+        async function executeSaleDelete() {
+            if (!deletingSaleId) return;
+
+            const sale = salesData.find(s => s.id === deletingSaleId);
+            if (!sale) return;
 
             try {
-                const { error } = await supabaseClient
+                // Mark sale as inactive
+                const { error: deleteError } = await supabaseClient
                     .from('sales')
                     .update({ is_active: false, updated_by: currentUser.name })
-                    .eq('id', saleId);
+                    .eq('id', deletingSaleId);
 
-                if (error) throw error;
+                if (deleteError) throw deleteError;
 
-                showMessage('saleMessage', '✓ Vente supprimée!', 'success');
+                // Return stock
+                const quantities = sale.product_quantities || {};
+                for (const productId in quantities) {
+                    const product = productsData.find(p => p.id == productId);
+                    if (product) {
+                        const qty = quantities[productId];
+                        const newStock = (product.stock || 0) + qty;
+                        const { error: stockError } = await supabaseClient
+                            .from('products')
+                            .update({ stock: newStock })
+                            .eq('id', productId);
+
+                        if (stockError) throw stockError;
+                    }
+                }
+
+                // Adjust cash balance if virement
+                if (sale.payment_mode === 'virement') {
+                    let currentBalance = 0;
+                    if (movementsData.length > 0) {
+                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    }
+                    const newBalance = currentBalance - sale.amount;
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'retrait',
+                            description: `Suppression vente - ${sale.collaborator_name}`,
+                            amount: sale.amount,
+                            balance_after: newBalance
+                        }]);
+
+                    if (movementError) throw movementError;
+                }
+
+                showMessage('deleteSaleMessage', '✓ Vente supprimée et stock restauré!', 'success');
+                setTimeout(() => {
+                    closeModal('confirmDeleteSaleModal');
+                }, 1000);
+
+                deletingSaleId = null;
+                editingSaleId = null;
                 loadSales();
+                loadMovements();
+                loadStock();
             } catch (err) {
-                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
+                showMessage('deleteSaleMessage', 'Erreur: ' + err.message, 'error');
             }
         }
 
@@ -2326,7 +2646,6 @@
                 if (type === 'depot' || type === 'commission') {
                     newBalance += amount;
                 } else if (type === 'depot_liquide') {
-                    // Dépôt liquide en attente : on réduit le liquide en attente et on augmente la caisse
                     newBalance += amount;
                 } else {
                     newBalance -= amount;
@@ -2513,6 +2832,36 @@
             }
         }
 
+        async function addStock() {
+            const productId = document.getElementById('addStockProductSelect').value;
+            const quantity = parseInt(document.getElementById('addStockQuantity').value);
+
+            if (!productId || !quantity || quantity <= 0) {
+                showMessage('addStockMessage', 'Sélectionnez un produit et une quantité', 'error');
+                return;
+            }
+
+            try {
+                const product = productsData.find(p => p.id == productId);
+                const newStock = (product.stock || 0) + quantity;
+
+                const { error } = await supabaseClient
+                    .from('products')
+                    .update({ stock: newStock })
+                    .eq('id', productId);
+
+                if (error) throw error;
+
+                showMessage('addStockMessage', '✓ Stock augmenté!', 'success');
+                document.getElementById('addStockProductSelect').value = '';
+                document.getElementById('addCurrentStockDisplay').value = '';
+                document.getElementById('addStockQuantity').value = '';
+                loadStock();
+            } catch (err) {
+                showMessage('addStockMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
         async function correctStock() {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
@@ -2575,9 +2924,6 @@
             }
         }
 
-        // ============================================
-        // PASSWORD / ROLE MANAGEMENT
-        // ============================================
         function changeMyPassword() {
             document.getElementById('changePasswordModal').classList.add('active');
             document.getElementById('currentPin').value = '';
@@ -2688,9 +3034,6 @@
             }
         }
 
-        // ============================================
-        // EXPENSES MANAGEMENT
-        // ============================================
         async function submitExpense() {
             const amount = parseFloat(document.getElementById('expenseAmount').value);
             const description = document.getElementById('expenseDescription').value.trim();
@@ -2826,9 +3169,6 @@
             }
         }
 
-        // ============================================
-        // RESET SALES
-        // ============================================
         function openResetSalesModal() {
             document.getElementById('resetSalesModal').classList.add('active');
         }
@@ -2857,9 +3197,6 @@
             }
         }
 
-        // ============================================
-        // ADMIN FUNCTIONS
-        // ============================================
         function exportData() {
             const exportData = {
                 collaborators: collaboratorsData,
@@ -2900,9 +3237,6 @@
             }
         }
 
-        // ============================================
-        // REALTIME SUBSCRIPTIONS
-        // ============================================
         function setupRealtimeSubscriptions() {
             supabaseClient
                 .channel('sales-changes')
@@ -2941,9 +3275,6 @@
                 .subscribe();
         }
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
         window.addEventListener('load', () => {
             initSupabase();
         });
