@@ -778,7 +778,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.2</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.2 USD</p>
             </div>
 
             <div class="login-section">
@@ -827,7 +827,7 @@
             <div class="stats">
                 <div class="stat-card">
                     <h4>💰 Ventes</h4>
-                    <p id="totalSalesToday">0.00 €</p>
+                    <p id="totalSalesToday">0.00 $</p>
                     <small id="salesDateRange" style="opacity: 0.8; margin-top: 10px;">depuis le -</small>
                 </div>
                 <div class="stat-card">
@@ -836,15 +836,15 @@
                 </div>
                 <div class="stat-card">
                     <h4>📊 Commission (30%)</h4>
-                    <p id="totalCommission">0.00 €</p>
+                    <p id="totalCommission">0.00 $</p>
                 </div>
                 <div class="stat-card" id="cashBalanceCard">
                     <h4>💵 Solde Caisse</h4>
-                    <p id="cashBalance">0.00 €</p>
+                    <p id="cashBalance">0.00 $</p>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                     <h4>🧾 Liquide en Attente (Frigo)</h4>
-                    <p id="liquidPending">0.00 €</p>
+                    <p id="liquidPending">0.00 $</p>
                 </div>
             </div>
 
@@ -901,7 +901,7 @@
                         <div id="saleSummaryItems" style="margin-bottom: 10px;"></div>
                         <div class="summary-item total">
                             <span>MONTANT TOTAL :</span>
-                            <span id="totalAmountDisplay">0.00 €</span>
+                            <span id="totalAmountDisplay">0.00 $</span>
                         </div>
                     </div>
 
@@ -939,7 +939,7 @@
                     <div class="compta-summary">
                         <div class="compta-card">
                             <h4>Total Ventes</h4>
-                            <div class="amount" id="comptaTotalVentes">0.00 €</div>
+                            <div class="amount" id="comptaTotalVentes">0.00 $</div>
                         </div>
                         <div class="compta-card">
                             <h4>Nombre de Transactions</h4>
@@ -947,7 +947,7 @@
                         </div>
                         <div class="compta-card">
                             <h4>Ticket Moyen</h4>
-                            <div class="amount" id="comptaTicketMoyen">0.00 €</div>
+                            <div class="amount" id="comptaTicketMoyen">0.00 $</div>
                         </div>
                         <div class="compta-card">
                             <h4>Dernier Reset</h4>
@@ -1013,7 +1013,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="movementAmount">Montant (€)</label>
+                            <label for="movementAmount">Montant ($)</label>
                             <input type="number" id="movementAmount" placeholder="0.00" step="0.01">
                         </div>
                     </div>
@@ -1050,7 +1050,7 @@
                     <h3>Demander un Remboursement</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="expenseAmount">Montant (€) *</label>
+                            <label for="expenseAmount">Montant ($) *</label>
                             <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" required>
                         </div>
                     </div>
@@ -1180,7 +1180,7 @@
                             <input type="text" id="newProductCategory" placeholder="Ex: Boissons">
                         </div>
                         <div class="form-group">
-                            <label for="newProductPrice">Prix (€)</label>
+                            <label for="newProductPrice">Prix ($)</label>
                             <input type="number" id="newProductPrice" placeholder="0.00" step="0.01">
                         </div>
                         <div class="form-group">
@@ -1238,7 +1238,7 @@
                             <input type="text" id="currentCashDisplay" disabled style="background: #f0f0f0; font-weight: bold;">
                         </div>
                         <div class="form-group">
-                            <label for="newCashBalance">Nouveau Solde (€)</label>
+                            <label for="newCashBalance">Nouveau Solde ($)</label>
                             <input type="number" id="newCashBalance" placeholder="0.00" step="0.01">
                         </div>
                     </div>
@@ -1257,7 +1257,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.2 - Comptabilité Cloud</p>
+                    <p>LE PALACE v2.5.2 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1269,7 +1269,7 @@
         <div class="modal-content">
             <h3>Modifier la Vente</h3>
             <div class="form-group">
-                <label for="editSaleAmount">Montant (€)</label>
+                <label for="editSaleAmount">Montant ($)</label>
                 <input type="number" id="editSaleAmount" placeholder="0.00" step="0.01">
             </div>
             <div class="form-group">
@@ -1337,7 +1337,7 @@
                 <input type="text" id="editProductCategory">
             </div>
             <div class="form-group">
-                <label for="editProductPrice">Prix (€)</label>
+                <label for="editProductPrice">Prix ($)</label>
                 <input type="number" id="editProductPrice" step="0.01">
             </div>
             <div id="editProductMessage"></div>
@@ -1664,7 +1664,7 @@
                             return `
                                 <div class="product-card ${categoryClass}">
                                     <div class="product-name">${product.name}</div>
-                                    <div class="product-price">${product.price.toFixed(2)}€</div>
+                                    <div class="product-price">$${product.price.toFixed(2)}</div>
                                     <div class="product-stock">Stock: ${product.stock || 0}</div>
                                     <div class="quantity-controls">
                                         <button class="qty-btn" onclick="changeQuantity(${product.id}, -1)">−</button>
@@ -1704,7 +1704,7 @@
                     <tr>
                         <td><strong>${product.name}</strong></td>
                         <td>${product.category}</td>
-                        <td class="success">${product.price.toFixed(2)}€</td>
+                        <td class="success">$${product.price.toFixed(2)}</td>
                         <td>${product.stock || 0}</td>
                         <td>${product.active ? '✓ Actif' : '✗ Inactif'}</td>
                         <td>
@@ -1794,11 +1794,11 @@
                 if (qty > 0) {
                     const subtotal = product.price * qty;
                     total += subtotal;
-                    items.push(`${product.name} x${qty}: ${subtotal.toFixed(2)}€`);
+                    items.push(`${product.name} x${qty}: $${subtotal.toFixed(2)}`);
                 }
             });
 
-            document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' €';
+            document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' $';
 
             const summaryDiv = document.getElementById('saleSummaryItems');
             if (items.length > 0) {
@@ -1830,7 +1830,7 @@
                     <tr>
                         <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
                         <td>${sale.collaborator_name}</td>
-                        <td class="success">${sale.amount.toFixed(2)}€</td>
+                        <td class="success">$${sale.amount.toFixed(2)}</td>
                         <td>${sale.payment_mode}</td>
                         <td>${sale.product_details || '-'}</td>
                         <td>${sale.notes || '-'}</td>
@@ -1871,9 +1871,9 @@
             const nombreTransactions = salesSinceReset.length;
             const ticketMoyen = nombreTransactions > 0 ? totalVentes / nombreTransactions : 0;
 
-            document.getElementById('comptaTotalVentes').textContent = totalVentes.toFixed(2) + ' €';
+            document.getElementById('comptaTotalVentes').textContent = totalVentes.toFixed(2) + ' $';
             document.getElementById('comptaTransactions').textContent = nombreTransactions;
-            document.getElementById('comptaTicketMoyen').textContent = ticketMoyen.toFixed(2) + ' €';
+            document.getElementById('comptaTicketMoyen').textContent = ticketMoyen.toFixed(2) + ' $';
 
             if (lastSalesReset) {
                 const resetDate = new Date(lastSalesReset);
@@ -1909,8 +1909,8 @@
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td style="text-align: right;">${data.count}</td>
-                        <td style="text-align: right; color: #10b981; font-weight: bold;">${data.total.toFixed(2)}€</td>
-                        <td style="text-align: right;">${moyen.toFixed(2)}€</td>
+                        <td style="text-align: right; color: #10b981; font-weight: bold;">$${data.total.toFixed(2)}</td>
+                        <td style="text-align: right;">$${moyen.toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1920,8 +1920,8 @@
                 <tr class="total-row">
                     <td>TOTAL</td>
                     <td style="text-align: right;">${grandCount1}</td>
-                    <td style="text-align: right;">${grandTotal1.toFixed(2)}€</td>
-                    <td style="text-align: right;">${moyenTotal1.toFixed(2)}€</td>
+                    <td style="text-align: right;">$${grandTotal1.toFixed(2)}</td>
+                    <td style="text-align: right;">$${moyenTotal1.toFixed(2)}</td>
                 </tr>
             `;
 
@@ -1954,8 +1954,8 @@
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td style="text-align: right;">${data.count}</td>
-                        <td style="text-align: right; color: #667eea; font-weight: bold;">${data.total.toFixed(2)}€</td>
-                        <td style="text-align: right;">${moyen.toFixed(2)}€</td>
+                        <td style="text-align: right; color: #667eea; font-weight: bold;">$${data.total.toFixed(2)}</td>
+                        <td style="text-align: right;">$${moyen.toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1965,8 +1965,8 @@
                 <tr class="total-row">
                     <td>TOTAL</td>
                     <td style="text-align: right;">${grandCount2}</td>
-                    <td style="text-align: right;">${grandTotal2.toFixed(2)}€</td>
-                    <td style="text-align: right;">${moyenTotal2.toFixed(2)}€</td>
+                    <td style="text-align: right;">$${grandTotal2.toFixed(2)}</td>
+                    <td style="text-align: right;">$${moyenTotal2.toFixed(2)}</td>
                 </tr>
             `;
 
@@ -1995,8 +1995,8 @@
                         <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
                         <td><strong>${mov.type}</strong></td>
                         <td>${mov.description || '-'}</td>
-                        <td class="success">${mov.amount.toFixed(2)}€</td>
-                        <td class="success">${mov.balance_after.toFixed(2)}€</td>
+                        <td class="success">$${mov.amount.toFixed(2)}</td>
+                        <td class="success">$${mov.balance_after.toFixed(2)}</td>
                     </tr>
                 `).join('');
             }
@@ -2025,7 +2025,7 @@
                     <tr style="opacity: ${expense.status === 'approved' ? '0.6' : '1'};">
                         <td>${new Date(expense.created_at).toLocaleString('fr-FR')}</td>
                         <td>${expense.employee_name}</td>
-                        <td class="success">${expense.amount.toFixed(2)}€</td>
+                        <td class="success">$${expense.amount.toFixed(2)}</td>
                         <td>${expense.description || '-'}</td>
                         <td>
                             <span class="badge ${expense.status === 'pending' ? '' : 'admin'}" 
@@ -2084,19 +2084,19 @@
                 dateRange = new Date().toLocaleDateString('fr-FR');
             }
 
-            document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' €';
+            document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' $';
             document.getElementById('salesDateRange').textContent = 'depuis le ' + dateRange;
 
             const commissionRate = settingsData?.commission_rate || 30;
             const totalCommission = (totalToday * commissionRate) / 100;
-            document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' €';
+            document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' $';
 
             let cashBalance = 0;
             if (movementsData.length > 0) {
                 cashBalance = parseFloat(movementsData[0].balance_after) || 0;
             }
-            document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' €';
-            document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' €';
+            document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' $';
+            document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' $';
 
             // Calculer le liquide en attente (ventes en liquide depuis reset - les dépôts liquide en attente)
             let liquidSalesTotal = 0;
@@ -2125,7 +2125,7 @@
             });
 
             const liquidPending = liquidSalesTotal - liquidDeposits;
-            document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' €';
+            document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' $';
         }
 
         // ============================================
@@ -2226,7 +2226,7 @@
                     const display = document.getElementById(`qty_display_${p.id}`);
                     if (display) display.textContent = '0';
                 });
-                document.getElementById('totalAmountDisplay').textContent = '0.00 €';
+                document.getElementById('totalAmountDisplay').textContent = '0.00 $';
                 document.getElementById('saleSummaryItems').innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
                 
                 loadSales();
@@ -2725,7 +2725,7 @@
                 return;
             }
 
-            if (!confirm(`Rembourser ${amount.toFixed(2)}€? Cela déduira du solde de caisse.`)) {
+            if (!confirm(`Rembourser $${amount.toFixed(2)}? Cela déduira du solde de caisse.`)) {
                 return;
             }
 
