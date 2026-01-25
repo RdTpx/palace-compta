@@ -631,30 +631,27 @@
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
 
-        let supabase = null;
+let supabase = null;
 
-// Clear window supabase to avoid conflicts
-if (window.supabase) delete window.supabase;
-
+// Initialize Supabase when library is loaded
 function initSupabase() {
-    // Make sure supabase client is loaded from CDN
-    const maxAttempts = 50;
-    let attempts = 0;
+    // Prevent double initialization
+    if (window._supabaseInitialized) {
+        return;
+    }
     
-    const waitForSupabase = setInterval(() => {
-        if (window.supabase && window.supabase.createClient) {
-            clearInterval(waitForSupabase);
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-                
-                // Check if Supabase keys are set
-                if (SUPABASE_URL.includes('YOUR_PROJECT')) {
-                    alert('❌ Erreur: Configurez d\'abord vos clés Supabase!\n\nRemplissez SUPABASE_URL et SUPABASE_ANON_KEY dans le code.');
-                }
-            } else {
-                alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!\n\nVérifiez votre connexion Internet.');
-            }
+    if (window.supabase && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window._supabaseInitialized = true;
+        
+        // Check if Supabase keys are set
+        if (SUPABASE_URL.includes('YOUR_PROJECT')) {
+            alert('❌ Erreur: Configurez d\'abord vos clés Supabase!\n\nRemplissez SUPABASE_URL et SUPABASE_ANON_KEY dans le code.');
         }
+    } else {
+        alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!\n\nVérifiez votre connexion Internet.');
+    }
+}
 
         // ============================================
         // STATE MANAGEMENT
