@@ -585,7 +585,7 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label><input type="checkbox" id="isVipLounge"> 🥂 Location Carré VIP (500€)</label>
+                            <label><input type="checkbox" id="isVipLounge" onchange="updateTotalAmount()"> 🥂 Location Carré VIP (500€)</label>
                         </div>
                     </div>
 
@@ -597,7 +597,7 @@
                     <div class="form-row">
                         <div class="form-group" style="grid-column: auto;">
                             <label>Montant Total</label>
-                            <input type="text" id="totalAmount" disabled style="background: #f0f0f0; font-weight: bold;">
+                            <input type="text" id="totalAmount" disabled style="background: #f0f0f0; font-weight: bold; font-size: 1.2em; color: #10b981;">
                         </div>
                     </div>
 
@@ -1447,7 +1447,8 @@
 
                 productName = productName.replace(/, $/, '');
 
-                const { error } = await supabaseClient
+                // Créer la vente
+                const { error: saleError } = await supabaseClient
                     .from('sales')
                     .insert([{
                         collaborator_id: collaboratorId,
@@ -1461,7 +1462,27 @@
                         updated_by: currentUser.name
                     }]);
 
-                if (error) throw error;
+                if (saleError) throw saleError;
+
+                // Si virement, créer automatiquement un mouvement de dépôt
+                if (paymentMode === 'virement') {
+                    let currentBalance = 0;
+                    if (movementsData.length > 0) {
+                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    }
+                    const newBalance = currentBalance + totalAmount;
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'depot',
+                            description: `Virement vente - ${collaborator.name}`,
+                            amount: totalAmount,
+                            balance_after: newBalance
+                        }]);
+
+                    if (movementError) throw movementError;
+                }
 
                 showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
                 document.getElementById('collaboratorSelect').value = '';
@@ -1470,6 +1491,7 @@
                 document.querySelectorAll('#productsCheckboxList input[type="checkbox"]').forEach(c => c.checked = false);
                 document.getElementById('totalAmount').value = '0.00 €';
                 loadSales();
+                loadMovements();
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
             }
