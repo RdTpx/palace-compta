@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.2</title>
+    <title>LE PALACE - Comptabilité v2.3</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -368,22 +368,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .product-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 12px 0;
-            padding: 12px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-        }
-
-        .product-item input[type="number"] {
-            width: 70px;
-            padding: 8px;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -474,10 +458,203 @@
             color: #065f46;
         }
 
+        /* ============= GRILLE DE PRODUITS ============= */
+        .products-grid-container {
+            margin-top: 15px;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .product-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .product-card.boissons {
+            border-left: 5px solid #3b82f6;
+        }
+
+        .product-card.alcools {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .product-card.cocktails {
+            border-left: 5px solid #ec4899;
+        }
+
+        .product-card.autres {
+            border-left: 5px solid #10b981;
+        }
+
+        .product-card.services {
+            border-left: 5px solid #8b5cf6;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .product-price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .product-stock {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #764ba2;
+        }
+
+        .qty-btn:active {
+            transform: scale(0.95);
+        }
+
+        .qty-display {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
         @media (max-width: 768px) {
-            .table-container {
-                font-size: 0.8em;
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
             }
+
+            .product-card {
+                padding: 12px;
+            }
+
+            .qty-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 1em;
+            }
+
+            .qty-display {
+                width: 35px;
+                font-size: 0.95em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 8px;
+            }
+
+            .product-card {
+                padding: 10px;
+            }
+
+            .product-name {
+                font-size: 0.85em;
+            }
+
+            .product-price {
+                font-size: 1.1em;
+            }
+
+            .qty-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 0.9em;
+            }
+
+            .qty-display {
+                width: 30px;
+                font-size: 0.85em;
+            }
+        }
+
+        /* ============= SECTION RÉSUMÉ ============= */
+        .sale-summary {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sale-summary h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .summary-item.total {
+            border-top: 2px solid #e0e0e0;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #667eea;
         }
     </style>
 </head>
@@ -487,7 +664,7 @@
         <div id="loginSection" class="active">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.2</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.3</p>
             </div>
 
             <div class="login-section">
@@ -591,11 +768,10 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>📦 Produits et Quantités</label>
-                        <div id="productsQuantityList" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; background: white;">
-                            <!-- Produits seront chargés ici -->
-                        </div>
+                    <!-- GRILLE DE PRODUITS -->
+                    <div class="products-grid-container">
+                        <label style="display: block; margin-bottom: 15px; font-weight: 600;">📦 Sélectionner les Produits</label>
+                        <div id="productsGridList"></div>
                     </div>
 
                     <div class="form-row">
@@ -609,10 +785,13 @@
                         <textarea id="saleNotes" placeholder="Précisions sur la commande..." rows="2"></textarea>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group" style="grid-column: auto;">
-                            <label>Montant Total</label>
-                            <input type="text" id="totalAmount" disabled style="background: #f0f0f0; font-weight: bold; font-size: 1.2em; color: #10b981;">
+                    <!-- RÉSUMÉ DE LA VENTE -->
+                    <div class="sale-summary">
+                        <h4>📋 Résumé de la Vente</h4>
+                        <div id="saleSummaryItems" style="margin-bottom: 10px;"></div>
+                        <div class="summary-item total">
+                            <span>MONTANT TOTAL :</span>
+                            <span id="totalAmountDisplay">0.00 €</span>
                         </div>
                     </div>
 
@@ -900,7 +1079,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.2 - Comptabilité Cloud</p>
+                    <p>LE PALACE v2.3 - Comptabilité Cloud</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais et mouvements de caisse</p>
                 </div>
             </div>
@@ -1097,7 +1276,6 @@
 
             document.getElementById('userDisplay').textContent = currentUser.name + ' (' + roleMap[currentUser.role] + ')';
 
-            // Affichage du select collaborateur selon le rôle
             if (currentUser.role === 'employe') {
                 document.getElementById('collaboratorSelectGroup').style.display = 'none';
                 document.getElementById('currentCollaboratorGroup').style.display = 'block';
@@ -1107,14 +1285,12 @@
                 document.getElementById('currentCollaboratorGroup').style.display = 'none';
             }
 
-            // Affichage solde caisse selon le rôle
             if (currentUser.role === 'employe') {
                 document.getElementById('cashBalanceCard').style.display = 'none';
             } else {
                 document.getElementById('cashBalanceCard').style.display = 'block';
             }
 
-            // Show admin/gerant features
             if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addCollaboratorBtn').style.display = 'block';
                 document.getElementById('settingsSection').style.display = 'block';
@@ -1250,12 +1426,12 @@
             }
 
             productsData = data || [];
-            renderProductsQuantityList();
+            renderProductsGrid();
             renderProductsTable();
         }
 
-        function renderProductsQuantityList() {
-            const container = document.getElementById('productsQuantityList');
+        function renderProductsGrid() {
+            const container = document.getElementById('productsGridList');
             if (!container) return;
 
             const grouped = {};
@@ -1265,16 +1441,41 @@
             });
 
             container.innerHTML = Object.keys(grouped).map(category => `
-                <div style="margin-bottom: 15px;">
-                    <strong style="display: block; margin-bottom: 8px; color: #667eea;">${category}</strong>
-                    ${grouped[category].map(product => `
-                        <div class="product-item">
-                            <label style="margin: 0; cursor: pointer; flex: 1;">${product.name} - ${product.price.toFixed(2)}€ (Stock: ${product.stock || 0})</label>
-                            <input type="number" id="qty_${product.id}" value="0" min="0" style="width: 70px;" onchange="updateTotalAmount()">
-                        </div>
-                    `).join('')}
+                <div class="category-section">
+                    <div class="category-title">${category}</div>
+                    <div class="products-grid">
+                        ${grouped[category].map(product => {
+                            const categoryClass = category.toLowerCase().replace(/\s+/g, '-');
+                            return `
+                                <div class="product-card ${categoryClass}">
+                                    <div class="product-name">${product.name}</div>
+                                    <div class="product-price">${product.price.toFixed(2)}€</div>
+                                    <div class="product-stock">Stock: ${product.stock || 0}</div>
+                                    <div class="quantity-controls">
+                                        <button class="qty-btn" onclick="changeQuantity(${product.id}, -1)">−</button>
+                                        <div class="qty-display" id="qty_display_${product.id}">0</div>
+                                        <button class="qty-btn" onclick="changeQuantity(${product.id}, 1)">+</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
                 </div>
             `).join('');
+
+            productQuantities = {};
+            productsData.forEach(p => {
+                productQuantities[p.id] = 0;
+            });
+        }
+
+        function changeQuantity(productId, change) {
+            if (!productQuantities[productId]) productQuantities[productId] = 0;
+            
+            productQuantities[productId] = Math.max(0, productQuantities[productId] + change);
+            document.getElementById(`qty_display_${productId}`).textContent = productQuantities[productId];
+            
+            updateTotalAmount();
         }
 
         function renderProductsTable() {
@@ -1336,7 +1537,6 @@
                 </tr>
             `).join('');
 
-            // Montrer les actions pour admin/gérant
             if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 data.forEach(p => {
                     const elem = document.getElementById(`stockAction_${p.id}`);
@@ -1344,7 +1544,6 @@
                 });
             }
 
-            // Remplir le select pour correction
             const select = document.getElementById('stockProductSelect');
             select.innerHTML = '<option value="">-- Sélectionner --</option>';
             data.forEach(product => {
@@ -1373,19 +1572,31 @@
 
         function updateTotalAmount() {
             let total = 0;
+            let items = [];
+
             productsData.forEach(product => {
-                const qtyInput = document.getElementById(`qty_${product.id}`);
-                if (qtyInput) {
-                    const qty = parseInt(qtyInput.value) || 0;
-                    total += product.price * qty;
+                const qty = productQuantities[product.id] || 0;
+                if (qty > 0) {
+                    const subtotal = product.price * qty;
+                    total += subtotal;
+                    items.push(`${product.name} x${qty}: ${subtotal.toFixed(2)}€`);
                 }
             });
 
             if (document.getElementById('isVipLounge').checked) {
                 total += 500;
+                items.push('Carré VIP: 500.00€');
             }
 
-            document.getElementById('totalAmount').value = total.toFixed(2) + ' €';
+            document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' €';
+
+            // Mettre à jour le résumé
+            const summaryDiv = document.getElementById('saleSummaryItems');
+            if (items.length > 0) {
+                summaryDiv.innerHTML = items.map(item => `<div class="summary-item">${item}</div>`).join('');
+            } else {
+                summaryDiv.innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
+            }
         }
 
         async function loadSales() {
@@ -1564,14 +1775,11 @@
             let hasProducts = false;
 
             productsData.forEach(product => {
-                const qtyInput = document.getElementById(`qty_${product.id}`);
-                if (qtyInput) {
-                    const qty = parseInt(qtyInput.value) || 0;
-                    if (qty > 0) {
-                        hasProducts = true;
-                        totalAmount += product.price * qty;
-                        productDetails.push(`${product.name} x${qty}`);
-                    }
+                const qty = productQuantities[product.id] || 0;
+                if (qty > 0) {
+                    hasProducts = true;
+                    totalAmount += product.price * qty;
+                    productDetails.push(`${product.name} x${qty}`);
                 }
             });
 
@@ -1589,7 +1797,6 @@
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
                 const productDetailsStr = productDetails.join(', ');
 
-                // Créer la vente
                 const { error: saleError } = await supabaseClient
                     .from('sales')
                     .insert([{
@@ -1608,18 +1815,15 @@
 
                 // Mettre à jour les stocks
                 for (const product of productsData) {
-                    const qtyInput = document.getElementById(`qty_${product.id}`);
-                    if (qtyInput) {
-                        const qty = parseInt(qtyInput.value) || 0;
-                        if (qty > 0) {
-                            const newStock = (product.stock || 0) - qty;
-                            const { error: stockError } = await supabaseClient
-                                .from('products')
-                                .update({ stock: newStock })
-                                .eq('id', product.id);
+                    const qty = productQuantities[product.id] || 0;
+                    if (qty > 0) {
+                        const newStock = (product.stock || 0) - qty;
+                        const { error: stockError } = await supabaseClient
+                            .from('products')
+                            .update({ stock: newStock })
+                            .eq('id', product.id);
 
-                            if (stockError) throw stockError;
-                        }
+                        if (stockError) throw stockError;
                     }
                 }
 
@@ -1647,11 +1851,15 @@
                 document.getElementById('collaboratorSelect').value = '';
                 document.getElementById('saleNotes').value = '';
                 document.getElementById('isVipLounge').checked = false;
+                
+                productQuantities = {};
                 productsData.forEach(p => {
-                    const input = document.getElementById(`qty_${p.id}`);
-                    if (input) input.value = '0';
+                    productQuantities[p.id] = 0;
+                    const display = document.getElementById(`qty_display_${p.id}`);
+                    if (display) display.textContent = '0';
                 });
-                document.getElementById('totalAmount').value = '0.00 €';
+                document.getElementById('totalAmountDisplay').textContent = '0.00 €';
+                document.getElementById('saleSummaryItems').innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
                 
                 loadSales();
                 loadMovements();
