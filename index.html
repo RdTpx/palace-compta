@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.7</title>
+    <title>LE PALACE - Comptabilité v2.5.8</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -825,7 +825,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.7</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.8</p>
             </div>
 
             <div class="login-section">
@@ -1322,7 +1322,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.7 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.8 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1597,6 +1597,9 @@
                 document.getElementById('correctStockSection').style.display = 'block';
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
                 document.getElementById('settingsSection').style.display = 'block';
+            } else {
+                // Employé: cacher les onglets réservés
+                document.getElementById('movementsTab').style.display = 'none';
             }
 
             // Employés : peuvent AJOUTER du stock (pas corriger)
