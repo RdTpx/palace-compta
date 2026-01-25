@@ -351,16 +351,6 @@
             color: #1e40af;
         }
 
-        .badge.gerant {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge.employe {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
         .loading {
             text-align: center;
             padding: 20px;
@@ -636,17 +626,30 @@
 
     <script>
         // ============================================
-        // CONFIGURATION SUPABASE
+        // CONFIGURATION SUPABASE (UNE SEULE FOIS)
         // ============================================
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
 
-        let supabase = null;
-
+        let supabaseClient = null;
+        
+        // Initialize Supabase when library is loaded
         function initSupabase() {
             if (window.supabase && window.supabase.createClient) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Check if Supabase keys are set
+                if (SUPABASE_URL.includes('YOUR_PROJECT')) {
+                    alert('❌ Erreur: Configurez d\'abord vos clés Supabase!\n\nRemplissez SUPABASE_URL et SUPABASE_ANON_KEY dans le code.');
+                }
+            } else {
+                alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!\n\nVérifiez votre connexion Internet.');
             }
+        }
+
+        // Helper function to access supabase client
+        function getSupabase() {
+            return supabaseClient;
         }
 
         // ============================================
@@ -674,7 +677,7 @@
             }
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('collaborators')
                     .select('*')
                     .eq('name', username)
@@ -690,9 +693,11 @@
                 currentUser = data;
                 errorDiv.style.display = 'none';
 
+                // Switch to main app
                 document.getElementById('loginSection').classList.remove('active');
                 document.getElementById('mainApp').classList.add('active');
 
+                // Update UI
                 updateUserDisplay();
                 loadAllData();
                 setupRealtimeSubscriptions();
@@ -726,6 +731,7 @@
             userRole.textContent = roleMap[currentUser.role] || currentUser.role;
             userRole.className = `badge ${currentUser.role}`;
 
+            // Show admin features
             if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addCollaboratorBtn').style.display = 'block';
                 document.getElementById('settingsSection').style.display = 'block';
@@ -738,15 +744,20 @@
         function switchTab(tabName) {
             currentTab = tabName;
 
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
 
+            // Remove active from all buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
 
+            // Show selected tab
             document.getElementById(tabName).classList.add('active');
+
+            // Highlight button
             event.target.classList.add('active');
         }
 
@@ -774,7 +785,7 @@
         }
 
         async function loadCollaborators() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('collaborators')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -786,6 +797,7 @@
 
             collaboratorsData = data || [];
 
+            // Update select dropdown
             const select = document.getElementById('collaboratorSelect');
             select.innerHTML = '<option value="">-- Sélectionner --</option>';
             collaboratorsData.forEach(collab => {
@@ -795,6 +807,7 @@
                 select.appendChild(option);
             });
 
+            // Update collaborators table
             const tbody = document.getElementById('collaboratorsBody');
             if (collaboratorsData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucun collaborateur</td></tr>';
@@ -813,7 +826,7 @@
         }
 
         async function loadSales() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('sales')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -825,6 +838,7 @@
 
             salesData = data || [];
 
+            // Update sales table
             const tbody = document.getElementById('salesBody');
             if (salesData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
@@ -843,7 +857,7 @@
         }
 
         async function loadMovements() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('movements')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -855,6 +869,7 @@
 
             movementsData = data || [];
 
+            // Update movements table
             const tbody = document.getElementById('movementsBody');
             if (movementsData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
@@ -874,7 +889,7 @@
         }
 
         async function loadSettings() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('settings')
                 .select('*')
                 .single();
@@ -892,6 +907,7 @@
         // STATISTICS
         // ============================================
         function updateStats() {
+            // Total sales today
             const today = new Date().toDateString();
             const todaySales = salesData.filter(sale => {
                 const saleDate = new Date(sale.created_at).toDateString();
@@ -900,10 +916,12 @@
             const totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
             document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' €';
 
+            // Commission
             const commissionRate = settingsData?.commission_rate || 30;
             const totalCommission = (totalToday * commissionRate) / 100;
             document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' €';
 
+            // Cash balance
             let cashBalance = 0;
             movementsData.forEach(mov => {
                 if (mov.balance_after) {
@@ -929,7 +947,7 @@
             try {
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
 
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('sales')
                     .insert([{
                         collaborator_id: collaboratorId,
@@ -960,6 +978,7 @@
             }
 
             try {
+                // Calculate new balance
                 let currentBalance = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
@@ -972,7 +991,7 @@
                     newBalance -= amount;
                 }
 
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('movements')
                     .insert([{
                         type: type,
@@ -1003,7 +1022,7 @@
             }
 
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('collaborators')
                     .insert([{
                         name: name,
@@ -1037,7 +1056,7 @@
             }
 
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('settings')
                     .update({ commission_rate: commissionRate })
                     .eq('id', settingsData.id);
@@ -1078,8 +1097,8 @@
             }
 
             try {
-                await supabase.from('sales').delete().gt('id', 0);
-                await supabase.from('movements').delete().gt('id', 0);
+                await supabaseClient.from('sales').delete().gt('id', 0);
+                await supabaseClient.from('movements').delete().gt('id', 0);
 
                 loadAllData();
                 showMessage('settingsMessage', '✓ Données supprimées!', 'success');
@@ -1092,21 +1111,24 @@
         // REALTIME SUBSCRIPTIONS
         // ============================================
         function setupRealtimeSubscriptions() {
-            supabase
+            // Subscribe to sales changes
+            supabaseClient
                 .channel('sales-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
                     loadSales();
                 })
                 .subscribe();
 
-            supabase
+            // Subscribe to movements changes
+            supabaseClient
                 .channel('movements-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'movements' }, () => {
                     loadMovements();
                 })
                 .subscribe();
 
-            supabase
+            // Subscribe to collaborators changes
+            supabaseClient
                 .channel('collaborators-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'collaborators' }, () => {
                     loadCollaborators();
