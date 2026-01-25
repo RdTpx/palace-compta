@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.4</title>
+    <title>LE PALACE - Comptabilité v2.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -749,6 +749,27 @@
         .reset-sales-btn:hover {
             background: #d97706;
         }
+
+        .two-table-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-table-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -757,7 +778,7 @@
         <div id="loginSection" class="active">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.4</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5</p>
             </div>
 
             <div class="login-section">
@@ -945,21 +966,40 @@
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <h3>Ventes par Collaborateur</h3>
-                    <table class="compta-table">
-                        <thead>
-                            <tr>
-                                <th>Collaborateur</th>
-                                <th style="text-align: right;">Nombre de Ventes</th>
-                                <th style="text-align: right;">Montant Total</th>
-                                <th style="text-align: right;">Ticket Moyen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comptaTableBody">
-                            <tr><td colspan="4" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
+                <div class="two-table-container">
+                    <div>
+                        <div class="table-title">Ventes par Collaborateur (Depuis Reset)</div>
+                        <table class="compta-table">
+                            <thead>
+                                <tr>
+                                    <th>Collaborateur</th>
+                                    <th style="text-align: right;">Nb Ventes</th>
+                                    <th style="text-align: right;">Montant</th>
+                                    <th style="text-align: right;">Moyen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comptaTableBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div>
+                        <div class="table-title">Total Ventes par Collaborateur (Depuis Toujours)</div>
+                        <table class="compta-table">
+                            <thead>
+                                <tr>
+                                    <th>Collaborateur</th>
+                                    <th style="text-align: right;">Nb Ventes</th>
+                                    <th style="text-align: right;">Montant</th>
+                                    <th style="text-align: right;">Moyen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comptaTotalTableBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -975,6 +1015,7 @@
                                 <option value="retrait">Retrait</option>
                                 <option value="depense">Dépense</option>
                                 <option value="commission">Commission Payée</option>
+                                <option value="depot_liquide">Dépôt Liquide en Attente</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1222,7 +1263,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.4 - Comptabilité Cloud</p>
+                    <p>LE PALACE v2.5 - Comptabilité Cloud</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1362,6 +1403,7 @@
         let editingSaleId = null;
         let editingProductId = null;
         let lastSalesReset = null;
+        let liquidPendingTotal = 0;
 
         // ============================================
         // LOGIN / LOGOUT
@@ -1824,9 +1866,16 @@
 
             const sales = data || [];
 
-            // Calculer les totaux
-            const totalVentes = sales.reduce((sum, s) => sum + parseFloat(s.amount), 0);
-            const nombreTransactions = sales.length;
+            // Filtrer les ventes depuis le reset
+            let salesSinceReset = sales;
+            if (lastSalesReset) {
+                const resetDate = new Date(lastSalesReset);
+                salesSinceReset = sales.filter(s => new Date(s.created_at) >= resetDate);
+            }
+
+            // Calculer les totaux depuis reset
+            const totalVentes = salesSinceReset.reduce((sum, s) => sum + parseFloat(s.amount), 0);
+            const nombreTransactions = salesSinceReset.length;
             const ticketMoyen = nombreTransactions > 0 ? totalVentes / nombreTransactions : 0;
 
             document.getElementById('comptaTotalVentes').textContent = totalVentes.toFixed(2) + ' €';
@@ -1840,31 +1889,30 @@
                 document.getElementById('comptaDerniereReinit').textContent = 'Jamais';
             }
 
-            // Grouper par collaborateur
-            const byCollab = {};
-            sales.forEach(sale => {
-                if (!byCollab[sale.collaborator_name]) {
-                    byCollab[sale.collaborator_name] = {
+            // === TABLE 1: Ventes depuis reset ===
+            const byCollabReset = {};
+            salesSinceReset.forEach(sale => {
+                if (!byCollabReset[sale.collaborator_name]) {
+                    byCollabReset[sale.collaborator_name] = {
                         count: 0,
                         total: 0
                     };
                 }
-                byCollab[sale.collaborator_name].count++;
-                byCollab[sale.collaborator_name].total += parseFloat(sale.amount);
+                byCollabReset[sale.collaborator_name].count++;
+                byCollabReset[sale.collaborator_name].total += parseFloat(sale.amount);
             });
 
-            // Afficher la table
-            const tbody = document.getElementById('comptaTableBody');
-            let html = '';
-            let grandTotal = 0;
-            let grandCount = 0;
+            const tbody1 = document.getElementById('comptaTableBody');
+            let html1 = '';
+            let grandTotal1 = 0;
+            let grandCount1 = 0;
 
-            Object.keys(byCollab).sort().forEach(name => {
-                const data = byCollab[name];
+            Object.keys(byCollabReset).sort().forEach(name => {
+                const data = byCollabReset[name];
                 const moyen = data.total / data.count;
-                grandTotal += data.total;
-                grandCount += data.count;
-                html += `
+                grandTotal1 += data.total;
+                grandCount1 += data.count;
+                html1 += `
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td style="text-align: right;">${data.count}</td>
@@ -1874,18 +1922,62 @@
                 `;
             });
 
-            // Ligne de total
-            const moyenTotal = grandCount > 0 ? grandTotal / grandCount : 0;
-            html += `
+            const moyenTotal1 = grandCount1 > 0 ? grandTotal1 / grandCount1 : 0;
+            html1 += `
                 <tr class="total-row">
                     <td>TOTAL</td>
-                    <td style="text-align: right;">${grandCount}</td>
-                    <td style="text-align: right;">${grandTotal.toFixed(2)}€</td>
-                    <td style="text-align: right;">${moyenTotal.toFixed(2)}€</td>
+                    <td style="text-align: right;">${grandCount1}</td>
+                    <td style="text-align: right;">${grandTotal1.toFixed(2)}€</td>
+                    <td style="text-align: right;">${moyenTotal1.toFixed(2)}€</td>
                 </tr>
             `;
 
-            tbody.innerHTML = html;
+            tbody1.innerHTML = html1;
+
+            // === TABLE 2: Total depuis toujours ===
+            const byCollabTotal = {};
+            sales.forEach(sale => {
+                if (!byCollabTotal[sale.collaborator_name]) {
+                    byCollabTotal[sale.collaborator_name] = {
+                        count: 0,
+                        total: 0
+                    };
+                }
+                byCollabTotal[sale.collaborator_name].count++;
+                byCollabTotal[sale.collaborator_name].total += parseFloat(sale.amount);
+            });
+
+            const tbody2 = document.getElementById('comptaTotalTableBody');
+            let html2 = '';
+            let grandTotal2 = 0;
+            let grandCount2 = 0;
+
+            Object.keys(byCollabTotal).sort().forEach(name => {
+                const data = byCollabTotal[name];
+                const moyen = data.total / data.count;
+                grandTotal2 += data.total;
+                grandCount2 += data.count;
+                html2 += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td style="text-align: right;">${data.count}</td>
+                        <td style="text-align: right; color: #667eea; font-weight: bold;">${data.total.toFixed(2)}€</td>
+                        <td style="text-align: right;">${moyen.toFixed(2)}€</td>
+                    </tr>
+                `;
+            });
+
+            const moyenTotal2 = grandCount2 > 0 ? grandTotal2 / grandCount2 : 0;
+            html2 += `
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td style="text-align: right;">${grandCount2}</td>
+                    <td style="text-align: right;">${grandTotal2.toFixed(2)}€</td>
+                    <td style="text-align: right;">${moyenTotal2.toFixed(2)}€</td>
+                </tr>
+            `;
+
+            tbody2.innerHTML = html2;
         }
 
         async function loadMovements() {
@@ -1983,7 +2075,6 @@
 
             if (lastSalesReset) {
                 const resetDate = new Date(lastSalesReset);
-                const todayDate = new Date();
                 const salesToday = salesData.filter(sale => {
                     const saleDate = new Date(sale.created_at);
                     return saleDate >= resetDate;
@@ -2014,8 +2105,33 @@
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' €';
             document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' €';
 
-            const liquidSales = salesData.filter(sale => sale.payment_mode === 'liquide' && sale.is_active);
-            const liquidPending = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            // Calculer le liquide en attente (ventes en liquide depuis reset - les dépôts liquide en attente)
+            let liquidSalesTotal = 0;
+            if (lastSalesReset) {
+                const resetDate = new Date(lastSalesReset);
+                const liquidSales = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at);
+                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= resetDate;
+                });
+                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            } else {
+                const today = new Date().toDateString();
+                const liquidSales = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at).toDateString();
+                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate === today;
+                });
+                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            }
+
+            // Soustraire les dépôts liquide en attente
+            let liquidDeposits = 0;
+            movementsData.forEach(mov => {
+                if (mov.type === 'depot_liquide') {
+                    liquidDeposits += parseFloat(mov.amount);
+                }
+            });
+
+            const liquidPending = liquidSalesTotal - liquidDeposits;
             document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' €';
         }
 
@@ -2219,6 +2335,9 @@
 
                 let newBalance = currentBalance;
                 if (type === 'depot' || type === 'commission') {
+                    newBalance += amount;
+                } else if (type === 'depot_liquide') {
+                    // Dépôt liquide en attente : on réduit le liquide en attente et on augmente la caisse
                     newBalance += amount;
                 } else {
                     newBalance -= amount;
@@ -2742,6 +2861,7 @@
                 showMessage('resetSalesMessage', '✓ Ventes réinitialisées!', 'success');
                 closeModal('resetSalesModal');
                 loadLastSalesReset();
+                loadCompta();
                 updateStats();
             } catch (err) {
                 showMessage('resetSalesMessage', 'Erreur: ' + err.message, 'error');
