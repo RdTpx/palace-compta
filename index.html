@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.6</title>
+    <title>LE PALACE - Comptabilité v2.5.7</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -811,6 +811,12 @@
             width: 80px;
             text-align: center;
         }
+
+        .not-authorized {
+            color: #999;
+            font-size: 0.85em;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -819,7 +825,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.6</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.7</p>
             </div>
 
             <div class="login-section">
@@ -1316,7 +1322,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.6 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.7 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1948,7 +1954,12 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
             } else {
                 tbody.innerHTML = salesData.map(sale => {
-                    const canEdit = currentUser.role !== 'employe' || (sale.collaborator_id === currentUser.id);
+                    // === PERMISSIONS STRICTES ===
+                    const isAdmin = currentUser.role === 'admin';
+                    const isGerant = currentUser.role === 'gerant';
+                    const isOwner = currentUser.role === 'employe' && sale.collaborator_id === currentUser.id;
+                    const canModifyDelete = isAdmin || isGerant || isOwner;
+                    
                     return `
                         <tr>
                             <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
@@ -1958,8 +1969,10 @@
                             <td>${sale.product_details || '-'}</td>
                             <td>${sale.notes || '-'}</td>
                             <td>
-                                <button class="btn-secondary btn-small" onclick="editSale(${sale.id})">Modifier</button>
-                                ${currentUser.role === 'admin' ? `<button class="btn-danger btn-small" onclick="quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
+                                ${canModifyDelete ? `
+                                    <button class="btn-secondary btn-small" onclick="editSale(${sale.id})">Modifier</button>
+                                    ${isAdmin || isGerant ? `<button class="btn-danger btn-small" onclick="quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
+                                ` : '<span class="not-authorized">Non autorisé</span>'}
                             </td>
                         </tr>
                     `;
