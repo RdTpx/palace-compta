@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2</title>
+    <title>LE PALACE - Comptabilité</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -27,11 +27,8 @@
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 1200px;
+            max-width: 1000px;
             overflow: hidden;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .header {
@@ -71,16 +68,15 @@
             font-size: 0.95em;
         }
 
-        input, select, textarea {
+        input {
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 6px;
             font-size: 1em;
             transition: border-color 0.3s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -115,25 +111,9 @@
             background: #e0e0e0;
         }
 
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85em;
-        }
-
         .main-app {
             display: none;
             padding: 30px;
-            overflow-y: auto;
-            flex: 1;
         }
 
         .main-app.active {
@@ -145,7 +125,6 @@
             gap: 10px;
             margin-bottom: 30px;
             border-bottom: 2px solid #f0f0f0;
-            flex-wrap: wrap;
         }
 
         .tab-button {
@@ -200,7 +179,6 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            font-size: 0.9em;
         }
 
         th {
@@ -239,8 +217,6 @@
             padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
         }
 
         .user-info span {
@@ -320,6 +296,38 @@
             background: #dc2626;
         }
 
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         .badge {
             display: inline-block;
             padding: 5px 12px;
@@ -333,12 +341,12 @@
             color: #1e40af;
         }
 
-        .badge.gerant {
+        .badge.manager {
             background: #fef3c7;
             color: #92400e;
         }
 
-        .badge.employe {
+        .badge.employee {
             background: #dbeafe;
             color: #1e40af;
         }
@@ -363,117 +371,15 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .product-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 8px 0;
-        }
-
-        .product-checkbox input {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-content h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        .text-danger {
-            color: #ef4444;
-        }
-
-        .collaborative-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .collab-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .collab-card.inactive {
-            opacity: 0.5;
-            background: #f9f9f9;
-        }
-
-        .collab-info {
-            flex: 1;
-        }
-
-        .collab-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2col {
-                grid-template-columns: 1fr;
-            }
-            .table-container {
-                font-size: 0.8em;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="display: flex; flex-direction: column; height: 100vh;">
         <!-- LOGIN SECTION -->
-        <div id="loginSection" class="active">
-            <div class="header">
+        <div id="loginSection" class="active" style="display: flex; flex-direction: column; gap: 20px; padding: 40px; justify-content: center;">
+            <div class="header" style="margin: -40px -40px 0 -40px; padding: 30px;">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2</p>
+                <p>Système de Comptabilité pour Bars & Restaurants</p>
             </div>
 
             <div class="login-section">
@@ -494,11 +400,11 @@
         </div>
 
         <!-- MAIN APP SECTION -->
-        <div id="mainApp" class="main-app">
-            <div class="header" style="padding: 20px; margin: -30px -30px 20px -30px;">
+        <div id="mainApp" class="main-app" style="display: none; flex: 1; overflow-y: auto; padding: 0; gap: 0;">
+            <div class="header">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <h1 style="font-size: 2em;">👑 LE PALACE</h1>
+                        <h1 style="font-size: 2em; margin-bottom: 0;">👑 LE PALACE</h1>
                     </div>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span id="userDisplay" style="color: white;"></span>
@@ -507,354 +413,242 @@
                 </div>
             </div>
 
-            <!-- USER INFO -->
-            <div class="user-info">
-                <div>
-                    <span>Utilisateur: </span>
-                    <span id="userName" style="color: #667eea;"></span>
+            <div style="padding: 30px; display: flex; flex-direction: column; gap: 20px;">
+                <!-- USER INFO -->
+                <div class="user-info">
+                    <div>
+                        <span>Utilisateur: </span>
+                        <span id="userName" style="color: #667eea;"></span>
+                    </div>
+                    <div>
+                        <span id="userRole" class="badge"></span>
+                    </div>
                 </div>
-                <div>
-                    <span id="userRole" class="badge"></span>
-                </div>
-            </div>
 
-            <!-- STATS -->
-            <div class="stats">
-                <div class="stat-card">
-                    <h4>💰 Total Ventes (Aujourd'hui)</h4>
-                    <p id="totalSalesToday">0.00 €</p>
+                <!-- STATS -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>💰 Total Ventes (Aujourd'hui)</h4>
+                        <p id="totalSalesToday">0.00 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>👥 Collaborateurs</h4>
+                        <p id="totalCollaborators">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>📊 Commission (30%)</h4>
+                        <p id="totalCommission">0.00 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>💵 Solde Caisse</h4>
+                        <p id="cashBalance">0.00 €</p>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <h4>👥 Collaborateurs</h4>
-                    <p id="totalCollaborators">0</p>
-                </div>
-                <div class="stat-card">
-                    <h4>📊 Commission (30%)</h4>
-                    <p id="totalCommission">0.00 €</p>
-                </div>
-                <div class="stat-card">
-                    <h4>💵 Solde Caisse</h4>
-                    <p id="cashBalance">0.00 €</p>
-                </div>
-            </div>
 
-            <!-- TABS -->
-            <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('sales')">📊 Ventes</button>
-                <button class="tab-button" onclick="switchTab('movements')">💸 Mouvements</button>
-                <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
-                <button class="tab-button" id="productsTab" onclick="switchTab('products')" style="display: none;">🍷 Produits</button>
-                <button class="tab-button" onclick="switchTab('settings')">⚙️ Paramètres</button>
-            </div>
+                <!-- TABS -->
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('sales')">📊 Ventes</button>
+                    <button class="tab-button" onclick="switchTab('movements')">💸 Mouvements</button>
+                    <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
+                    <button class="tab-button" onclick="switchTab('settings')">⚙️ Paramètres</button>
+                </div>
 
-            <!-- TAB 1: SALES -->
-            <div id="sales" class="tab-content active">
-                <div class="form-section">
-                    <h3>Enregistrer une Vente</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="collaboratorSelect">Collaborateur</label>
-                            <select id="collaboratorSelect">
-                                <option value="">-- Sélectionner --</option>
-                            </select>
+                <!-- TAB 1: SALES -->
+                <div id="sales" class="tab-content active">
+                    <div class="form-section">
+                        <h3>Enregistrer une Vente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="collaboratorSelect">Collaborateur</label>
+                                <select id="collaboratorSelect">
+                                    <option value="">-- Sélectionner --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="saleAmount">Montant (€)</label>
+                                <input type="number" id="saleAmount" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentMode">Mode de Paiement</label>
+                                <select id="paymentMode">
+                                    <option value="liquide">Liquide</option>
+                                    <option value="carte">Carte</option>
+                                    <option value="cheque">Chèque</option>
+                                    <option value="virement">Virement</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="paymentMode">Mode de Paiement</label>
-                            <select id="paymentMode">
-                                <option value="liquide">Liquide</option>
-                                <option value="carte">Carte</option>
-                                <option value="cheque">Chèque</option>
-                                <option value="virement">Virement</option>
-                            </select>
-                        </div>
+                        <button class="btn-primary" onclick="recordSale()">✓ Enregistrer la Vente</button>
+                        <div id="saleMessage"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label>📦 Sélectionner les Produits</label>
-                        <div id="productsCheckboxList" style="max-height: 250px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; background: white;">
-                            <!-- Produits seront chargés ici -->
+                    <div class="table-container">
+                        <h3>Historique des Ventes</h3>
+                        <table id="salesTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Collaborateur</th>
+                                    <th>Montant</th>
+                                    <th>Mode de Paiement</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MOVEMENTS -->
+                <div id="movements" class="tab-content">
+                    <div class="form-section">
+                        <h3>Ajouter un Mouvement</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="movementType">Type de Mouvement</label>
+                                <select id="movementType">
+                                    <option value="depot">Dépôt</option>
+                                    <option value="retrait">Retrait</option>
+                                    <option value="depense">Dépense</option>
+                                    <option value="commission">Commission Payée</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementAmount">Montant (€)</label>
+                                <input type="number" id="movementAmount" placeholder="0.00" step="0.01">
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <label for="movementDescription">Description</label>
+                            <textarea id="movementDescription" placeholder="Détails du mouvement..." rows="3"></textarea>
+                        </div>
+                        <button class="btn-primary" onclick="recordMovement()">✓ Enregistrer</button>
+                        <div id="movementMessage"></div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><input type="checkbox" id="isVipLounge"> 🥂 Location Carré VIP (500€)</label>
+                    <div class="table-container">
+                        <h3>Historique des Mouvements</h3>
+                        <table id="movementsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Montant</th>
+                                    <th>Solde Après</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementsBody">
+                                <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: COLLABORATORS -->
+                <div id="collaborators" class="tab-content">
+                    <div class="form-section" id="addCollaboratorSection" style="display: none;">
+                        <h3>Ajouter un Collaborateur</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newCollaboratorName">Nom</label>
+                                <input type="text" id="newCollaboratorName" placeholder="Jean Dupont">
+                            </div>
+                            <div class="form-group">
+                                <label for="newCollaboratorRole">Rôle</label>
+                                <select id="newCollaboratorRole">
+                                    <option value="employe">Employé</option>
+                                    <option value="gerant">Gérant</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newCollaboratorPin">PIN</label>
+                                <input type="text" id="newCollaboratorPin" placeholder="1234" maxlength="4" inputmode="numeric">
+                            </div>
                         </div>
+                        <button class="btn-primary" onclick="addCollaborator()">✓ Ajouter</button>
+                        <div id="collaboratorMessage"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="saleNotes">Notes / Motif</label>
-                        <textarea id="saleNotes" placeholder="Précisions sur la commande..." rows="2"></textarea>
+                    <div class="action-buttons">
+                        <button class="btn-primary" id="addCollaboratorBtn" onclick="toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group" style="grid-column: auto;">
-                            <label>Montant Total</label>
-                            <input type="text" id="totalAmount" disabled style="background: #f0f0f0; font-weight: bold;">
+                    <div class="table-container">
+                        <h3>Collaborateurs</h3>
+                        <table id="collaboratorsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>PIN</th>
+                                    <th>Créé le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="collaboratorsBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SETTINGS -->
+                <div id="settings" class="tab-content">
+                    <div class="form-section" id="settingsSection" style="display: none;">
+                        <h3>Paramètres Généraux</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="commissionRate">Taux de Commission (%)</label>
+                                <input type="number" id="commissionRate" placeholder="30" step="0.01">
+                            </div>
                         </div>
+                        <button class="btn-primary" onclick="updateSettings()">✓ Mettre à Jour</button>
+                        <div id="settingsMessage"></div>
                     </div>
 
-                    <button class="btn-primary" onclick="recordSale()">✓ Enregistrer la Vente</button>
-                    <div id="saleMessage"></div>
-                </div>
-
-                <div class="table-container">
-                    <h3>Historique des Ventes</h3>
-                    <table id="salesTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Collaborateur</th>
-                                <th>Montant</th>
-                                <th>Mode</th>
-                                <th>Produits</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesBody">
-                            <tr><td colspan="7" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 2: MOVEMENTS -->
-            <div id="movements" class="tab-content">
-                <div class="form-section">
-                    <h3>Ajouter un Mouvement</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="movementType">Type de Mouvement</label>
-                            <select id="movementType">
-                                <option value="depot">Dépôt</option>
-                                <option value="retrait">Retrait</option>
-                                <option value="depense">Dépense</option>
-                                <option value="commission">Commission Payée</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="movementAmount">Montant (€)</label>
-                            <input type="number" id="movementAmount" placeholder="0.00" step="0.01">
-                        </div>
+                    <div class="action-buttons" style="display: none;" id="adminPanel">
+                        <button class="btn-secondary" onclick="exportData()">📥 Exporter les Données</button>
+                        <button class="btn-secondary" onclick="clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
                     </div>
-                    <div class="form-group">
-                        <label for="movementDescription">Description</label>
-                        <textarea id="movementDescription" placeholder="Détails du mouvement..." rows="3"></textarea>
+
+                    <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                        <h3>À Propos</h3>
+                        <p>LE PALACE v1.0 - Comptabilité Cloud</p>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Application hébergée sur Vercel + Base de données Supabase PostgreSQL</p>
                     </div>
-                    <button class="btn-primary" onclick="recordMovement()">✓ Enregistrer</button>
-                    <div id="movementMessage"></div>
                 </div>
-
-                <div class="table-container">
-                    <h3>Historique des Mouvements</h3>
-                    <table id="movementsTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Montant</th>
-                                <th>Solde Après</th>
-                            </tr>
-                        </thead>
-                        <tbody id="movementsBody">
-                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 3: COLLABORATORS -->
-            <div id="collaborators" class="tab-content">
-                <div class="form-section" id="addCollaboratorSection" style="display: none;">
-                    <h3>Ajouter un Collaborateur</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="newCollaboratorName">Nom</label>
-                            <input type="text" id="newCollaboratorName" placeholder="Jean Dupont">
-                        </div>
-                        <div class="form-group">
-                            <label for="newCollaboratorRole">Rôle</label>
-                            <select id="newCollaboratorRole">
-                                <option value="employe">Employé</option>
-                                <option value="gerant">Gérant</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="newCollaboratorPin">PIN</label>
-                            <input type="text" id="newCollaboratorPin" placeholder="1234" maxlength="4" inputmode="numeric">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="addCollaborator()">✓ Ajouter</button>
-                    <div id="collaboratorMessage"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-primary" id="addCollaboratorBtn" onclick="toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
-                    <button class="btn-secondary" onclick="changeMyPassword()">🔐 Changer Mon PIN</button>
-                </div>
-
-                <div class="table-container">
-                    <h3>Collaborateurs</h3>
-                    <div id="collaboratorsGrid" class="collaborative-list"></div>
-                </div>
-            </div>
-
-            <!-- TAB 4: PRODUCTS -->
-            <div id="products" class="tab-content">
-                <div class="form-section" id="addProductSection" style="display: none;">
-                    <h3>Ajouter un Produit</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="newProductName">Nom du Produit</label>
-                            <input type="text" id="newProductName" placeholder="Ex: Bière Blonde">
-                        </div>
-                        <div class="form-group">
-                            <label for="newProductCategory">Catégorie</label>
-                            <input type="text" id="newProductCategory" placeholder="Ex: Boissons">
-                        </div>
-                        <div class="form-group">
-                            <label for="newProductPrice">Prix (€)</label>
-                            <input type="number" id="newProductPrice" placeholder="0.00" step="0.01">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="addProduct()">✓ Ajouter</button>
-                    <div id="productMessage"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-primary" id="addProductBtn" onclick="toggleAddProduct()" style="display: none;">+ Ajouter Produit</button>
-                </div>
-
-                <div class="table-container">
-                    <h3>Catalogue des Produits</h3>
-                    <table id="productsTable">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Catégorie</th>
-                                <th>Prix</th>
-                                <th>État</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsBody">
-                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 5: SETTINGS -->
-            <div id="settings" class="tab-content">
-                <div class="form-section" id="settingsSection" style="display: none;">
-                    <h3>Paramètres Généraux</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="commissionRate">Taux de Commission (%)</label>
-                            <input type="number" id="commissionRate" placeholder="30" step="0.01">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="updateSettings()">✓ Mettre à Jour</button>
-                    <div id="settingsMessage"></div>
-                </div>
-
-                <div class="action-buttons" style="display: none;" id="adminPanel">
-                    <button class="btn-secondary" onclick="exportData()">📥 Exporter les Données</button>
-                    <button class="btn-secondary" onclick="clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
-                </div>
-
-                <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                    <h3>À Propos</h3>
-                    <p>LE PALACE v2.0 - Comptabilité Cloud</p>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, collaborateurs et mouvements de caisse</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODALS -->
-    <div id="editSaleModal" class="modal">
-        <div class="modal-content">
-            <h3>Modifier la Vente</h3>
-            <div class="form-group">
-                <label for="editSaleAmount">Montant (€)</label>
-                <input type="number" id="editSaleAmount" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="editSaleNotes">Notes</label>
-                <textarea id="editSaleNotes" rows="3"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('editSaleModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveSaleEdit()">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="changePasswordModal" class="modal">
-        <div class="modal-content">
-            <h3>Changer le PIN</h3>
-            <div class="form-group">
-                <label for="currentPin">PIN actuel</label>
-                <input type="password" id="currentPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div class="form-group">
-                <label for="newPin">Nouveau PIN</label>
-                <input type="password" id="newPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div class="form-group">
-                <label for="confirmPin">Confirmer le PIN</label>
-                <input type="password" id="confirmPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div id="passwordMessage"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('changePasswordModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveNewPassword()">Mettre à jour</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="changeUserRoleModal" class="modal">
-        <div class="modal-content">
-            <h3>Modifier le Rôle</h3>
-            <p id="changeRoleUserName"></p>
-            <div class="form-group">
-                <label for="changeRoleSelect">Nouveau Rôle</label>
-                <select id="changeRoleSelect">
-                    <option value="employe">Employé</option>
-                    <option value="gerant">Gérant</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('changeUserRoleModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveUserRole()">Appliquer</button>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURATION SUPABASE
+        // CONFIGURATION SUPABASE (UNE SEULE FOIS)
         // ============================================
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
 
         let supabaseClient = null;
-
+        
+        // Initialize Supabase when library is loaded
         function initSupabase() {
             if (window.supabase && window.supabase.createClient) {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+                
+                // Check if Supabase keys are set
                 if (SUPABASE_URL.includes('YOUR_PROJECT')) {
                     alert('❌ Erreur: Configurez d\'abord vos clés Supabase!\n\nRemplissez SUPABASE_URL et SUPABASE_ANON_KEY dans le code.');
                 }
             } else {
-                alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!');
+                alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!\n\nVérifiez votre connexion Internet.');
             }
+        }
+
+        // Helper function to access supabase client
+        function getSupabase() {
+            return supabaseClient;
         }
 
         // ============================================
@@ -865,10 +659,7 @@
         let salesData = [];
         let movementsData = [];
         let collaboratorsData = [];
-        let productsData = [];
         let settingsData = null;
-        let selectedProducts = {};
-        let editingSaleId = null;
 
         // ============================================
         // LOGIN / LOGOUT
@@ -890,11 +681,10 @@
                     .select('*')
                     .eq('name', username)
                     .eq('pin_code', pin)
-                    .eq('is_active', true)
                     .single();
 
                 if (error || !data) {
-                    errorDiv.textContent = 'Identifiants incorrects ou compte désactivé';
+                    errorDiv.textContent = 'Identifiants incorrects';
                     errorDiv.style.display = 'block';
                     return;
                 }
@@ -902,12 +692,17 @@
                 currentUser = data;
                 errorDiv.style.display = 'none';
 
+                // Switch to main app
                 document.getElementById('loginSection').classList.remove('active');
                 document.getElementById('mainApp').classList.add('active');
 
+                // Update UI
                 updateUserDisplay();
                 loadAllData();
                 setupRealtimeSubscriptions();
+                
+                // Scroll vers le haut
+                window.scrollTo(0, 0);
             } catch (err) {
                 errorDiv.textContent = 'Erreur: ' + err.message;
                 errorDiv.style.display = 'block';
@@ -916,11 +711,18 @@
 
         function logout() {
             currentUser = null;
+            
+            // Masquer l'app et afficher le login
             document.getElementById('mainApp').classList.remove('active');
             document.getElementById('loginSection').classList.add('active');
+            
+            // Réinitialiser le formulaire
             document.getElementById('username').value = '';
             document.getElementById('pin').value = '';
             document.getElementById('loginError').style.display = 'none';
+            
+            // Scroll vers le haut
+            window.scrollTo(0, 0);
         }
 
         // ============================================
@@ -938,48 +740,38 @@
             userRole.textContent = roleMap[currentUser.role] || currentUser.role;
             userRole.className = `badge ${currentUser.role}`;
 
-            document.getElementById('userDisplay').textContent = currentUser.name + ' (' + roleMap[currentUser.role] + ')';
-
-            // Show admin/gerant features
+            // Show admin features
             if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addCollaboratorBtn').style.display = 'block';
                 document.getElementById('settingsSection').style.display = 'block';
                 document.getElementById('adminPanel').style.display = 'flex';
-                document.getElementById('addProductBtn').style.display = 'block';
-                document.getElementById('productsTab').style.display = 'block';
             }
 
-            if (currentUser.role === 'admin') {
-                // Admin seulement
-            }
+            document.getElementById('userDisplay').textContent = currentUser.name;
         }
 
         function switchTab(tabName) {
             currentTab = tabName;
 
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
 
+            // Remove active from all buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
 
+            // Show selected tab
             document.getElementById(tabName).classList.add('active');
 
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-
-            if (tabName === 'products') {
-                loadProducts();
-            }
+            // Highlight button
+            event.target.classList.add('active');
         }
 
         function showMessage(elementId, message, type) {
             const element = document.getElementById(elementId);
-            if (!element) return;
-
             element.textContent = message;
             element.className = `message ${type}`;
             element.style.display = 'block';
@@ -989,17 +781,12 @@
             }, 3000);
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
         // ============================================
         // LOAD DATA
         // ============================================
         async function loadAllData() {
             await Promise.all([
                 loadCollaborators(),
-                loadProducts(),
                 loadSales(),
                 loadMovements(),
                 loadSettings()
@@ -1019,122 +806,38 @@
 
             collaboratorsData = data || [];
 
+            // Update select dropdown
             const select = document.getElementById('collaboratorSelect');
             select.innerHTML = '<option value="">-- Sélectionner --</option>';
-            collaboratorsData.filter(c => c.is_active).forEach(collab => {
+            collaboratorsData.forEach(collab => {
                 const option = document.createElement('option');
                 option.value = collab.id;
                 option.textContent = collab.name;
                 select.appendChild(option);
             });
 
-            renderCollaboratorsGrid();
-            document.getElementById('totalCollaborators').textContent = collaboratorsData.filter(c => c.is_active).length;
-        }
-
-        function renderCollaboratorsGrid() {
-            const grid = document.getElementById('collaboratorsGrid');
-            const roleMap = { 'admin': 'Admin 👑', 'gerant': 'Gérant 📋', 'employe': 'Employé 💼' };
-
-            grid.innerHTML = collaboratorsData.map(collab => `
-                <div class="collab-card ${!collab.is_active ? 'inactive' : ''}">
-                    <div class="collab-info">
-                        <strong>${collab.name}</strong><br>
-                        <span class="badge ${collab.role}">${roleMap[collab.role]}</span>
-                        ${!collab.is_active ? '<br><span class="text-danger">Désactivé</span>' : ''}
-                    </div>
-                    <div class="collab-actions">
-                        ${currentUser.role === 'admin' ? `
-                            <button class="btn-secondary btn-small" onclick="openChangeRoleModal(${collab.id}, '${collab.name}', '${collab.role}')">Rôle</button>
-                            <button class="btn-danger btn-small" onclick="deleteCollaborator(${collab.id}, '${collab.name}')">${collab.is_active ? 'Supprimer' : 'Restaurer'}</button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function loadProducts() {
-            const { data, error } = await supabaseClient
-                .from('products')
-                .select('*')
-                .eq('active', true)
-                .order('category', { ascending: true });
-
-            if (error) {
-                console.error('Error loading products:', error);
-                return;
-            }
-
-            productsData = data || [];
-            renderProductsCheckboxes();
-            renderProductsTable();
-        }
-
-        function renderProductsCheckboxes() {
-            const container = document.getElementById('productsCheckboxList');
-            if (!container) return;
-
-            const grouped = {};
-            productsData.forEach(p => {
-                if (!grouped[p.category]) grouped[p.category] = [];
-                grouped[p.category].push(p);
-            });
-
-            container.innerHTML = Object.keys(grouped).map(category => `
-                <div style="margin-bottom: 15px;">
-                    <strong style="display: block; margin-bottom: 8px; color: #667eea;">${category}</strong>
-                    ${grouped[category].map(product => `
-                        <div class="product-checkbox">
-                            <input type="checkbox" id="product_${product.id}" value="${product.id}" data-price="${product.price}" data-name="${product.name}" onchange="updateTotalAmount()">
-                            <label for="product_${product.id}" style="margin: 0; cursor: pointer;">${product.name} - ${product.price.toFixed(2)}€</label>
-                        </div>
-                    `).join('')}
-                </div>
-            `).join('');
-        }
-
-        function renderProductsTable() {
-            const tbody = document.getElementById('productsBody');
-            if (!tbody) return;
-
-            if (productsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun produit</td></tr>';
+            // Update collaborators table
+            const tbody = document.getElementById('collaboratorsBody');
+            if (collaboratorsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucun collaborateur</td></tr>';
             } else {
-                tbody.innerHTML = productsData.map(product => `
+                tbody.innerHTML = collaboratorsData.map(collab => `
                     <tr>
-                        <td><strong>${product.name}</strong></td>
-                        <td>${product.category}</td>
-                        <td class="success">${product.price.toFixed(2)}€</td>
-                        <td>${product.active ? '✓ Actif' : '✗ Inactif'}</td>
-                        <td>
-                            ${currentUser.role === 'admin' || currentUser.role === 'gerant' ? `
-                                <button class="btn-secondary btn-small" onclick="editProduct(${product.id})">Modifier</button>
-                                <button class="btn-danger btn-small" onclick="deleteProduct(${product.id})">Supprimer</button>
-                            ` : ''}
-                        </td>
+                        <td><strong>${collab.name}</strong></td>
+                        <td><span class="badge ${collab.role}">${collab.role}</span></td>
+                        <td>${collab.pin_code}</td>
+                        <td>${new Date(collab.created_at).toLocaleDateString('fr-FR')}</td>
                     </tr>
                 `).join('');
             }
-        }
 
-        function updateTotalAmount() {
-            let total = 0;
-            document.querySelectorAll('#productsCheckboxList input[type="checkbox"]:checked').forEach(input => {
-                total += parseFloat(input.dataset.price);
-            });
-
-            if (document.getElementById('isVipLounge').checked) {
-                total += 500;
-            }
-
-            document.getElementById('totalAmount').value = total.toFixed(2) + ' €';
+            document.getElementById('totalCollaborators').textContent = collaboratorsData.length;
         }
 
         async function loadSales() {
             const { data, error } = await supabaseClient
                 .from('sales')
                 .select('*')
-                .eq('is_active', true)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -1144,22 +847,17 @@
 
             salesData = data || [];
 
+            // Update sales table
             const tbody = document.getElementById('salesBody');
             if (salesData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
             } else {
                 tbody.innerHTML = salesData.map(sale => `
                     <tr>
                         <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
                         <td>${sale.collaborator_name}</td>
-                        <td class="success">${sale.amount.toFixed(2)}€</td>
+                        <td class="success">${sale.amount.toFixed(2)} €</td>
                         <td>${sale.payment_mode}</td>
-                        <td>${sale.product_name || '-'}</td>
-                        <td>${sale.notes || '-'}</td>
-                        <td>
-                            <button class="btn-secondary btn-small" onclick="editSale(${sale.id}, ${sale.amount}, '${sale.notes || ''}')">Modifier</button>
-                            ${currentUser.role === 'admin' ? `<button class="btn-danger btn-small" onclick="deleteSale(${sale.id})">Supprimer</button>` : ''}
-                        </td>
                     </tr>
                 `).join('');
             }
@@ -1180,6 +878,7 @@
 
             movementsData = data || [];
 
+            // Update movements table
             const tbody = document.getElementById('movementsBody');
             if (movementsData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
@@ -1189,8 +888,8 @@
                         <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
                         <td><strong>${mov.type}</strong></td>
                         <td>${mov.description || '-'}</td>
-                        <td class="success">${mov.amount.toFixed(2)}€</td>
-                        <td class="success">${mov.balance_after.toFixed(2)}€</td>
+                        <td class="success">${mov.amount.toFixed(2)} €</td>
+                        <td class="success">${mov.balance_after.toFixed(2)} €</td>
                     </tr>
                 `).join('');
             }
@@ -1210,13 +909,14 @@
             }
 
             settingsData = data;
-            document.getElementById('commissionRate').value = settingsData?.commission_rate || 30;
+            document.getElementById('commissionRate').value = settingsData.commission_rate || 30;
         }
 
         // ============================================
         // STATISTICS
         // ============================================
         function updateStats() {
+            // Total sales today
             const today = new Date().toDateString();
             const todaySales = salesData.filter(sale => {
                 const saleDate = new Date(sale.created_at).toDateString();
@@ -1225,14 +925,18 @@
             const totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
             document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' €';
 
+            // Commission
             const commissionRate = settingsData?.commission_rate || 30;
             const totalCommission = (totalToday * commissionRate) / 100;
             document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' €';
 
+            // Cash balance
             let cashBalance = 0;
-            if (movementsData.length > 0) {
-                cashBalance = parseFloat(movementsData[0].balance_after) || 0;
-            }
+            movementsData.forEach(mov => {
+                if (mov.balance_after) {
+                    cashBalance = parseFloat(mov.balance_after);
+                }
+            });
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' €';
         }
 
@@ -1241,130 +945,31 @@
         // ============================================
         async function recordSale() {
             const collaboratorId = document.getElementById('collaboratorSelect').value;
+            const amount = parseFloat(document.getElementById('saleAmount').value);
             const paymentMode = document.getElementById('paymentMode').value;
-            const notes = document.getElementById('saleNotes').value;
-            const isVip = document.getElementById('isVipLounge').checked;
 
-            if (!collaboratorId) {
-                showMessage('saleMessage', 'Sélectionnez un collaborateur', 'error');
-                return;
-            }
-
-            const selectedChecks = Array.from(document.querySelectorAll('#productsCheckboxList input[type="checkbox"]:checked'));
-            if (selectedChecks.length === 0 && !isVip) {
-                showMessage('saleMessage', 'Sélectionnez au moins un produit ou le carré VIP', 'error');
+            if (!collaboratorId || !amount || amount <= 0) {
+                showMessage('saleMessage', 'Veuillez remplir tous les champs', 'error');
                 return;
             }
 
             try {
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
-                let totalAmount = 0;
-                let productName = '';
-
-                selectedChecks.forEach(check => {
-                    totalAmount += parseFloat(check.dataset.price);
-                    productName += check.dataset.name + ', ';
-                });
-
-                if (isVip) {
-                    totalAmount += 500;
-                    productName += 'Carré VIP';
-                }
-
-                productName = productName.replace(/, $/, '');
 
                 const { error } = await supabaseClient
                     .from('sales')
                     .insert([{
                         collaborator_id: collaboratorId,
                         collaborator_name: collaborator.name,
-                        amount: totalAmount,
-                        payment_mode: paymentMode,
-                        product_name: productName,
-                        notes: notes,
-                        is_vip_lounge: isVip,
-                        is_active: true,
-                        updated_by: currentUser.name
+                        amount: amount,
+                        payment_mode: paymentMode
                     }]);
 
                 if (error) throw error;
 
-                showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
+                showMessage('saleMessage', '✓ Vente enregistrée avec succès!', 'success');
                 document.getElementById('collaboratorSelect').value = '';
-                document.getElementById('saleNotes').value = '';
-                document.getElementById('isVipLounge').checked = false;
-                document.querySelectorAll('#productsCheckboxList input[type="checkbox"]').forEach(c => c.checked = false);
-                document.getElementById('totalAmount').value = '0.00 €';
-                loadSales();
-            } catch (err) {
-                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        function editSale(saleId, amount, notes) {
-            if (currentUser.role !== 'admin' && salesData.find(s => s.id === saleId)?.collaborator_id !== currentUser.id) {
-                alert('Vous ne pouvez modifier que vos propres ventes');
-                return;
-            }
-
-            editingSaleId = saleId;
-            document.getElementById('editSaleAmount').value = amount;
-            document.getElementById('editSaleNotes').value = notes;
-            document.getElementById('editSaleModal').classList.add('active');
-        }
-
-        async function saveSaleEdit() {
-            if (!editingSaleId) return;
-
-            const newAmount = parseFloat(document.getElementById('editSaleAmount').value);
-            const newNotes = document.getElementById('editSaleNotes').value;
-
-            if (!newAmount || newAmount <= 0) {
-                showMessage('saleMessage', 'Montant invalide', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('sales')
-                    .update({
-                        amount: newAmount,
-                        notes: newNotes,
-                        updated_by: currentUser.name,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', editingSaleId);
-
-                if (error) throw error;
-
-                showMessage('saleMessage', '✓ Vente modifiée!', 'success');
-                closeModal('editSaleModal');
-                editingSaleId = null;
-                loadSales();
-            } catch (err) {
-                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        async function deleteSale(saleId) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer une vente');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr? Cette vente sera marquée comme supprimée.')) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('sales')
-                    .update({ is_active: false, updated_by: currentUser.name })
-                    .eq('id', saleId);
-
-                if (error) throw error;
-
-                showMessage('saleMessage', '✓ Vente supprimée!', 'success');
+                document.getElementById('saleAmount').value = '';
                 loadSales();
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
@@ -1377,11 +982,12 @@
             const description = document.getElementById('movementDescription').value;
 
             if (!amount || amount <= 0) {
-                showMessage('movementMessage', 'Montant invalide', 'error');
+                showMessage('movementMessage', 'Veuillez entrer un montant valide', 'error');
                 return;
             }
 
             try {
+                // Calculate new balance
                 let currentBalance = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
@@ -1415,17 +1021,12 @@
         }
 
         async function addCollaborator() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
             const name = document.getElementById('newCollaboratorName').value.trim();
             const role = document.getElementById('newCollaboratorRole').value;
             const pin = document.getElementById('newCollaboratorPin').value.trim();
 
-            if (!name || !pin || pin.length !== 4) {
-                showMessage('collaboratorMessage', 'Tous les champs sont requis (PIN: 4 chiffres)', 'error');
+            if (!name || !pin || pin.length < 4) {
+                showMessage('collaboratorMessage', 'Veuillez remplir tous les champs correctement', 'error');
                 return;
             }
 
@@ -1435,8 +1036,7 @@
                     .insert([{
                         name: name,
                         role: role,
-                        pin_code: pin,
-                        is_active: true
+                        pin_code: pin
                     }]);
 
                 if (error) throw error;
@@ -1456,89 +1056,11 @@
             section.style.display = section.style.display === 'none' ? 'block' : 'none';
         }
 
-        async function addProduct() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            const name = document.getElementById('newProductName').value.trim();
-            const category = document.getElementById('newProductCategory').value.trim();
-            const price = parseFloat(document.getElementById('newProductPrice').value);
-
-            if (!name || !category || !price || price <= 0) {
-                showMessage('productMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .insert([{
-                        name: name,
-                        category: category,
-                        price: price,
-                        active: true,
-                        created_by: currentUser.name
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('productMessage', '✓ Produit ajouté!', 'success');
-                document.getElementById('newProductName').value = '';
-                document.getElementById('newProductCategory').value = '';
-                document.getElementById('newProductPrice').value = '';
-                toggleAddProduct();
-                loadProducts();
-            } catch (err) {
-                showMessage('productMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        function toggleAddProduct() {
-            const section = document.getElementById('addProductSection');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        }
-
-        async function deleteProduct(productId) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer un produit');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit?')) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({ active: false })
-                    .eq('id', productId);
-
-                if (error) throw error;
-
-                showMessage('productMessage', '✓ Produit supprimé!', 'success');
-                loadProducts();
-            } catch (err) {
-                showMessage('productMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        async function editProduct(productId) {
-            alert('Fonctionnalité en développement');
-        }
-
         async function updateSettings() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut modifier les paramètres');
-                return;
-            }
-
             const commissionRate = parseFloat(document.getElementById('commissionRate').value);
 
             if (!commissionRate || commissionRate < 0) {
-                showMessage('settingsMessage', 'Pourcentage invalide', 'error');
+                showMessage('settingsMessage', 'Veuillez entrer un pourcentage valide', 'error');
                 return;
             }
 
@@ -1558,119 +1080,6 @@
         }
 
         // ============================================
-        // PASSWORD / ROLE MANAGEMENT
-        // ============================================
-        function changeMyPassword() {
-            document.getElementById('changePasswordModal').classList.add('active');
-            document.getElementById('currentPin').value = '';
-            document.getElementById('newPin').value = '';
-            document.getElementById('confirmPin').value = '';
-        }
-
-        async function saveNewPassword() {
-            const currentPin = document.getElementById('currentPin').value;
-            const newPin = document.getElementById('newPin').value;
-            const confirmPin = document.getElementById('confirmPin').value;
-
-            if (!currentPin || !newPin || !confirmPin) {
-                showMessage('passwordMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            if (currentPin !== currentUser.pin_code) {
-                showMessage('passwordMessage', 'PIN actuel incorrect', 'error');
-                return;
-            }
-
-            if (newPin !== confirmPin) {
-                showMessage('passwordMessage', 'Les nouveaux PINs ne correspondent pas', 'error');
-                return;
-            }
-
-            if (newPin.length !== 4) {
-                showMessage('passwordMessage', 'Le PIN doit contenir 4 chiffres', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ pin_code: newPin })
-                    .eq('id', currentUser.id);
-
-                if (error) throw error;
-
-                currentUser.pin_code = newPin;
-                showMessage('passwordMessage', '✓ PIN mis à jour!', 'success');
-                setTimeout(() => {
-                    closeModal('changePasswordModal');
-                }, 1500);
-            } catch (err) {
-                showMessage('passwordMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        function openChangeRoleModal(userId, userName, currentRole) {
-            document.getElementById('changeRoleUserName').textContent = 'Utilisateur: ' + userName + ' (Rôle actuel: ' + currentRole + ')';
-            document.getElementById('changeRoleSelect').value = currentRole;
-            document.getElementById('changeUserRoleModal').dataset.userId = userId;
-            document.getElementById('changeUserRoleModal').classList.add('active');
-        }
-
-        async function saveUserRole() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut changer les rôles');
-                return;
-            }
-
-            const userId = document.getElementById('changeUserRoleModal').dataset.userId;
-            const newRole = document.getElementById('changeRoleSelect').value;
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ role: newRole, updated_by: currentUser.name })
-                    .eq('id', userId);
-
-                if (error) throw error;
-
-                showMessage('collaboratorMessage', '✓ Rôle mis à jour!', 'success');
-                closeModal('changeUserRoleModal');
-                loadCollaborators();
-            } catch (err) {
-                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        async function deleteCollaborator(userId, userName) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer un utilisateur');
-                return;
-            }
-
-            const user = collaboratorsData.find(c => c.id === userId);
-            const action = user.is_active ? 'désactiver' : 'réactiver';
-
-            if (!confirm(`Êtes-vous sûr de vouloir ${action} ${userName}?`)) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ is_active: !user.is_active, updated_by: currentUser.name })
-                    .eq('id', userId);
-
-                if (error) throw error;
-
-                showMessage('collaboratorMessage', `✓ Utilisateur ${action}!`, 'success');
-                loadCollaborators();
-            } catch (err) {
-                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
-            }
-        }
-
-        // ============================================
         // ADMIN FUNCTIONS
         // ============================================
         function exportData() {
@@ -1678,7 +1087,6 @@
                 collaborators: collaboratorsData,
                 sales: salesData,
                 movements: movementsData,
-                products: productsData,
                 exportDate: new Date().toISOString()
             };
 
@@ -1693,11 +1101,7 @@
         }
 
         async function clearAllData() {
-            if (!confirm('⚠️ ATTENTION! Cette action supprimera TOUTES les données. Êtes-vous absolument sûr?')) {
-                return;
-            }
-
-            if (!confirm('⚠️ DERNIÈRE CONFIRMATION - Cette action ne peut pas être annulée!')) {
+            if (!confirm('⚠️ Êtes-vous absolument sûr? Cette action ne peut pas être annulée!')) {
                 return;
             }
 
@@ -1716,6 +1120,7 @@
         // REALTIME SUBSCRIPTIONS
         // ============================================
         function setupRealtimeSubscriptions() {
+            // Subscribe to sales changes
             supabaseClient
                 .channel('sales-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
@@ -1723,6 +1128,7 @@
                 })
                 .subscribe();
 
+            // Subscribe to movements changes
             supabaseClient
                 .channel('movements-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'movements' }, () => {
@@ -1730,17 +1136,11 @@
                 })
                 .subscribe();
 
+            // Subscribe to collaborators changes
             supabaseClient
                 .channel('collaborators-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'collaborators' }, () => {
                     loadCollaborators();
-                })
-                .subscribe();
-
-            supabaseClient
-                .channel('products-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-                    loadProducts();
                 })
                 .subscribe();
         }
