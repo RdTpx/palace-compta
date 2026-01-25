@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.8</title>
+    <title>LE PALACE - Comptabilité v2.5.9</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -825,7 +825,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.8</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.9</p>
             </div>
 
             <div class="login-section">
@@ -1322,7 +1322,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.8 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.9 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -2699,11 +2699,14 @@
                 }
 
                 let newBalance = currentBalance;
-                if (type === 'depot' || type === 'commission') {
+                // === CORRECTION COMMISSION: DÉDUIT la caisse ===
+                if (type === 'depot' || type === 'depot_liquide') {
                     newBalance += amount;
-                } else if (type === 'depot_liquide') {
-                    newBalance += amount;
+                } else if (type === 'commission') {
+                    // Commission = RETRAIT (prime payée aux collaborateurs)
+                    newBalance -= amount;
                 } else {
+                    // retrait, depense
                     newBalance -= amount;
                 }
 
