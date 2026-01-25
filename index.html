@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.3</title>
+    <title>LE PALACE - Comptabilité v2.4</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -126,6 +126,15 @@
 
         .btn-danger:hover {
             background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
         }
 
         .btn-small {
@@ -276,6 +285,22 @@
         .stat-card p {
             font-size: 2em;
             font-weight: bold;
+        }
+
+        .stat-card.reset-date {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-card.reset-date h4 {
+            font-size: 0.85em;
+        }
+
+        .stat-card.reset-date p {
+            font-size: 1.1em;
         }
 
         .action-buttons {
@@ -656,6 +681,74 @@
             font-size: 1.1em;
             color: #667eea;
         }
+
+        /* ============= COMPTA TAB ============= */
+        .compta-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .compta-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .compta-card h4 {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .compta-card .amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .compta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .compta-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .compta-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .compta-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .compta-table tr.total-row {
+            background: #f0f0f0;
+            font-weight: bold;
+            border-top: 2px solid #667eea;
+        }
+
+        .reset-sales-btn {
+            background: #f59e0b;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .reset-sales-btn:hover {
+            background: #d97706;
+        }
     </style>
 </head>
 <body>
@@ -664,7 +757,7 @@
         <div id="loginSection" class="active">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.3</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.4</p>
             </div>
 
             <div class="login-section">
@@ -712,8 +805,9 @@
             <!-- STATS -->
             <div class="stats">
                 <div class="stat-card">
-                    <h4>💰 Total Ventes (Aujourd'hui)</h4>
+                    <h4>💰 Ventes</h4>
                     <p id="totalSalesToday">0.00 €</p>
+                    <small id="salesDateRange" style="opacity: 0.8; margin-top: 10px;">depuis le -</small>
                 </div>
                 <div class="stat-card">
                     <h4>👥 Collaborateurs</h4>
@@ -736,6 +830,7 @@
             <!-- TABS -->
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('sales')">📊 Ventes</button>
+                <button class="tab-button" id="comptaTab" onclick="switchTab('compta')" style="display: none;">📈 Compta</button>
                 <button class="tab-button" id="movementsTab" onclick="switchTab('movements')" style="display: none;">💸 Mouvements</button>
                 <button class="tab-button" onclick="switchTab('expenses')">📋 Notes de Frais</button>
                 <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
@@ -820,7 +915,55 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MOVEMENTS -->
+            <!-- TAB 2: COMPTA -->
+            <div id="compta" class="tab-content">
+                <div class="form-section">
+                    <h3>📈 Comptabilité des Ventes</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Résumé des ventes depuis le dernier réinitialisation</p>
+                    
+                    <div class="compta-summary">
+                        <div class="compta-card">
+                            <h4>Total Ventes</h4>
+                            <div class="amount" id="comptaTotalVentes">0.00 €</div>
+                        </div>
+                        <div class="compta-card">
+                            <h4>Nombre de Transactions</h4>
+                            <div class="amount" id="comptaTransactions">0</div>
+                        </div>
+                        <div class="compta-card">
+                            <h4>Ticket Moyen</h4>
+                            <div class="amount" id="comptaTicketMoyen">0.00 €</div>
+                        </div>
+                        <div class="compta-card">
+                            <h4>Dernier Reset</h4>
+                            <div style="font-size: 1.2em; font-weight: bold; color: #667eea; margin-top: 5px;" id="comptaDerniereReinit">-</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-warning reset-sales-btn" onclick="openResetSalesModal()">🔄 Réinitialiser les Ventes (Primes)</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Ventes par Collaborateur</h3>
+                    <table class="compta-table">
+                        <thead>
+                            <tr>
+                                <th>Collaborateur</th>
+                                <th style="text-align: right;">Nombre de Ventes</th>
+                                <th style="text-align: right;">Montant Total</th>
+                                <th style="text-align: right;">Ticket Moyen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comptaTableBody">
+                            <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: MOVEMENTS -->
             <div id="movements" class="tab-content">
                 <div class="form-section">
                     <h3>Ajouter un Mouvement de Caisse</h3>
@@ -866,7 +1009,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: EXPENSES -->
+            <!-- TAB 4: EXPENSES -->
             <div id="expenses" class="tab-content">
                 <div class="form-section">
                     <h3>Demander un Remboursement</h3>
@@ -904,7 +1047,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: COLLABORATORS -->
+            <!-- TAB 5: COLLABORATORS -->
             <div id="collaborators" class="tab-content">
                 <div class="form-section" id="addCollaboratorSection" style="display: none;">
                     <h3>Ajouter un Collaborateur</h3>
@@ -941,7 +1084,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: STOCK -->
+            <!-- TAB 6: STOCK -->
             <div id="stock" class="tab-content">
                 <div class="form-section" id="correctStockSection" style="display: none;">
                     <h3>Corriger le Stock d'un Produit</h3>
@@ -988,7 +1131,7 @@
                 </div>
             </div>
 
-            <!-- TAB 6: PRODUCTS -->
+            <!-- TAB 7: PRODUCTS -->
             <div id="products" class="tab-content">
                 <div class="form-section" id="addProductSection" style="display: none;">
                     <h3>Ajouter un Produit</h3>
@@ -1038,7 +1181,7 @@
                 </div>
             </div>
 
-            <!-- TAB 7: SETTINGS -->
+            <!-- TAB 8: SETTINGS -->
             <div id="settings" class="tab-content">
                 <div class="form-section" id="settingsSection" style="display: none;">
                     <h3>Paramètres Généraux</h3>
@@ -1079,8 +1222,8 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.3 - Comptabilité Cloud</p>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais et mouvements de caisse</p>
+                    <p>LE PALACE v2.4 - Comptabilité Cloud</p>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
         </div>
@@ -1170,6 +1313,19 @@
         </div>
     </div>
 
+    <div id="resetSalesModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Réinitialiser les Ventes</h3>
+            <p style="color: #666; margin-bottom: 15px;">Cette action va réinitialiser le compteur de ventes. Les données sont conservées en archive.</p>
+            <p style="color: #ef4444; font-weight: bold;">Êtes-vous sûr de vouloir procéder ?</p>
+            <div id="resetSalesMessage"></div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal('resetSalesModal')">Annuler</button>
+                <button class="btn-danger" onclick="confirmResetSales()">✓ Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // CONFIGURATION SUPABASE
@@ -1205,6 +1361,7 @@
         let productQuantities = {};
         let editingSaleId = null;
         let editingProductId = null;
+        let lastSalesReset = null;
 
         // ============================================
         // LOGIN / LOGOUT
@@ -1298,6 +1455,7 @@
                 document.getElementById('addProductBtn').style.display = 'block';
                 document.getElementById('productsTab').style.display = 'block';
                 document.getElementById('movementsTab').style.display = 'block';
+                document.getElementById('comptaTab').style.display = 'block';
                 document.getElementById('adminExpensesPanel').style.display = 'block';
                 document.getElementById('stockTab').style.display = 'block';
                 document.getElementById('correctStockSection').style.display = 'block';
@@ -1332,6 +1490,9 @@
             if (tabName === 'stock') {
                 loadStock();
             }
+            if (tabName === 'compta') {
+                loadCompta();
+            }
         }
 
         function showMessage(elementId, message, type) {
@@ -1362,8 +1523,22 @@
                 loadMovements(),
                 loadExpenses(),
                 loadSettings(),
-                loadStock()
+                loadStock(),
+                loadLastSalesReset()
             ]);
+        }
+
+        async function loadLastSalesReset() {
+            const { data, error } = await supabaseClient
+                .from('settings')
+                .select('last_sales_reset')
+                .single();
+
+            if (!error && data) {
+                lastSalesReset = data.last_sales_reset;
+            } else {
+                lastSalesReset = null;
+            }
         }
 
         async function loadCollaborators() {
@@ -1590,7 +1765,6 @@
 
             document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' €';
 
-            // Mettre à jour le résumé
             const summaryDiv = document.getElementById('saleSummaryItems');
             if (items.length > 0) {
                 summaryDiv.innerHTML = items.map(item => `<div class="summary-item">${item}</div>`).join('');
@@ -1634,6 +1808,84 @@
             }
 
             updateStats();
+        }
+
+        async function loadCompta() {
+            const { data, error } = await supabaseClient
+                .from('sales')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading compta:', error);
+                return;
+            }
+
+            const sales = data || [];
+
+            // Calculer les totaux
+            const totalVentes = sales.reduce((sum, s) => sum + parseFloat(s.amount), 0);
+            const nombreTransactions = sales.length;
+            const ticketMoyen = nombreTransactions > 0 ? totalVentes / nombreTransactions : 0;
+
+            document.getElementById('comptaTotalVentes').textContent = totalVentes.toFixed(2) + ' €';
+            document.getElementById('comptaTransactions').textContent = nombreTransactions;
+            document.getElementById('comptaTicketMoyen').textContent = ticketMoyen.toFixed(2) + ' €';
+
+            if (lastSalesReset) {
+                const resetDate = new Date(lastSalesReset);
+                document.getElementById('comptaDerniereReinit').textContent = resetDate.toLocaleDateString('fr-FR');
+            } else {
+                document.getElementById('comptaDerniereReinit').textContent = 'Jamais';
+            }
+
+            // Grouper par collaborateur
+            const byCollab = {};
+            sales.forEach(sale => {
+                if (!byCollab[sale.collaborator_name]) {
+                    byCollab[sale.collaborator_name] = {
+                        count: 0,
+                        total: 0
+                    };
+                }
+                byCollab[sale.collaborator_name].count++;
+                byCollab[sale.collaborator_name].total += parseFloat(sale.amount);
+            });
+
+            // Afficher la table
+            const tbody = document.getElementById('comptaTableBody');
+            let html = '';
+            let grandTotal = 0;
+            let grandCount = 0;
+
+            Object.keys(byCollab).sort().forEach(name => {
+                const data = byCollab[name];
+                const moyen = data.total / data.count;
+                grandTotal += data.total;
+                grandCount += data.count;
+                html += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td style="text-align: right;">${data.count}</td>
+                        <td style="text-align: right; color: #10b981; font-weight: bold;">${data.total.toFixed(2)}€</td>
+                        <td style="text-align: right;">${moyen.toFixed(2)}€</td>
+                    </tr>
+                `;
+            });
+
+            // Ligne de total
+            const moyenTotal = grandCount > 0 ? grandTotal / grandCount : 0;
+            html += `
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td style="text-align: right;">${grandCount}</td>
+                    <td style="text-align: right;">${grandTotal.toFixed(2)}€</td>
+                    <td style="text-align: right;">${moyenTotal.toFixed(2)}€</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
         }
 
         async function loadMovements() {
@@ -1726,13 +1978,30 @@
         // STATISTICS
         // ============================================
         function updateStats() {
-            const today = new Date().toDateString();
-            const todaySales = salesData.filter(sale => {
-                const saleDate = new Date(sale.created_at).toDateString();
-                return saleDate === today;
-            });
-            const totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            let totalToday = 0;
+            let dateRange = '';
+
+            if (lastSalesReset) {
+                const resetDate = new Date(lastSalesReset);
+                const todayDate = new Date();
+                const salesToday = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at);
+                    return saleDate >= resetDate;
+                });
+                totalToday = salesToday.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+                dateRange = resetDate.toLocaleDateString('fr-FR');
+            } else {
+                const today = new Date().toDateString();
+                const todaySales = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at).toDateString();
+                    return saleDate === today;
+                });
+                totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+                dateRange = new Date().toLocaleDateString('fr-FR');
+            }
+
             document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' €';
+            document.getElementById('salesDateRange').textContent = 'depuis le ' + dateRange;
 
             const commissionRate = settingsData?.commission_rate || 30;
             const totalCommission = (totalToday * commissionRate) / 100;
@@ -1813,7 +2082,6 @@
 
                 if (saleError) throw saleError;
 
-                // Mettre à jour les stocks
                 for (const product of productsData) {
                     const qty = productQuantities[product.id] || 0;
                     if (qty > 0) {
@@ -1827,7 +2095,6 @@
                     }
                 }
 
-                // Si virement, créer automatiquement un mouvement de dépôt
                 if (paymentMode === 'virement') {
                     let currentBalance = 0;
                     if (movementsData.length > 0) {
@@ -2448,6 +2715,36 @@
                 loadMovements();
             } catch (err) {
                 showMessage('cashCorrectionMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        // ============================================
+        // RESET SALES
+        // ============================================
+        function openResetSalesModal() {
+            document.getElementById('resetSalesModal').classList.add('active');
+        }
+
+        async function confirmResetSales() {
+            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
+                alert('Seul un gérant ou admin peut réinitialiser les ventes');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('settings')
+                    .update({ last_sales_reset: new Date().toISOString() })
+                    .eq('id', settingsData.id);
+
+                if (error) throw error;
+
+                showMessage('resetSalesMessage', '✓ Ventes réinitialisées!', 'success');
+                closeModal('resetSalesModal');
+                loadLastSalesReset();
+                updateStats();
+            } catch (err) {
+                showMessage('resetSalesMessage', 'Erreur: ' + err.message, 'error');
             }
         }
 
