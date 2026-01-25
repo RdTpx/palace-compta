@@ -387,4 +387,739 @@
     <div class="container">
         <!-- LOGIN SECTION -->
         <div id="loginSection" class="active">
-            <div class="he
+            <div class="header">
+                <h1>👑 LE PALACE</h1>
+                <p>Système de Comptabilité pour Bars & Restaurants</p>
+            </div>
+
+            <div class="login-section">
+                <div class="form-group">
+                    <label for="username">Pseudo</label>
+                    <input type="text" id="username" placeholder="Entrez votre pseudo">
+                </div>
+
+                <div class="form-group">
+                    <label for="pin">PIN (4 chiffres)</label>
+                    <input type="password" id="pin" placeholder="Entrez votre PIN" maxlength="4" inputmode="numeric">
+                </div>
+
+                <button class="btn-primary" onclick="login()">Connexion</button>
+
+                <div id="loginError" style="display: none; color: #ef4444; text-align: center; padding: 10px; background: #fee2e2; border-radius: 6px;"></div>
+            </div>
+        </div>
+
+        <!-- MAIN APP SECTION -->
+        <div id="mainApp" class="main-app">
+            <div class="header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>👑 LE PALACE</h1>
+                        <p>Bienvenue!</p>
+                    </div>
+                    <div>
+                        <span id="userDisplay" style="margin-right: 15px;"></span>
+                        <button class="logout-btn" onclick="logout()">Déconnexion</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 30px;">
+                <!-- USER INFO -->
+                <div class="user-info">
+                    <div>
+                        <span>Utilisateur: </span>
+                        <span id="userName" style="color: #667eea;"></span>
+                    </div>
+                    <div>
+                        <span id="userRole" class="badge"></span>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>💰 Total Ventes (Aujourd'hui)</h4>
+                        <p id="totalSalesToday">0.00 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>👥 Collaborateurs</h4>
+                        <p id="totalCollaborators">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>📊 Commission (30%)</h4>
+                        <p id="totalCommission">0.00 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>💵 Solde Caisse</h4>
+                        <p id="cashBalance">0.00 €</p>
+                    </div>
+                </div>
+
+                <!-- TABS -->
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('sales')">📊 Ventes</button>
+                    <button class="tab-button" onclick="switchTab('movements')">💸 Mouvements</button>
+                    <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
+                    <button class="tab-button" onclick="switchTab('settings')">⚙️ Paramètres</button>
+                </div>
+
+                <!-- TAB 1: SALES -->
+                <div id="sales" class="tab-content active">
+                    <div class="form-section">
+                        <h3>Enregistrer une Vente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="collaboratorSelect">Collaborateur</label>
+                                <select id="collaboratorSelect">
+                                    <option value="">-- Sélectionner --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="saleAmount">Montant (€)</label>
+                                <input type="number" id="saleAmount" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentMode">Mode de Paiement</label>
+                                <select id="paymentMode">
+                                    <option value="liquide">Liquide</option>
+                                    <option value="carte">Carte</option>
+                                    <option value="cheque">Chèque</option>
+                                    <option value="virement">Virement</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="recordSale()">✓ Enregistrer la Vente</button>
+                        <div id="saleMessage"></div>
+                    </div>
+
+                    <div class="table-container">
+                        <h3>Historique des Ventes</h3>
+                        <table id="salesTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Collaborateur</th>
+                                    <th>Montant</th>
+                                    <th>Mode de Paiement</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MOVEMENTS -->
+                <div id="movements" class="tab-content">
+                    <div class="form-section">
+                        <h3>Ajouter un Mouvement</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="movementType">Type de Mouvement</label>
+                                <select id="movementType">
+                                    <option value="depot">Dépôt</option>
+                                    <option value="retrait">Retrait</option>
+                                    <option value="depense">Dépense</option>
+                                    <option value="commission">Commission Payée</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="movementAmount">Montant (€)</label>
+                                <input type="number" id="movementAmount" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="movementDescription">Description</label>
+                            <textarea id="movementDescription" placeholder="Détails du mouvement..." rows="3"></textarea>
+                        </div>
+                        <button class="btn-primary" onclick="recordMovement()">✓ Enregistrer</button>
+                        <div id="movementMessage"></div>
+                    </div>
+
+                    <div class="table-container">
+                        <h3>Historique des Mouvements</h3>
+                        <table id="movementsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Montant</th>
+                                    <th>Solde Après</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementsBody">
+                                <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: COLLABORATORS -->
+                <div id="collaborators" class="tab-content">
+                    <div class="form-section" id="addCollaboratorSection" style="display: none;">
+                        <h3>Ajouter un Collaborateur</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newCollaboratorName">Nom</label>
+                                <input type="text" id="newCollaboratorName" placeholder="Jean Dupont">
+                            </div>
+                            <div class="form-group">
+                                <label for="newCollaboratorRole">Rôle</label>
+                                <select id="newCollaboratorRole">
+                                    <option value="employe">Employé</option>
+                                    <option value="gerant">Gérant</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newCollaboratorPin">PIN</label>
+                                <input type="text" id="newCollaboratorPin" placeholder="1234" maxlength="4" inputmode="numeric">
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="addCollaborator()">✓ Ajouter</button>
+                        <div id="collaboratorMessage"></div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-primary" id="addCollaboratorBtn" onclick="toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
+                    </div>
+
+                    <div class="table-container">
+                        <h3>Collaborateurs</h3>
+                        <table id="collaboratorsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>PIN</th>
+                                    <th>Créé le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="collaboratorsBody">
+                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SETTINGS -->
+                <div id="settings" class="tab-content">
+                    <div class="form-section" id="settingsSection" style="display: none;">
+                        <h3>Paramètres Généraux</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="commissionRate">Taux de Commission (%)</label>
+                                <input type="number" id="commissionRate" placeholder="30" step="0.01">
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="updateSettings()">✓ Mettre à Jour</button>
+                        <div id="settingsMessage"></div>
+                    </div>
+
+                    <div class="action-buttons" style="display: none;" id="adminPanel">
+                        <button class="btn-secondary" onclick="exportData()">📥 Exporter les Données</button>
+                        <button class="btn-secondary" onclick="clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
+                    </div>
+
+                    <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                        <h3>À Propos</h3>
+                        <p>LE PALACE v1.0 - Comptabilité Cloud</p>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Application hébergée sur Vercel + Base de données Supabase PostgreSQL</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION SUPABASE
+        // ============================================
+        const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
+
+        let supabase = null;
+
+        function initSupabase() {
+            if (window.supabase && window.supabase.createClient) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        }
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let currentUser = null;
+        let currentTab = 'sales';
+        let salesData = [];
+        let movementsData = [];
+        let collaboratorsData = [];
+        let settingsData = null;
+
+        // ============================================
+        // LOGIN / LOGOUT
+        // ============================================
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !pin) {
+                errorDiv.textContent = 'Veuillez remplir tous les champs';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('collaborators')
+                    .select('*')
+                    .eq('name', username)
+                    .eq('pin_code', pin)
+                    .single();
+
+                if (error || !data) {
+                    errorDiv.textContent = 'Identifiants incorrects';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                currentUser = data;
+                errorDiv.style.display = 'none';
+
+                document.getElementById('loginSection').classList.remove('active');
+                document.getElementById('mainApp').classList.add('active');
+
+                updateUserDisplay();
+                loadAllData();
+                setupRealtimeSubscriptions();
+            } catch (err) {
+                errorDiv.textContent = 'Erreur: ' + err.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('mainApp').classList.remove('active');
+            document.getElementById('loginSection').classList.add('active');
+            document.getElementById('username').value = '';
+            document.getElementById('pin').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        // ============================================
+        // UI UPDATES
+        // ============================================
+        function updateUserDisplay() {
+            const roleMap = {
+                'admin': 'Admin 👑',
+                'gerant': 'Gérant 📋',
+                'employe': 'Employé 💼'
+            };
+
+            document.getElementById('userName').textContent = currentUser.name;
+            const userRole = document.getElementById('userRole');
+            userRole.textContent = roleMap[currentUser.role] || currentUser.role;
+            userRole.className = `badge ${currentUser.role}`;
+
+            if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
+                document.getElementById('addCollaboratorBtn').style.display = 'block';
+                document.getElementById('settingsSection').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'flex';
+            }
+
+            document.getElementById('userDisplay').textContent = currentUser.name;
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async function loadAllData() {
+            await Promise.all([
+                loadCollaborators(),
+                loadSales(),
+                loadMovements(),
+                loadSettings()
+            ]);
+        }
+
+        async function loadCollaborators() {
+            const { data, error } = await supabase
+                .from('collaborators')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading collaborators:', error);
+                return;
+            }
+
+            collaboratorsData = data || [];
+
+            const select = document.getElementById('collaboratorSelect');
+            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            collaboratorsData.forEach(collab => {
+                const option = document.createElement('option');
+                option.value = collab.id;
+                option.textContent = collab.name;
+                select.appendChild(option);
+            });
+
+            const tbody = document.getElementById('collaboratorsBody');
+            if (collaboratorsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucun collaborateur</td></tr>';
+            } else {
+                tbody.innerHTML = collaboratorsData.map(collab => `
+                    <tr>
+                        <td><strong>${collab.name}</strong></td>
+                        <td><span class="badge ${collab.role}">${collab.role}</span></td>
+                        <td>${collab.pin_code}</td>
+                        <td>${new Date(collab.created_at).toLocaleDateString('fr-FR')}</td>
+                    </tr>
+                `).join('');
+            }
+
+            document.getElementById('totalCollaborators').textContent = collaboratorsData.length;
+        }
+
+        async function loadSales() {
+            const { data, error } = await supabase
+                .from('sales')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading sales:', error);
+                return;
+            }
+
+            salesData = data || [];
+
+            const tbody = document.getElementById('salesBody');
+            if (salesData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
+            } else {
+                tbody.innerHTML = salesData.map(sale => `
+                    <tr>
+                        <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
+                        <td>${sale.collaborator_name}</td>
+                        <td class="success">${sale.amount.toFixed(2)} €</td>
+                        <td>${sale.payment_mode}</td>
+                    </tr>
+                `).join('');
+            }
+
+            updateStats();
+        }
+
+        async function loadMovements() {
+            const { data, error } = await supabase
+                .from('movements')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading movements:', error);
+                return;
+            }
+
+            movementsData = data || [];
+
+            const tbody = document.getElementById('movementsBody');
+            if (movementsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
+            } else {
+                tbody.innerHTML = movementsData.map(mov => `
+                    <tr>
+                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
+                        <td><strong>${mov.type}</strong></td>
+                        <td>${mov.description || '-'}</td>
+                        <td class="success">${mov.amount.toFixed(2)} €</td>
+                        <td class="success">${mov.balance_after.toFixed(2)} €</td>
+                    </tr>
+                `).join('');
+            }
+
+            updateStats();
+        }
+
+        async function loadSettings() {
+            const { data, error } = await supabase
+                .from('settings')
+                .select('*')
+                .single();
+
+            if (error) {
+                console.error('Error loading settings:', error);
+                return;
+            }
+
+            settingsData = data;
+            document.getElementById('commissionRate').value = settingsData.commission_rate || 30;
+        }
+
+        // ============================================
+        // STATISTICS
+        // ============================================
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todaySales = salesData.filter(sale => {
+                const saleDate = new Date(sale.created_at).toDateString();
+                return saleDate === today;
+            });
+            const totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' €';
+
+            const commissionRate = settingsData?.commission_rate || 30;
+            const totalCommission = (totalToday * commissionRate) / 100;
+            document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' €';
+
+            let cashBalance = 0;
+            movementsData.forEach(mov => {
+                if (mov.balance_after) {
+                    cashBalance = parseFloat(mov.balance_after);
+                }
+            });
+            document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' €';
+        }
+
+        // ============================================
+        // RECORD OPERATIONS
+        // ============================================
+        async function recordSale() {
+            const collaboratorId = document.getElementById('collaboratorSelect').value;
+            const amount = parseFloat(document.getElementById('saleAmount').value);
+            const paymentMode = document.getElementById('paymentMode').value;
+
+            if (!collaboratorId || !amount || amount <= 0) {
+                showMessage('saleMessage', 'Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
+
+                const { error } = await supabase
+                    .from('sales')
+                    .insert([{
+                        collaborator_id: collaboratorId,
+                        collaborator_name: collaborator.name,
+                        amount: amount,
+                        payment_mode: paymentMode
+                    }]);
+
+                if (error) throw error;
+
+                showMessage('saleMessage', '✓ Vente enregistrée avec succès!', 'success');
+                document.getElementById('collaboratorSelect').value = '';
+                document.getElementById('saleAmount').value = '';
+                loadSales();
+            } catch (err) {
+                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        async function recordMovement() {
+            const type = document.getElementById('movementType').value;
+            const amount = parseFloat(document.getElementById('movementAmount').value);
+            const description = document.getElementById('movementDescription').value;
+
+            if (!amount || amount <= 0) {
+                showMessage('movementMessage', 'Veuillez entrer un montant valide', 'error');
+                return;
+            }
+
+            try {
+                let currentBalance = 0;
+                if (movementsData.length > 0) {
+                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                }
+
+                let newBalance = currentBalance;
+                if (type === 'depot' || type === 'commission') {
+                    newBalance += amount;
+                } else {
+                    newBalance -= amount;
+                }
+
+                const { error } = await supabase
+                    .from('movements')
+                    .insert([{
+                        type: type,
+                        description: description,
+                        amount: amount,
+                        balance_after: newBalance
+                    }]);
+
+                if (error) throw error;
+
+                showMessage('movementMessage', '✓ Mouvement enregistré!', 'success');
+                document.getElementById('movementAmount').value = '';
+                document.getElementById('movementDescription').value = '';
+                loadMovements();
+            } catch (err) {
+                showMessage('movementMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        async function addCollaborator() {
+            const name = document.getElementById('newCollaboratorName').value.trim();
+            const role = document.getElementById('newCollaboratorRole').value;
+            const pin = document.getElementById('newCollaboratorPin').value.trim();
+
+            if (!name || !pin || pin.length < 4) {
+                showMessage('collaboratorMessage', 'Veuillez remplir tous les champs correctement', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('collaborators')
+                    .insert([{
+                        name: name,
+                        role: role,
+                        pin_code: pin
+                    }]);
+
+                if (error) throw error;
+
+                showMessage('collaboratorMessage', '✓ Collaborateur ajouté!', 'success');
+                document.getElementById('newCollaboratorName').value = '';
+                document.getElementById('newCollaboratorPin').value = '';
+                toggleAddCollaborator();
+                loadCollaborators();
+            } catch (err) {
+                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        function toggleAddCollaborator() {
+            const section = document.getElementById('addCollaboratorSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function updateSettings() {
+            const commissionRate = parseFloat(document.getElementById('commissionRate').value);
+
+            if (!commissionRate || commissionRate < 0) {
+                showMessage('settingsMessage', 'Veuillez entrer un pourcentage valide', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('settings')
+                    .update({ commission_rate: commissionRate })
+                    .eq('id', settingsData.id);
+
+                if (error) throw error;
+
+                showMessage('settingsMessage', '✓ Paramètres mis à jour!', 'success');
+                loadSettings();
+            } catch (err) {
+                showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        // ============================================
+        // ADMIN FUNCTIONS
+        // ============================================
+        function exportData() {
+            const exportData = {
+                collaborators: collaboratorsData,
+                sales: salesData,
+                movements: movementsData,
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `palace-export-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function clearAllData() {
+            if (!confirm('⚠️ Êtes-vous absolument sûr? Cette action ne peut pas être annulée!')) {
+                return;
+            }
+
+            try {
+                await supabase.from('sales').delete().gt('id', 0);
+                await supabase.from('movements').delete().gt('id', 0);
+
+                loadAllData();
+                showMessage('settingsMessage', '✓ Données supprimées!', 'success');
+            } catch (err) {
+                showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        // ============================================
+        // REALTIME SUBSCRIPTIONS
+        // ============================================
+        function setupRealtimeSubscriptions() {
+            supabase
+                .channel('sales-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
+                    loadSales();
+                })
+                .subscribe();
+
+            supabase
+                .channel('movements-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'movements' }, () => {
+                    loadMovements();
+                })
+                .subscribe();
+
+            supabase
+                .channel('collaborators-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'collaborators' }, () => {
+                    loadCollaborators();
+                })
+                .subscribe();
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        window.addEventListener('load', () => {
+            initSupabase();
+        });
+    </script>
+</body>
+</html>
