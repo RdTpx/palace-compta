@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.1</title>
+    <title>LE PALACE - Comptabilité v2.2</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -84,6 +84,10 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            border-color: #dc2626;
         }
 
         button {
@@ -364,17 +368,20 @@
             100% { transform: rotate(360deg); }
         }
 
-        .product-checkbox {
+        .product-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 8px 0;
+            gap: 15px;
+            margin: 12px 0;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
         }
 
-        .product-checkbox input {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
+        .product-item input[type="number"] {
+            width: 70px;
+            padding: 8px;
         }
 
         .modal {
@@ -450,17 +457,24 @@
             gap: 5px;
         }
 
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+        .stock-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .stock-status.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .stock-status.ok {
+            background: #d1fae5;
+            color: #065f46;
         }
 
         @media (max-width: 768px) {
-            .grid-2col {
-                grid-template-columns: 1fr;
-            }
             .table-container {
                 font-size: 0.8em;
             }
@@ -473,7 +487,7 @@
         <div id="loginSection" class="active">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.1</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.2</p>
             </div>
 
             <div class="login-section">
@@ -548,6 +562,7 @@
                 <button class="tab-button" id="movementsTab" onclick="switchTab('movements')" style="display: none;">💸 Mouvements</button>
                 <button class="tab-button" onclick="switchTab('expenses')">📋 Notes de Frais</button>
                 <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
+                <button class="tab-button" id="stockTab" onclick="switchTab('stock')" style="display: none;">📦 Stock</button>
                 <button class="tab-button" id="productsTab" onclick="switchTab('products')" style="display: none;">🍷 Produits</button>
                 <button class="tab-button" onclick="switchTab('settings')">⚙️ Paramètres</button>
             </div>
@@ -577,8 +592,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>📦 Sélectionner les Produits</label>
-                        <div id="productsCheckboxList" style="max-height: 250px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; background: white;">
+                        <label>📦 Produits et Quantités</label>
+                        <div id="productsQuantityList" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; background: white;">
                             <!-- Produits seront chargés ici -->
                         </div>
                     </div>
@@ -678,23 +693,13 @@
                     <h3>Demander un Remboursement</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="expenseType">Type de Dépense</label>
-                            <select id="expenseType">
-                                <option value="">-- Sélectionner --</option>
-                                <option value="transport">Transport</option>
-                                <option value="fournitures">Fournitures</option>
-                                <option value="repas">Repas</option>
-                                <option value="autre">Autre</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="expenseAmount">Montant (€)</label>
-                            <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                            <label for="expenseAmount">Montant (€) *</label>
+                            <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="expenseDescription">Description / Justification</label>
-                        <textarea id="expenseDescription" placeholder="Détails de la dépense..." rows="3"></textarea>
+                        <label for="expenseDescription">Description / Justification *</label>
+                        <textarea id="expenseDescription" placeholder="Détails de la dépense..." rows="3" required></textarea>
                     </div>
                     <button class="btn-primary" onclick="submitExpense()">✓ Soumettre la Demande</button>
                     <div id="expenseMessage"></div>
@@ -707,7 +712,6 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Demandeur</th>
-                                <th>Type</th>
                                 <th>Montant</th>
                                 <th>Description</th>
                                 <th>Statut</th>
@@ -715,7 +719,7 @@
                             </tr>
                         </thead>
                         <tbody id="expensesBody">
-                            <tr><td colspan="7" class="loading">Chargement...</td></tr>
+                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -758,7 +762,54 @@
                 </div>
             </div>
 
-            <!-- TAB 5: PRODUCTS -->
+            <!-- TAB 5: STOCK -->
+            <div id="stock" class="tab-content">
+                <div class="form-section" id="correctStockSection" style="display: none;">
+                    <h3>Corriger le Stock d'un Produit</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stockProductSelect">Produit</label>
+                            <select id="stockProductSelect">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Actuel</label>
+                            <input type="text" id="currentStockDisplay" disabled style="background: #f0f0f0;">
+                        </div>
+                        <div class="form-group">
+                            <label for="newStockAmount">Nouveau Stock</label>
+                            <input type="number" id="newStockAmount" placeholder="0" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stockReason">Motif de la Correction</label>
+                        <textarea id="stockReason" placeholder="Raison du changement..." rows="2"></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="correctStock()">✓ Mettre à Jour</button>
+                    <div id="stockCorrectionMessage"></div>
+                </div>
+
+                <div class="table-container">
+                    <h3>État du Stock</h3>
+                    <table id="stockTable">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Catégorie</th>
+                                <th>Stock</th>
+                                <th>État</th>
+                                <th id="stockActionsHeader" style="display: none;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockBody">
+                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 6: PRODUCTS -->
             <div id="products" class="tab-content">
                 <div class="form-section" id="addProductSection" style="display: none;">
                     <h3>Ajouter un Produit</h3>
@@ -774,6 +825,10 @@
                         <div class="form-group">
                             <label for="newProductPrice">Prix (€)</label>
                             <input type="number" id="newProductPrice" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="newProductStock">Stock Initial</label>
+                            <input type="number" id="newProductStock" placeholder="0" min="0">
                         </div>
                     </div>
                     <button class="btn-primary" onclick="addProduct()">✓ Ajouter</button>
@@ -792,18 +847,19 @@
                                 <th>Nom</th>
                                 <th>Catégorie</th>
                                 <th>Prix</th>
+                                <th>Stock</th>
                                 <th>État</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="productsBody">
-                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 6: SETTINGS -->
+            <!-- TAB 7: SETTINGS -->
             <div id="settings" class="tab-content">
                 <div class="form-section" id="settingsSection" style="display: none;">
                     <h3>Paramètres Généraux</h3>
@@ -844,8 +900,8 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.1 - Comptabilité Cloud</p>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, collaborateurs, notes de frais et mouvements de caisse</p>
+                    <p>LE PALACE v2.2 - Comptabilité Cloud</p>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais et mouvements de caisse</p>
                 </div>
             </div>
         </div>
@@ -967,7 +1023,7 @@
         let productsData = [];
         let expensesData = [];
         let settingsData = null;
-        let selectedProducts = {};
+        let productQuantities = {};
         let editingSaleId = null;
         let editingProductId = null;
 
@@ -1067,6 +1123,9 @@
                 document.getElementById('productsTab').style.display = 'block';
                 document.getElementById('movementsTab').style.display = 'block';
                 document.getElementById('adminExpensesPanel').style.display = 'block';
+                document.getElementById('stockTab').style.display = 'block';
+                document.getElementById('correctStockSection').style.display = 'block';
+                document.getElementById('stockActionsHeader').style.display = 'table-cell';
             }
 
             if (currentUser.role === 'admin') {
@@ -1093,6 +1152,9 @@
 
             if (tabName === 'products') {
                 loadProducts();
+            }
+            if (tabName === 'stock') {
+                loadStock();
             }
         }
 
@@ -1123,7 +1185,8 @@
                 loadSales(),
                 loadMovements(),
                 loadExpenses(),
-                loadSettings()
+                loadSettings(),
+                loadStock()
             ]);
         }
 
@@ -1187,12 +1250,12 @@
             }
 
             productsData = data || [];
-            renderProductsCheckboxes();
+            renderProductsQuantityList();
             renderProductsTable();
         }
 
-        function renderProductsCheckboxes() {
-            const container = document.getElementById('productsCheckboxList');
+        function renderProductsQuantityList() {
+            const container = document.getElementById('productsQuantityList');
             if (!container) return;
 
             const grouped = {};
@@ -1205,9 +1268,9 @@
                 <div style="margin-bottom: 15px;">
                     <strong style="display: block; margin-bottom: 8px; color: #667eea;">${category}</strong>
                     ${grouped[category].map(product => `
-                        <div class="product-checkbox">
-                            <input type="checkbox" id="product_${product.id}" value="${product.id}" data-price="${product.price}" data-name="${product.name}" onchange="updateTotalAmount()">
-                            <label for="product_${product.id}" style="margin: 0; cursor: pointer;">${product.name} - ${product.price.toFixed(2)}€</label>
+                        <div class="product-item">
+                            <label style="margin: 0; cursor: pointer; flex: 1;">${product.name} - ${product.price.toFixed(2)}€ (Stock: ${product.stock || 0})</label>
+                            <input type="number" id="qty_${product.id}" value="0" min="0" style="width: 70px;" onchange="updateTotalAmount()">
                         </div>
                     `).join('')}
                 </div>
@@ -1219,13 +1282,14 @@
             if (!tbody) return;
 
             if (productsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun produit</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucun produit</td></tr>';
             } else {
                 tbody.innerHTML = productsData.map(product => `
                     <tr>
                         <td><strong>${product.name}</strong></td>
                         <td>${product.category}</td>
                         <td class="success">${product.price.toFixed(2)}€</td>
+                        <td>${product.stock || 0}</td>
                         <td>${product.active ? '✓ Actif' : '✗ Inactif'}</td>
                         <td>
                             ${currentUser.role === 'admin' || currentUser.role === 'gerant' ? `
@@ -1238,10 +1302,83 @@
             }
         }
 
+        async function loadStock() {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('active', true)
+                .order('category', { ascending: true });
+
+            if (error) {
+                console.error('Error loading stock:', error);
+                return;
+            }
+
+            const tbody = document.getElementById('stockBody');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun produit</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(product => `
+                <tr>
+                    <td><strong>${product.name}</strong></td>
+                    <td>${product.category}</td>
+                    <td style="font-weight: bold;">${product.stock || 0}</td>
+                    <td>
+                        <span class="stock-status ${(product.stock || 0) < 10 ? 'low' : 'ok'}">
+                            ${(product.stock || 0) < 10 ? '⚠️ Faible' : '✓ OK'}
+                        </span>
+                    </td>
+                    <td id="stockAction_${product.id}" style="display: none;">
+                        <button class="btn-secondary btn-small" onclick="openStockModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.stock || 0})">Corriger</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Montrer les actions pour admin/gérant
+            if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
+                data.forEach(p => {
+                    const elem = document.getElementById(`stockAction_${p.id}`);
+                    if (elem) elem.style.display = 'table-cell';
+                });
+            }
+
+            // Remplir le select pour correction
+            const select = document.getElementById('stockProductSelect');
+            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            data.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (Stock: ${product.stock || 0})`;
+                option.dataset.stock = product.stock || 0;
+                select.appendChild(option);
+            });
+
+            select.onchange = function() {
+                if (this.value) {
+                    const selected = data.find(p => p.id == this.value);
+                    document.getElementById('currentStockDisplay').value = selected.stock || 0;
+                    document.getElementById('newStockAmount').value = '';
+                }
+            };
+        }
+
+        function openStockModal(productId, productName, currentStock) {
+            document.getElementById('stockProductSelect').value = productId;
+            document.getElementById('currentStockDisplay').value = currentStock;
+            document.getElementById('newStockAmount').value = '';
+            document.getElementById('stockReason').value = '';
+        }
+
         function updateTotalAmount() {
             let total = 0;
-            document.querySelectorAll('#productsCheckboxList input[type="checkbox"]:checked').forEach(input => {
-                total += parseFloat(input.dataset.price);
+            productsData.forEach(product => {
+                const qtyInput = document.getElementById(`qty_${product.id}`);
+                if (qtyInput) {
+                    const qty = parseInt(qtyInput.value) || 0;
+                    total += product.price * qty;
+                }
             });
 
             if (document.getElementById('isVipLounge').checked) {
@@ -1275,7 +1412,7 @@
                         <td>${sale.collaborator_name}</td>
                         <td class="success">${sale.amount.toFixed(2)}€</td>
                         <td>${sale.payment_mode}</td>
-                        <td>${sale.product_name || '-'}</td>
+                        <td>${sale.product_details || '-'}</td>
                         <td>${sale.notes || '-'}</td>
                         <td>
                             <button class="btn-secondary btn-small" onclick="editSale(${sale.id}, ${sale.amount}, '${(sale.notes || '').replace(/'/g, "\\'")}')">Modifier</button>
@@ -1334,13 +1471,12 @@
 
             const tbody = document.getElementById('expensesBody');
             if (expensesData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune demande de remboursement</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucune demande de remboursement</td></tr>';
             } else {
                 tbody.innerHTML = expensesData.map(expense => `
                     <tr style="opacity: ${expense.status === 'approved' ? '0.6' : '1'};">
                         <td>${new Date(expense.created_at).toLocaleString('fr-FR')}</td>
                         <td>${expense.employee_name}</td>
-                        <td>${expense.expense_type}</td>
                         <td class="success">${expense.amount.toFixed(2)}€</td>
                         <td>${expense.description || '-'}</td>
                         <td>
@@ -1398,7 +1534,6 @@
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' €';
             document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' €';
 
-            // Calculer le liquide en attente (paiements en liquide non déposés)
             const liquidSales = salesData.filter(sale => sale.payment_mode === 'liquide' && sale.is_active);
             const liquidPending = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
             document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' €';
@@ -1424,28 +1559,35 @@
             const notes = document.getElementById('saleNotes').value;
             const isVip = document.getElementById('isVipLounge').checked;
 
-            const selectedChecks = Array.from(document.querySelectorAll('#productsCheckboxList input[type="checkbox"]:checked'));
-            if (selectedChecks.length === 0 && !isVip) {
+            let totalAmount = 0;
+            let productDetails = [];
+            let hasProducts = false;
+
+            productsData.forEach(product => {
+                const qtyInput = document.getElementById(`qty_${product.id}`);
+                if (qtyInput) {
+                    const qty = parseInt(qtyInput.value) || 0;
+                    if (qty > 0) {
+                        hasProducts = true;
+                        totalAmount += product.price * qty;
+                        productDetails.push(`${product.name} x${qty}`);
+                    }
+                }
+            });
+
+            if (!hasProducts && !isVip) {
                 showMessage('saleMessage', 'Sélectionnez au moins un produit ou le carré VIP', 'error');
                 return;
             }
 
+            if (isVip) {
+                totalAmount += 500;
+                productDetails.push('Carré VIP');
+            }
+
             try {
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
-                let totalAmount = 0;
-                let productName = '';
-
-                selectedChecks.forEach(check => {
-                    totalAmount += parseFloat(check.dataset.price);
-                    productName += check.dataset.name + ', ';
-                });
-
-                if (isVip) {
-                    totalAmount += 500;
-                    productName += 'Carré VIP';
-                }
-
-                productName = productName.replace(/, $/, '');
+                const productDetailsStr = productDetails.join(', ');
 
                 // Créer la vente
                 const { error: saleError } = await supabaseClient
@@ -1455,7 +1597,7 @@
                         collaborator_name: collaborator.name,
                         amount: totalAmount,
                         payment_mode: paymentMode,
-                        product_name: productName,
+                        product_details: productDetailsStr,
                         notes: notes,
                         is_vip_lounge: isVip,
                         is_active: true,
@@ -1463,6 +1605,23 @@
                     }]);
 
                 if (saleError) throw saleError;
+
+                // Mettre à jour les stocks
+                for (const product of productsData) {
+                    const qtyInput = document.getElementById(`qty_${product.id}`);
+                    if (qtyInput) {
+                        const qty = parseInt(qtyInput.value) || 0;
+                        if (qty > 0) {
+                            const newStock = (product.stock || 0) - qty;
+                            const { error: stockError } = await supabaseClient
+                                .from('products')
+                                .update({ stock: newStock })
+                                .eq('id', product.id);
+
+                            if (stockError) throw stockError;
+                        }
+                    }
+                }
 
                 // Si virement, créer automatiquement un mouvement de dépôt
                 if (paymentMode === 'virement') {
@@ -1488,10 +1647,15 @@
                 document.getElementById('collaboratorSelect').value = '';
                 document.getElementById('saleNotes').value = '';
                 document.getElementById('isVipLounge').checked = false;
-                document.querySelectorAll('#productsCheckboxList input[type="checkbox"]').forEach(c => c.checked = false);
+                productsData.forEach(p => {
+                    const input = document.getElementById(`qty_${p.id}`);
+                    if (input) input.value = '0';
+                });
                 document.getElementById('totalAmount').value = '0.00 €';
+                
                 loadSales();
                 loadMovements();
+                loadStock();
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -1656,6 +1820,7 @@
             const name = document.getElementById('newProductName').value.trim();
             const category = document.getElementById('newProductCategory').value.trim();
             const price = parseFloat(document.getElementById('newProductPrice').value);
+            const stock = parseInt(document.getElementById('newProductStock').value) || 0;
 
             if (!name || !category || !price || price <= 0) {
                 showMessage('productMessage', 'Tous les champs sont requis', 'error');
@@ -1669,6 +1834,7 @@
                         name: name,
                         category: category,
                         price: price,
+                        stock: stock,
                         active: true,
                         created_by: currentUser.name
                     }]);
@@ -1679,6 +1845,7 @@
                 document.getElementById('newProductName').value = '';
                 document.getElementById('newProductCategory').value = '';
                 document.getElementById('newProductPrice').value = '';
+                document.getElementById('newProductStock').value = '';
                 toggleAddProduct();
                 loadProducts();
             } catch (err) {
@@ -1760,6 +1927,40 @@
                 loadProducts();
             } catch (err) {
                 showMessage('editProductMessage', 'Erreur: ' + err.message, 'error');
+            }
+        }
+
+        async function correctStock() {
+            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
+                alert('Vous n\'avez pas les droits');
+                return;
+            }
+
+            const productId = document.getElementById('stockProductSelect').value;
+            const newStock = parseInt(document.getElementById('newStockAmount').value);
+            const reason = document.getElementById('stockReason').value;
+
+            if (!productId || isNaN(newStock) || !reason) {
+                showMessage('stockCorrectionMessage', 'Tous les champs sont requis', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('products')
+                    .update({ stock: newStock })
+                    .eq('id', productId);
+
+                if (error) throw error;
+
+                showMessage('stockCorrectionMessage', '✓ Stock mis à jour!', 'success');
+                document.getElementById('stockProductSelect').value = '';
+                document.getElementById('currentStockDisplay').value = '';
+                document.getElementById('newStockAmount').value = '';
+                document.getElementById('stockReason').value = '';
+                loadStock();
+            } catch (err) {
+                showMessage('stockCorrectionMessage', 'Erreur: ' + err.message, 'error');
             }
         }
 
@@ -1908,12 +2109,11 @@
         // EXPENSES MANAGEMENT
         // ============================================
         async function submitExpense() {
-            const type = document.getElementById('expenseType').value;
             const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const description = document.getElementById('expenseDescription').value;
+            const description = document.getElementById('expenseDescription').value.trim();
 
-            if (!type || !amount || amount <= 0) {
-                showMessage('expenseMessage', 'Tous les champs sont requis', 'error');
+            if (!amount || amount <= 0 || !description) {
+                showMessage('expenseMessage', 'Le montant et la description sont obligatoires', 'error');
                 return;
             }
 
@@ -1923,7 +2123,6 @@
                     .insert([{
                         employee_id: currentUser.id,
                         employee_name: currentUser.name,
-                        expense_type: type,
                         amount: amount,
                         description: description,
                         status: 'pending',
@@ -1933,7 +2132,6 @@
                 if (error) throw error;
 
                 showMessage('expenseMessage', '✓ Demande soumise!', 'success');
-                document.getElementById('expenseType').value = '';
                 document.getElementById('expenseAmount').value = '';
                 document.getElementById('expenseDescription').value = '';
                 loadExpenses();
@@ -2117,6 +2315,7 @@
                 .channel('products-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
                     loadProducts();
+                    loadStock();
                 })
                 .subscribe();
 
