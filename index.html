@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.2</title>
+    <title>LE PALACE - Comptabilité v2.5.3</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -778,7 +778,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.2 USD</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.3</p>
             </div>
 
             <div class="login-section">
@@ -835,7 +835,7 @@
                     <p id="totalCollaborators">0</p>
                 </div>
                 <div class="stat-card">
-                    <h4>📊 Commission (30%)</h4>
+                    <h4 id="commissionHeader">📊 Commission (30%)</h4>
                     <p id="totalCommission">0.00 $</p>
                 </div>
                 <div class="stat-card" id="cashBalanceCard">
@@ -1139,10 +1139,6 @@
                             <input type="number" id="newStockAmount" placeholder="0" min="0">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="stockReason">Motif de la Correction</label>
-                        <textarea id="stockReason" placeholder="Raison du changement..." rows="2"></textarea>
-                    </div>
                     <button class="btn-primary" onclick="correctStock()">✓ Mettre à Jour</button>
                     <div id="stockCorrectionMessage"></div>
                 </div>
@@ -1257,7 +1253,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.2 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.3 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1782,7 +1778,6 @@
             document.getElementById('stockProductSelect').value = productId;
             document.getElementById('currentStockDisplay').value = currentStock;
             document.getElementById('newStockAmount').value = '';
-            document.getElementById('stockReason').value = '';
         }
 
         function updateTotalAmount() {
@@ -2057,6 +2052,15 @@
 
             settingsData = data;
             document.getElementById('commissionRate').value = settingsData?.commission_rate || 30;
+            updateCommissionHeader();
+        }
+
+        // ============================================
+        // UPDATE COMMISSION HEADER
+        // ============================================
+        function updateCommissionHeader() {
+            const rate = settingsData?.commission_rate || 30;
+            document.getElementById('commissionHeader').textContent = `📊 Commission (${rate}%)`;
         }
 
         // ============================================
@@ -2517,9 +2521,8 @@
 
             const productId = document.getElementById('stockProductSelect').value;
             const newStock = parseInt(document.getElementById('newStockAmount').value);
-            const reason = document.getElementById('stockReason').value;
 
-            if (!productId || isNaN(newStock) || !reason) {
+            if (!productId || isNaN(newStock)) {
                 showMessage('stockCorrectionMessage', 'Tous les champs sont requis', 'error');
                 return;
             }
@@ -2536,7 +2539,6 @@
                 document.getElementById('stockProductSelect').value = '';
                 document.getElementById('currentStockDisplay').value = '';
                 document.getElementById('newStockAmount').value = '';
-                document.getElementById('stockReason').value = '';
                 loadStock();
             } catch (err) {
                 showMessage('stockCorrectionMessage', 'Erreur: ' + err.message, 'error');
@@ -2564,8 +2566,10 @@
 
                 if (error) throw error;
 
+                settingsData.commission_rate = commissionRate;
+                updateCommissionHeader();
+                updateStats();
                 showMessage('settingsMessage', '✓ Paramètres mis à jour!', 'success');
-                loadSettings();
             } catch (err) {
                 showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
             }
