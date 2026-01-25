@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5</title>
+    <title>LE PALACE - Comptabilité v2.5.1</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -778,7 +778,7 @@
         <div id="loginSection" class="active">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.1</p>
             </div>
 
             <div class="login-section">
@@ -857,7 +857,7 @@
                 <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
                 <button class="tab-button" id="stockTab" onclick="switchTab('stock')" style="display: none;">📦 Stock</button>
                 <button class="tab-button" id="productsTab" onclick="switchTab('products')" style="display: none;">🍷 Produits</button>
-                <button class="tab-button" onclick="switchTab('settings')">⚙️ Paramètres</button>
+                <button class="tab-button" id="settingsTab" onclick="switchTab('settings')" style="display: none;">⚙️ Paramètres</button>
             </div>
 
             <!-- TAB 1: SALES -->
@@ -888,12 +888,6 @@
                     <div class="products-grid-container">
                         <label style="display: block; margin-bottom: 15px; font-weight: 600;">📦 Sélectionner les Produits</label>
                         <div id="productsGridList"></div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><input type="checkbox" id="isVipLounge" onchange="updateTotalAmount()"> 🥂 Location Carré VIP (500€)</label>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -1263,7 +1257,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5 - Comptabilité Cloud</p>
+                    <p>LE PALACE v2.5.1 - Comptabilité Cloud</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1492,8 +1486,6 @@
 
             if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addCollaboratorBtn').style.display = 'block';
-                document.getElementById('settingsSection').style.display = 'block';
-                document.getElementById('adminPanel').style.display = 'flex';
                 document.getElementById('addProductBtn').style.display = 'block';
                 document.getElementById('productsTab').style.display = 'block';
                 document.getElementById('movementsTab').style.display = 'block';
@@ -1502,10 +1494,13 @@
                 document.getElementById('stockTab').style.display = 'block';
                 document.getElementById('correctStockSection').style.display = 'block';
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
+                document.getElementById('settingsTab').style.display = 'block';
+                document.getElementById('settingsSection').style.display = 'block';
             }
 
             if (currentUser.role === 'admin') {
                 document.getElementById('correctCashSection').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'flex';
             }
         }
 
@@ -1799,11 +1794,6 @@
                     items.push(`${product.name} x${qty}: ${subtotal.toFixed(2)}€`);
                 }
             });
-
-            if (document.getElementById('isVipLounge').checked) {
-                total += 500;
-                items.push('Carré VIP: 500.00€');
-            }
 
             document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' €';
 
@@ -2153,7 +2143,6 @@
 
             const paymentMode = document.getElementById('paymentMode').value;
             const notes = document.getElementById('saleNotes').value;
-            const isVip = document.getElementById('isVipLounge').checked;
 
             let totalAmount = 0;
             let productDetails = [];
@@ -2168,14 +2157,9 @@
                 }
             });
 
-            if (!hasProducts && !isVip) {
-                showMessage('saleMessage', 'Sélectionnez au moins un produit ou le carré VIP', 'error');
+            if (!hasProducts) {
+                showMessage('saleMessage', 'Sélectionnez au moins un produit', 'error');
                 return;
-            }
-
-            if (isVip) {
-                totalAmount += 500;
-                productDetails.push('Carré VIP');
             }
 
             try {
@@ -2191,7 +2175,6 @@
                         payment_mode: paymentMode,
                         product_details: productDetailsStr,
                         notes: notes,
-                        is_vip_lounge: isVip,
                         is_active: true,
                         updated_by: currentUser.name
                     }]);
@@ -2233,7 +2216,6 @@
                 showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
                 document.getElementById('collaboratorSelect').value = '';
                 document.getElementById('saleNotes').value = '';
-                document.getElementById('isVipLounge').checked = false;
                 
                 productQuantities = {};
                 productsData.forEach(p => {
