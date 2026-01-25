@@ -632,11 +632,20 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
 
         let supabase = null;
-        
-        // Initialize Supabase when library is loaded
-        function initSupabase() {
-            if (window.supabase && window.supabase.createClient) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Clear window supabase to avoid conflicts
+if (window.supabase) delete window.supabase;
+
+function initSupabase() {
+    // Make sure supabase client is loaded from CDN
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    const waitForSupabase = setInterval(() => {
+        if (window.supabase && window.supabase.createClient) {
+            clearInterval(waitForSupabase);
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
                 
                 // Check if Supabase keys are set
                 if (SUPABASE_URL.includes('YOUR_PROJECT')) {
