@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LE PALACE - Comptabilité</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #9d4edd;
+            --secondary: #ffd60a;
+            --accent: #3a86ff;
+            --dark: #1a1a2e;
+            --darker: #0f0f1e;
+            --light: #e0e0e0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        /* LOGIN PAGE */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+        }
+
+        .login-box {
+            background: var(--dark);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid var(--primary);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--secondary);
+            font-size: 28px;
+        }
+
+        .login-box .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            color: var(--light);
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(255, 214, 10, 0.3);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: var(--darker);
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(157, 78, 221, 0.5);
+        }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        /* MAIN APP */
+        .app-container {
+            display: none;
+            height: 100vh;
+            background: var(--darker);
+        }
+
+        .app-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--dark), rgba(157, 78, 221, 0.2));
+            border-bottom: 2px solid var(--primary);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title h1 {
+            color: var(--secondary);
+            font-size: 24px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .stat-value.balance {
+            color: var(--success);
+        }
+
+        .stat-value.cash {
+            color: var(--warning);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            background: rgba(157, 78, 221, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 1px solid var(--primary);
+        }
+
+        .user-badge.admin {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--danger);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* NAVIGATION */
+        .nav-container {
+            background: var(--dark);
+            border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+            display: flex;
+            overflow-x: auto;
+            padding: 0 30px;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: var(--light);
+        }
+
+        .nav-item.active {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* SECTIONS */
+        .section {
+            background: var(--dark);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--secondary);
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* FORMS */
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: var(--light);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 5px;
+            color: var(--light);
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(157, 78, 221, 0.3);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--darker);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(157, 78, 221, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--darker);
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* TABLES */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: rgba(157, 78, 221, 0.1);
+            color: var(--secondary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.1);
+        }
+
+        tr:hover {
+            background: rgba(157, 78, 221, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-info {
+            background: rgba(58, 134, 255, 0.2);
+            color: var(--accent);
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-info {
+            background: rgba(58, 134, 255, 0.1);
+            border-left: 4px solid var(--accent);
+            color: var(--accent);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header-stats {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                align-items: flex-start;
+            }
+
+            .stat-item {
+                text-align: left;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-container {
+                overflow-x: auto;
+                padding: 0 15px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-container">
+    <div class="login-box">
+        <h1>👑 LE PALACE</h1>
+        <p class="subtitle">Système de Comptabilité</p>
+        <div class="form">
+            <div class="form-group">
+                <label>Pseudo</label>
+                <input type="text" id="loginUsername" placeholder="Entrez votre pseudo">
+            </div>
+            <div class="form-group">
+                <label>Code PIN</label>
+                <input type="password" id="loginPin" placeholder="Entrez votre code PIN">
+            </div>
+            <button class="login-button" id="loginBtn" onclick="login()">Se connecter</button>
+            <div id="loginError" class="error-message"></div>
+            <div id="loginLoading" class="loading" style="display:none;">Connexion en cours...</div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appContainer" class="app-container">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">
+            <h1>👑 LE PALACE</h1>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-label">Solde Entreprise</div>
+                <div class="stat-value balance" id="statBalance">0$</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Cash en Attente</div>
+                <div class="stat-value cash" id="statCash">0$</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">CA Aujourd'hui</div>
+                <div class="stat-value" id="statDaily">0$</div>
+            </div>
+        </div>
+        <div class="user-menu">
+            <div class="user-badge" id="userBadge">Employé</div>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-container">
+        <div class="nav-item active" onclick="switchPanel('ventes')">📊 Ventes</div>
+        <div class="nav-item" onclick="switchPanel('tresorerie')">🏦 Trésorerie</div>
+        <div class="nav-item" onclick="switchPanel('equipe')">👥 Équipe</div>
+        <div class="nav-item" id="adminNav" style="display:none;" onclick="switchPanel('admin')">⚙️ Admin</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <!-- VENTES -->
+        <div id="ventesPanel" class="panel active">
+            <div class="section">
+                <div class="section-title">📊 Enregistrer une Vente</div>
+                <div class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Collaborateur</label>
+                            <select id="saleCollaborator">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Montant (en $)</label>
+                            <input type="number" id="saleAmount" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Mode de Paiement</label>
+                            <select id="salePayment">
+                                <option value="compte">Compte Entreprise</option>
+                                <option value="liquide">Liquide (Frigo)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="recordSale()">✓ Enregistrer la Vente</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📈 CA Aujourd'hui</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: rgba(58, 134, 255, 0.1); padding: 15px; border-radius: 5px; border-left: 4px solid var(--accent);">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 5px;">Total CA</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--accent);" id="dailyCAtotal">0$</div>
+                    </div>
+                    <div style="background: rgba(157, 78, 221, 0.1); padding: 15px; border-radius: 5px; border-left: 4px solid var(--primary);">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 5px;">Commission Total (30%)</div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary);" id="dailyCommission">0$</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Heure</th>
+                                <th>Collaborateur</th>
+                                <th>Montant</th>
+                                <th>Mode</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <tr><td colspan="5" style="text-align: center; color: #999;">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRÉSORERIE -->
+        <div id="tresoreriePanel" class="panel">
+            <div class="section">
+                <div class="section-title">🏦 Trésorerie de l'Entreprise</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 5px; border-left: 4px solid var(--success);">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 5px; text-transform: uppercase;">Solde Compte</div>
+                        <div style="font-size: 32px; font-weight: bold; color: var(--success);" id="tresBalance">0$</div>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 5px; border-left: 4px solid var(--warning);">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 5px; text-transform: uppercase;">Cash en Attente</div>
+                        <div style="font-size: 32px; font-weight: bold; color: var(--warning);" id="tresCash">0$</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💸 Versement de Liquide</div>
+                <div class="form">
+                    <div class="form-group">
+                        <label>Montant à Verser (depuis les frigos)</label>
+                        <input type="number" id="cashAmountInput" placeholder="0.00" step="0.01">
+                    </div>
+                    <button class="btn btn-success btn-full" onclick="depositCash()">✓ Verser le Liquide</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📊 Mouvements de Trésorerie</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date & Heure</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Montant</th>
+                                <th>Solde Après</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movementsTableBody">
+                            <tr><td colspan="5" style="text-align: center; color: #999;">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉQUIPE -->
+        <div id="equipePanel" class="panel">
+            <div class="section" id="equipeGerantSection" style="display: none;">
+                <div class="section-title">➕ Ajouter un Collaborateur</div>
+                <div class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Pseudo</label>
+                            <input type="text" id="newColabName" placeholder="Nom du collaborateur">
+                        </div>
+                        <div class="form-group">
+                            <label>Rôle</label>
+                            <select id="newColabRole">
+                                <option value="employe">Employé</option>
+                                <option value="gerant">Gérant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="addCollaborator()">✓ Ajouter</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">👥 Liste des Collaborateurs</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pseudo</th>
+                                <th>Rôle</th>
+                                <th>CA Réalisé</th>
+                                <th>Commissions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipeTableBody">
+                            <tr><td colspan="4" style="text-align: center; color: #999;">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div id="adminPanel" class="panel">
+            <div class="section">
+                <div class="section-title">⚙️ Configuration Générale</div>
+                <div class="form">
+                    <div class="form-group">
+                        <label>Taux de Commission (%)</label>
+                        <input type="number" id="commissionRate" placeholder="30" step="0.1" min="0" max="100">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateCommissionRate()">✓ Mettre à Jour</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💾 Données</div>
+                <div class="form">
+                    <button class="btn btn-secondary" onclick="exportData()">📥 Exporter (JSON)</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importer (JSON)</button>
+                    <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== SUPABASE INITIALIZATION ==========
+    // ⚠️ À REMPLACER par vos vraies clés Supabase
+    const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_secret_Cpfz1628sg3LCjVqfzRaPg_mDzZ-jt7';
+
+    let supabase = null;
+    let currentUser = null;
+
+    async function initSupabase() {
+        const { createClient } = window.supabase;
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialisé');
+    }
+
+    // ========== LOGIN ==========
+    async function login() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const pin = document.getElementById('loginPin').value.trim();
+        const loginBtn = document.getElementById('loginBtn');
+        const loginLoading = document.getElementById('loginLoading');
+
+        if (!username || !pin) {
+            document.getElementById('loginError').textContent = 'Veuillez remplir tous les champs';
+            return;
+        }
+
+        loginLoading.style.display = 'block';
+        loginBtn.style.display = 'none';
+
+        try {
+            // Récupérer le collaborateur
+            const { data: users, error: userError } = await supabase
+                .from('collaborators')
+                .select('*')
+                .eq('name', username)
+                .eq('pin_code', pin)
+                .single();
+
+            if (userError || !users) {
+                document.getElementById('loginError').textContent = 'Identifiants incorrects';
+                loginLoading.style.display = 'none';
+                loginBtn.style.display = 'block';
+                return;
+            }
+
+            currentUser = users;
+            showApp();
+        } catch (err) {
+            document.getElementById('loginError').textContent = 'Erreur de connexion';
+            console.error(err);
+            loginLoading.style.display = 'none';
+            loginBtn.style.display = 'block';
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('appContainer').classList.remove('active');
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPin').value = '';
+        document.getElementById('loginError').textContent = '';
+        document.getElementById('loginBtn').style.display = 'block';
+    }
+
+    function showApp() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appContainer').classList.add('active');
+        updateUI();
+        loadData();
+    }
+
+    // ========== UI UPDATE ==========
+    function updateUI() {
+        const badgeEl = document.getElementById('userBadge');
+        const adminNav = document.getElementById('adminNav');
+
+        if (currentUser.role === 'admin') {
+            badgeEl.textContent = `Admin • ${currentUser.name}`;
+            badgeEl.className = 'user-badge admin';
+            adminNav.style.display = 'block';
+            document.getElementById('equipeGerantSection').style.display = 'block';
+        } else if (currentUser.role === 'gerant') {
+            badgeEl.textContent = `Gérant • ${currentUser.name}`;
+            adminNav.style.display = 'none';
+            document.getElementById('equipeGerantSection').style.display = 'block';
+        } else {
+            badgeEl.textContent = `Employé • ${currentUser.name}`;
+            adminNav.style.display = 'none';
+            document.getElementById('equipeGerantSection').style.display = 'none';
+        }
+    }
+
+    async function loadData() {
+        try {
+            // Charger les collaborateurs
+            const { data: collaborators } = await supabase.from('collaborators').select('*');
+            updateCollaboratorSelects(collaborators);
+            
+            // Charger les ventes du jour
+            const { data: sales } = await supabase
+                .from('sales')
+                .select('*')
+                .gte('created_at', new Date().toISOString().split('T')[0]);
+            
+            // Charger les mouvements
+            const { data: movements } = await supabase
+                .from('movements')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            // Charger les paramètres
+            const { data: settings } = await supabase.from('settings').select('*').single();
+            
+            if (settings) {
+                document.getElementById('commissionRate').value = settings.commission_rate;
+            }
+
+            refreshVentes(sales, collaborators);
+            refreshEquipe(collaborators, sales);
+            refreshTresorerie(movements, sales);
+            updateStats(sales);
+        } catch (err) {
+            console.error('Erreur lors du chargement des données:', err);
+        }
+    }
+
+    function updateCollaboratorSelects(collaborators) {
+        const selects = ['saleCollaborator'];
+        const colabOptions = collaborators.filter(c => c.role !== 'admin');
+
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">-- Sélectionner --</option>';
+            colabOptions.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+        });
+    }
+
+    // ========== VENTES ==========
+    async function recordSale() {
+        const collaboratorId = document.getElementById('saleCollaborator').value;
+        const amount = parseFloat(document.getElementById('saleAmount').value) || 0;
+        const paymentMode = document.getElementById('salePayment').value;
+
+        if (!collaboratorId || amount <= 0) {
+            alert('Veuillez remplir les champs correctement');
+            return;
+        }
+
+        try {
+            const { data: collaborator } = await supabase
+                .from('collaborators')
+                .select('name')
+                .eq('id', collaboratorId)
+                .single();
+
+            const { error } = await supabase.from('sales').insert([{
+                collaborator_id: collaboratorId,
+                collaborator_name: collaborator.name,
+                amount,
+                payment_mode: paymentMode,
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) throw error;
+
+            document.getElementById('saleCollaborator').value = '';
+            document.getElementById('saleAmount').value = '';
+            alert('Vente enregistrée');
+            loadData();
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    function refreshVentes(sales, collaborators) {
+        const todaySales = sales || [];
+        const todayTotal = todaySales.reduce((sum, s) => sum + s.amount, 0);
+        const commissionRate = parseFloat(document.getElementById('commissionRate').value) || 30;
+        const commission = (todayTotal * commissionRate / 100);
+
+        document.getElementById('dailyCAtotal').textContent = todayTotal.toFixed(0) + '$';
+        document.getElementById('dailyCommission').textContent = commission.toFixed(0) + '$';
+
+        const tbody = document.getElementById('salesTableBody');
+        if (!todaySales || todaySales.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
+        } else {
+            tbody.innerHTML = todaySales.map(s => `
+                <tr>
+                    <td>${new Date(s.created_at).toLocaleTimeString('fr-FR')}</td>
+                    <td>${s.collaborator_name}</td>
+                    <td>${s.amount.toFixed(0)}$</td>
+                    <td><span class="badge ${s.payment_mode === 'liquide' ? 'badge-warning' : 'badge-success'}">${s.payment_mode === 'liquide' ? 'Liquide' : 'Compte'}</span></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteSale(${s.id})">✕</button></td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    async function deleteSale(id) {
+        if (!confirm('Supprimer cette vente?')) return;
+        try {
+            await supabase.from('sales').delete().eq('id', id);
+            loadData();
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    // ========== TRÉSORERIE ==========
+    async function depositCash() {
+        const amount = parseFloat(document.getElementById('cashAmountInput').value) || 0;
+
+        if (amount <= 0) {
+            alert('Montant invalide');
+            return;
+        }
+
+        try {
+            const { error } = await supabase.from('movements').insert([{
+                type: 'VERSEMENT_LIQUIDE',
+                description: `Versement liquide de ${amount}$`,
+                amount,
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) throw error;
+
+            document.getElementById('cashAmountInput').value = '';
+            alert('Versement effectué');
+            loadData();
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    function refreshTresorerie(movements, sales) {
+        document.getElementById('tresBalance').textContent = '0$';
+        document.getElementById('tresCash').textContent = '0$';
+
+        const tbody = document.getElementById('movementsTableBody');
+        if (!movements || movements.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun mouvement enregistré</td></tr>';
+        } else {
+            tbody.innerHTML = movements.slice(0, 10).map(m => `
+                <tr>
+                    <td>${new Date(m.created_at).toLocaleString('fr-FR')}</td>
+                    <td><span class="badge badge-info">${m.type}</span></td>
+                    <td>${m.description}</td>
+                    <td>${m.amount > 0 ? '+' : ''}${m.amount.toFixed(0)}$</td>
+                    <td>-</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // ========== ÉQUIPE ==========
+    async function addCollaborator() {
+        const name = document.getElementById('newColabName').value.trim();
+        const role = document.getElementById('newColabRole').value;
+
+        if (!name) {
+            alert('Veuillez entrer un nom');
+            return;
+        }
+
+        const pin = Math.random().toString().slice(2, 6);
+
+        try {
+            const { error } = await supabase.from('collaborators').insert([{
+                name,
+                role,
+                pin_code: pin
+            }]);
+
+            if (error) throw error;
+
+            alert(`Collaborateur ajouté!\nPIN: ${pin}`);
+            document.getElementById('newColabName').value = '';
+            loadData();
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    function refreshEquipe(collaborators, sales) {
+        if (!collaborators) {
+            document.getElementById('equipeTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Aucun collaborateur</td></tr>';
+            return;
+        }
+
+        const tbody = document.getElementById('equipeTableBody');
+        tbody.innerHTML = collaborators.filter(c => c.role !== 'admin').map(c => {
+            const colabSales = (sales || []).filter(s => s.collaborator_id === c.id);
+            const colabTotal = colabSales.reduce((sum, s) => sum + s.amount, 0);
+
+            return `
+                <tr>
+                    <td><strong>${c.name}</strong></td>
+                    <td><span class="badge ${c.role === 'gerant' ? 'badge-danger' : 'badge-info'}">${c.role === 'gerant' ? 'Gérant' : 'Employé'}</span></td>
+                    <td>${colabTotal.toFixed(0)}$</td>
+                    <td>${(colabTotal * 0.3).toFixed(0)}$</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ========== ADMIN ==========
+    async function updateCommissionRate() {
+        const rate = parseFloat(document.getElementById('commissionRate').value) || 30;
+        if (rate < 0 || rate > 100) {
+            alert('Le taux doit être entre 0 et 100');
+            return;
+        }
+
+        try {
+            await supabase.from('settings').update({ commission_rate: rate }).eq('id', 1);
+            alert('Taux mis à jour');
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    // ========== STATS ==========
+    function updateStats(sales) {
+        const todaySales = (sales || []).filter(s => isToday(s.created_at));
+        const todayTotal = todaySales.reduce((sum, s) => sum + s.amount, 0);
+
+        document.getElementById('statBalance').textContent = '0$';
+        document.getElementById('statCash').textContent = '0$';
+        document.getElementById('statDaily').textContent = todayTotal.toFixed(0) + '$';
+    }
+
+    // ========== PANELS ==========
+    function switchPanel(panel) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        document.getElementById(panel + 'Panel').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // ========== EXPORT/IMPORT ==========
+    async function exportData() {
+        try {
+            const sales = await supabase.from('sales').select('*');
+            const movements = await supabase.from('movements').select('*');
+            const collaborators = await supabase.from('collaborators').select('*');
+
+            const dataStr = JSON.stringify({ sales, movements, collaborators }, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `palace-compta-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+        }
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (confirm('Êtes-vous sûr? Les données actuelles seront remplacées.')) {
+                    alert('Import terminé. Veuillez valider manuellement dans Supabase.');
+                }
+            } catch (err) {
+                alert('Erreur lors de l\'importation');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // ========== UTILITIES ==========
+    function isToday(dateStr) {
+        const date = new Date(dateStr);
+        const today = new Date();
+        return date.toISOString().split('T')[0] === today.toISOString().split('T')[0];
+    }
+
+    // ========== INIT ==========
+    window.addEventListener('load', async () => {
+        await initSupabase();
+        document.getElementById('loginUsername').focus();
+    });
+</script>
+
+</body>
+</html>
