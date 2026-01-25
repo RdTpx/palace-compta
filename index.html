@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.1</title>
+    <title>LE PALACE - Comptabilité v2.5.2</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -775,10 +775,10 @@
 <body>
     <div class="container">
         <!-- LOGIN SECTION -->
-        <div id="loginSection" class="active">
+        <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.1</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.2</p>
             </div>
 
             <div class="login-section">
@@ -1257,7 +1257,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.1 - Comptabilité Cloud</p>
+                    <p>LE PALACE v2.5.2 - Comptabilité Cloud</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1431,7 +1431,8 @@
                 currentUser = data;
                 errorDiv.style.display = 'none';
 
-                document.getElementById('loginSection').classList.remove('active');
+                // Masquer la section login
+                document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('mainApp').classList.add('active');
 
                 updateUserDisplay();
@@ -1446,7 +1447,7 @@
         function logout() {
             currentUser = null;
             document.getElementById('mainApp').classList.remove('active');
-            document.getElementById('loginSection').classList.add('active');
+            document.getElementById('loginSection').style.display = 'block';
             document.getElementById('username').value = '';
             document.getElementById('pin').value = '';
             document.getElementById('loginError').style.display = 'none';
@@ -1494,13 +1495,15 @@
                 document.getElementById('stockTab').style.display = 'block';
                 document.getElementById('correctStockSection').style.display = 'block';
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
-                document.getElementById('settingsTab').style.display = 'block';
                 document.getElementById('settingsSection').style.display = 'block';
             }
 
             if (currentUser.role === 'admin') {
+                document.getElementById('settingsTab').style.display = 'block';
                 document.getElementById('correctCashSection').style.display = 'block';
                 document.getElementById('adminPanel').style.display = 'flex';
+            } else {
+                document.getElementById('settingsTab').style.display = 'none';
             }
         }
 
