@@ -626,7 +626,7 @@
 
     <script>
         // ============================================
-        // CONFIGURATION SUPABASE
+        // CONFIGURATION SUPABASE (UNE SEULE FOIS)
         // ============================================
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
@@ -1094,7 +1094,7 @@
         // ============================================
         function setupRealtimeSubscriptions() {
             // Subscribe to sales changes
-            const salesSub = supabase
+            supabase
                 .channel('sales-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
                     loadSales();
@@ -1102,7 +1102,7 @@
                 .subscribe();
 
             // Subscribe to movements changes
-            const movementsSub = supabase
+            supabase
                 .channel('movements-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'movements' }, () => {
                     loadMovements();
@@ -1110,7 +1110,7 @@
                 .subscribe();
 
             // Subscribe to collaborators changes
-            const collabSub = supabase
+            supabase
                 .channel('collaborators-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'collaborators' }, () => {
                     loadCollaborators();
