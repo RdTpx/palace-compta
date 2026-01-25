@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.4</title>
+    <title>LE PALACE - Comptabilité v2.5.5</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -570,6 +570,11 @@
             font-size: 0.85em;
             color: #666;
             margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .product-stock.low {
+            color: #ef4444;
         }
 
         .quantity-controls {
@@ -814,7 +819,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.4</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.5</p>
             </div>
 
             <div class="login-section">
@@ -1311,7 +1316,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.4 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.5 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -1757,11 +1762,12 @@
                     <div class="products-grid">
                         ${grouped[category].map(product => {
                             const categoryClass = category.toLowerCase().replace(/\s+/g, '-');
+                            const isLowStock = (product.stock || 0) < 10;
                             return `
                                 <div class="product-card ${categoryClass}">
                                     <div class="product-name">${product.name}</div>
                                     <div class="product-price">$${product.price.toFixed(2)}</div>
-                                    <div class="product-stock">Stock: ${product.stock || 0}</div>
+                                    <div class="product-stock ${isLowStock ? 'low' : ''}">Stock: ${product.stock || 0}</div>
                                     <div class="quantity-controls">
                                         <button class="qty-btn" onclick="changeQuantity(${product.id}, -1)">−</button>
                                         <div class="qty-display" id="qty_display_${product.id}">0</div>
@@ -2355,9 +2361,11 @@
                 document.getElementById('totalAmountDisplay').textContent = '0.00 $';
                 document.getElementById('saleSummaryItems').innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
                 
+                // FIX: Ajouter loadProducts() pour rafraîchir la grille de produits
                 loadSales();
                 loadMovements();
                 loadStock();
+                loadProducts();
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2543,6 +2551,7 @@
                 loadSales();
                 loadMovements();
                 loadStock();
+                loadProducts();
             } catch (err) {
                 showMessage('editSaleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2621,6 +2630,7 @@
                 loadSales();
                 loadMovements();
                 loadStock();
+                loadProducts();
             } catch (err) {
                 showMessage('deleteSaleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2857,6 +2867,7 @@
                 document.getElementById('addCurrentStockDisplay').value = '';
                 document.getElementById('addStockQuantity').value = '';
                 loadStock();
+                loadProducts();
             } catch (err) {
                 showMessage('addStockMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2889,6 +2900,7 @@
                 document.getElementById('currentStockDisplay').value = '';
                 document.getElementById('newStockAmount').value = '';
                 loadStock();
+                loadProducts();
             } catch (err) {
                 showMessage('stockCorrectionMessage', 'Erreur: ' + err.message, 'error');
             }
