@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.5</title>
+    <title>LE PALACE - Comptabilité v2.5.6</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -819,7 +819,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.5</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.6</p>
             </div>
 
             <div class="login-section">
@@ -1316,7 +1316,7 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.5 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.6 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
                 </div>
             </div>
@@ -2361,11 +2361,9 @@
                 document.getElementById('totalAmountDisplay').textContent = '0.00 $';
                 document.getElementById('saleSummaryItems').innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
                 
-                // FIX: Ajouter loadProducts() pour rafraîchir la grille de produits
                 loadSales();
                 loadMovements();
                 loadStock();
-                loadProducts();
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2456,6 +2454,7 @@
         async function saveSaleEdit() {
             if (!editingSaleId || !editingSaleData) return;
 
+            const oldPaymentMode = editingSaleData.payment_mode;
             const newPaymentMode = document.getElementById('editSalePaymentMode').value;
             const newNotes = document.getElementById('editSaleNotes').value;
 
@@ -2518,28 +2517,60 @@
                     }
                 }
 
-                // Update cash balance if payment mode changed or amount changed
+                // === CRITICAL FIX: Handle payment mode changes and amount changes ===
+                let currentBalance = 0;
+                if (movementsData.length > 0) {
+                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                }
+
                 const oldAmount = editingSaleData.amount;
                 const amountDiff = newTotal - oldAmount;
 
-                if (amountDiff !== 0 && newPaymentMode === 'virement') {
-                    let currentBalance = 0;
-                    if (movementsData.length > 0) {
-                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    }
-                    const newBalance = currentBalance + amountDiff;
+                // Case 1: LIQUIDE -> VIREMENT (add to cash)
+                if (oldPaymentMode === 'liquide' && newPaymentMode === 'virement') {
+                    const newBalance = currentBalance + newTotal;
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'depot',
+                            description: `Conversion Liquide→Virement - ${editingSaleData.collaborator_name} ($${newTotal.toFixed(2)})`,
+                            amount: newTotal,
+                            balance_after: newBalance
+                        }]);
 
+                    if (movementError) throw movementError;
+                }
+                // Case 2: VIREMENT -> LIQUIDE (remove from cash)
+                else if (oldPaymentMode === 'virement' && newPaymentMode === 'liquide') {
+                    const newBalance = currentBalance - oldAmount;
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'retrait',
+                            description: `Conversion Virement→Liquide - ${editingSaleData.collaborator_name} ($${oldAmount.toFixed(2)})`,
+                            amount: oldAmount,
+                            balance_after: newBalance
+                        }]);
+
+                    if (movementError) throw movementError;
+                }
+                // Case 3: VIREMENT -> VIREMENT (amount changed, adjust)
+                else if (oldPaymentMode === 'virement' && newPaymentMode === 'virement' && amountDiff !== 0) {
+                    const newBalance = currentBalance + amountDiff;
+                    const typeStr = amountDiff > 0 ? 'Augmentation' : 'Réduction';
                     const { error: movementError } = await supabaseClient
                         .from('movements')
                         .insert([{
                             type: 'correction',
-                            description: `Ajustement vente modifiée - ${editingSaleData.collaborator_name}`,
+                            description: `${typeStr} montant vente modifiée - ${editingSaleData.collaborator_name}`,
                             amount: Math.abs(amountDiff),
                             balance_after: newBalance
                         }]);
 
                     if (movementError) throw movementError;
                 }
+                // Case 4: LIQUIDE -> LIQUIDE (no cash impact)
+                // Nothing to do
 
                 showMessage('editSaleMessage', '✓ Vente modifiée!', 'success');
                 setTimeout(() => {
@@ -2551,7 +2582,6 @@
                 loadSales();
                 loadMovements();
                 loadStock();
-                loadProducts();
             } catch (err) {
                 showMessage('editSaleMessage', 'Erreur: ' + err.message, 'error');
             }
@@ -2600,7 +2630,7 @@
                     }
                 }
 
-                // Adjust cash balance if virement
+                // Adjust cash balance ONLY if virement
                 if (sale.payment_mode === 'virement') {
                     let currentBalance = 0;
                     if (movementsData.length > 0) {
@@ -2612,13 +2642,14 @@
                         .from('movements')
                         .insert([{
                             type: 'retrait',
-                            description: `Suppression vente - ${sale.collaborator_name}`,
+                            description: `Suppression vente (Virement) - ${sale.collaborator_name}`,
                             amount: sale.amount,
                             balance_after: newBalance
                         }]);
 
                     if (movementError) throw movementError;
                 }
+                // If liquide, cash is not affected, only "Liquide en attente" changes (auto via Realtime)
 
                 showMessage('deleteSaleMessage', '✓ Vente supprimée et stock restauré!', 'success');
                 setTimeout(() => {
@@ -2630,7 +2661,6 @@
                 loadSales();
                 loadMovements();
                 loadStock();
-                loadProducts();
             } catch (err) {
                 showMessage('deleteSaleMessage', 'Erreur: ' + err.message, 'error');
             }
