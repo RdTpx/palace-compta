@@ -1466,7 +1466,8 @@
         // CONFIGURATION SUPABASE
         // ============================================
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc
+';
 
         let supabaseClient = null;
 
@@ -3241,6 +3242,27 @@
             }
 
             try {
+                // === CALCUL CRITIQUE: Liquide en attente avant reset ===
+                const oldResetDate = lastSalesReset ? new Date(lastSalesReset) : new Date(0);
+                
+                // Ventes liquides depuis dernier reset
+                const liquidSalesBeforeReset = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at);
+                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= oldResetDate;
+                });
+                const liquidSalesTotal = liquidSalesBeforeReset.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+                
+                // Dépôts liquides effectués depuis dernier reset
+                const liquidDepositsBeforeReset = movementsData.filter(mov => {
+                    const movDate = new Date(mov.created_at);
+                    return mov.type === 'depot_liquide' && movDate >= oldResetDate;
+                });
+                const liquidDepositsTotal = liquidDepositsBeforeReset.reduce((sum, mov) => sum + parseFloat(mov.amount), 0);
+                
+                // Montant liquide en attente = ventes - dépôts
+                const liquidPendingBeforeReset = liquidSalesTotal - liquidDepositsTotal;
+                
+                // === RESET MAINTENANT ===
                 const { error } = await supabaseClient
                     .from('settings')
                     .update({ last_sales_reset: new Date().toISOString() })
@@ -3248,9 +3270,32 @@
 
                 if (error) throw error;
 
+                // === SI IL Y A DU LIQUIDE EN ATTENTE = AJOUTER MOUVEMENT DE CLÔTURE ===
+                if (liquidPendingBeforeReset > 0) {
+                    let currentBalance = 0;
+                    if (movementsData.length > 0) {
+                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    }
+                    
+                    // Clôture du liquide en attente = le retirer du suivi "frigo"
+                    const newBalance = currentBalance - liquidPendingBeforeReset;
+                    
+                    const { error: closureError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'depot_liquide',
+                            description: `[RESET] Clôture liquide en attente: $${liquidPendingBeforeReset.toFixed(2)}`,
+                            amount: liquidPendingBeforeReset,
+                            balance_after: newBalance
+                        }]);
+
+                    if (closureError) throw closureError;
+                }
+
                 showMessage('resetSalesMessage', '✓ Ventes réinitialisées!', 'success');
                 closeModal('resetSalesModal');
                 loadLastSalesReset();
+                loadMovements();
                 loadCompta();
                 updateStats();
             } catch (err) {
