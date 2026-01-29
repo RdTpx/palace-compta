@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.11</title>
+    <title>LE PALACE - Comptabilité v2.5.12</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -835,7 +835,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.11</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.12</p>
             </div>
 
             <div class="login-section">
@@ -1353,9 +1353,9 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.11 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.12 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
-                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ NEW v2.5.11:</strong> Colonne liquid_pending_after dans movements - Frigo stocké et corrigible</p>
+                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ NEW v2.5.12:</strong> Vente LIQUIDE incrémente le frigo + modification et suppression corrigent le frigo</p>
                 </div>
             </div>
         </div>
@@ -2266,7 +2266,6 @@
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' $';
             document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' $';
 
-            // ✅ NOUVEAU: Prendre le frigo du dernier mouvement stocké
             let liquidPending = 0;
             if (movementsData.length > 0) {
                 liquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
@@ -2274,7 +2273,6 @@
             document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' $';
             document.getElementById('currentLiquidDisplay').value = liquidPending.toFixed(2) + ' $';
             
-            // Mise à jour couleur du frigo
             const liquidCard = document.getElementById('liquidPendingCard');
             if (liquidPending > 0) {
                 liquidCard.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
@@ -2362,13 +2360,14 @@
                     }
                 }
 
+                let currentBalance = 0;
+                let currentLiquidPending = 0;
+                if (movementsData.length > 0) {
+                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
+                }
+
                 if (paymentMode === 'virement') {
-                    let currentBalance = 0;
-                    let currentLiquidPending = 0;
-                    if (movementsData.length > 0) {
-                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                        currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                    }
                     const newBalance = currentBalance + totalAmount;
 
                     const { error: movementError } = await supabaseClient
@@ -2383,8 +2382,20 @@
 
                     if (movementError) throw movementError;
                 } else if (paymentMode === 'liquide') {
-                    // Pour les ventes liquides, on ne crée pas de mouvement
-                    // Le frigo sera calculé via dépôt_liquide
+                    // ✅ NOUVEAU: Vente liquide crée un mouvement pour tracker le frigo
+                    const newLiquidPending = currentLiquidPending + totalAmount;
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'vente_liquide',
+                            description: `Vente liquide - ${collaborator.name}`,
+                            amount: totalAmount,
+                            balance_after: currentBalance,
+                            liquid_pending_after: newLiquidPending
+                        }]);
+
+                    if (movementError) throw movementError;
                 }
 
                 showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
@@ -2561,42 +2572,66 @@
                 const oldAmount = editingSaleData.amount;
                 const amountDiff = newTotal - oldAmount;
 
+                // ✅ NOUVEAU: Gère les changements de mode de paiement ET du liquide
                 if (oldPaymentMode === 'liquide' && newPaymentMode === 'virement') {
+                    // Liquide → Virement: enlever du frigo, ajouter à la caisse
                     const newBalance = currentBalance + newTotal;
+                    const newLiquidPending = Math.max(0, currentLiquidPending - oldAmount);
+
                     const { error: movementError } = await supabaseClient
                         .from('movements')
                         .insert([{
-                            type: 'depot',
-                            description: `Conversion Liquide→Virement - ${editingSaleData.collaborator_name} ($${newTotal.toFixed(2)})`,
+                            type: 'conversion',
+                            description: `Conversion Liquide→Virement - ${editingSaleData.collaborator_name}`,
                             amount: newTotal,
                             balance_after: newBalance,
-                            liquid_pending_after: currentLiquidPending
+                            liquid_pending_after: newLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
                 }
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'liquide') {
+                    // Virement → Liquide: enlever de la caisse, ajouter au frigo
                     const newBalance = currentBalance - oldAmount;
+                    const newLiquidPending = currentLiquidPending + newTotal;
+
                     const { error: movementError } = await supabaseClient
                         .from('movements')
                         .insert([{
-                            type: 'retrait',
-                            description: `Conversion Virement→Liquide - ${editingSaleData.collaborator_name} ($${oldAmount.toFixed(2)})`,
+                            type: 'conversion',
+                            description: `Conversion Virement→Liquide - ${editingSaleData.collaborator_name}`,
                             amount: oldAmount,
                             balance_after: newBalance,
-                            liquid_pending_after: currentLiquidPending
+                            liquid_pending_after: newLiquidPending
+                        }]);
+
+                    if (movementError) throw movementError;
+                }
+                else if (oldPaymentMode === 'liquide' && newPaymentMode === 'liquide' && amountDiff !== 0) {
+                    // Liquide → Liquide avec montant changé: ajuster le frigo
+                    const newLiquidPending = currentLiquidPending + amountDiff;
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'vente_liquide_correction',
+                            description: `Correction vente liquide - ${editingSaleData.collaborator_name}`,
+                            amount: Math.abs(amountDiff),
+                            balance_after: currentBalance,
+                            liquid_pending_after: newLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
                 }
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'virement' && amountDiff !== 0) {
+                    // Virement → Virement avec montant changé
                     const newBalance = currentBalance + amountDiff;
-                    const typeStr = amountDiff > 0 ? 'Augmentation' : 'Réduction';
+
                     const { error: movementError } = await supabaseClient
                         .from('movements')
                         .insert([{
                             type: 'correction',
-                            description: `${typeStr} montant vente modifiée - ${editingSaleData.collaborator_name}`,
+                            description: `Correction montant vente - ${editingSaleData.collaborator_name}`,
                             amount: Math.abs(amountDiff),
                             balance_after: newBalance,
                             liquid_pending_after: currentLiquidPending
@@ -2661,13 +2696,15 @@
                     }
                 }
 
+                let currentBalance = 0;
+                let currentLiquidPending = 0;
+                if (movementsData.length > 0) {
+                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
+                }
+
+                // ✅ NOUVEAU: Suppression corrige aussi le liquide
                 if (sale.payment_mode === 'virement') {
-                    let currentBalance = 0;
-                    let currentLiquidPending = 0;
-                    if (movementsData.length > 0) {
-                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                        currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                    }
                     const newBalance = currentBalance - sale.amount;
 
                     const { error: movementError } = await supabaseClient
@@ -2678,6 +2715,21 @@
                             amount: sale.amount,
                             balance_after: newBalance,
                             liquid_pending_after: currentLiquidPending
+                        }]);
+
+                    if (movementError) throw movementError;
+                } else if (sale.payment_mode === 'liquide') {
+                    // Suppression vente liquide: retirer du frigo
+                    const newLiquidPending = Math.max(0, currentLiquidPending - sale.amount);
+
+                    const { error: movementError } = await supabaseClient
+                        .from('movements')
+                        .insert([{
+                            type: 'annulation_liquide',
+                            description: `Suppression vente liquide - ${sale.collaborator_name}`,
+                            amount: sale.amount,
+                            balance_after: currentBalance,
+                            liquid_pending_after: newLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
@@ -2719,11 +2771,9 @@
                 let newBalance = currentBalance;
                 let newLiquidPending = currentLiquidPending;
 
-                // ✅ Logique améliorée avec liquid_pending_after
                 if (type === 'depot' || type === 'depot_liquide') {
                     newBalance += amount;
                     if (type === 'depot_liquide') {
-                        // Dépôt liquide = le frigo diminue
                         newLiquidPending = Math.max(0, currentLiquidPending - amount);
                     }
                 } else if (type === 'commission') {
@@ -3262,7 +3312,6 @@
             }
         };
 
-        // ✅ NOUVEAU: Corriger le solde du liquide en attente
         window.correctLiquidBalance = async function() {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut corriger le frigo');
