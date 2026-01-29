@@ -1466,8 +1466,7 @@
         // CONFIGURATION SUPABASE
         // ============================================
         const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc
-';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
 
         let supabaseClient = null;
 
@@ -3381,9 +3380,52 @@
                 .subscribe();
         }
 
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         window.addEventListener('load', () => {
             initSupabase();
         });
+
+        // Make functions globally accessible
+        window.login = login;
+        window.logout = logout;
+        window.switchTab = switchTab;
+        window.recordSale = recordSale;
+        window.changeQuantity = changeQuantity;
+        window.updateTotalAmount = updateTotalAmount;
+        window.recordMovement = recordMovement;
+        window.addCollaborator = addCollaborator;
+        window.toggleAddCollaborator = toggleAddCollaborator;
+        window.addProduct = addProduct;
+        window.toggleAddProduct = toggleAddProduct;
+        window.deleteProduct = deleteProduct;
+        window.openEditProductModal = openEditProductModal;
+        window.saveProductEdit = saveProductEdit;
+        window.addStock = addStock;
+        window.correctStock = correctStock;
+        window.openStockModal = openStockModal;
+        window.updateSettings = updateSettings;
+        window.changeMyPassword = changeMyPassword;
+        window.saveNewPassword = saveNewPassword;
+        window.openChangeRoleModal = openChangeRoleModal;
+        window.saveUserRole = saveUserRole;
+        window.deleteCollaborator = deleteCollaborator;
+        window.submitExpense = submitExpense;
+        window.approveExpense = approveExpense;
+        window.rejectExpense = rejectExpense;
+        window.correctCashBalance = correctCashBalance;
+        window.openResetSalesModal = openResetSalesModal;
+        window.confirmResetSales = confirmResetSales;
+        window.exportData = exportData;
+        window.clearAllData = clearAllData;
+        window.closeModal = closeModal;
+        window.editSale = editSale;
+        window.removeProductFromEdit = removeProductFromEdit;
+        window.saveSaleEdit = saveSaleEdit;
+        window.confirmDeleteSale = confirmDeleteSale;
+        window.quickDeleteSale = quickDeleteSale;
+        window.executeSaleDelete = executeSaleDelete;
     </script>
 </body>
 </html>
