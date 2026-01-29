@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.10</title>
+    <title>LE PALACE - Comptabilité v2.5.11</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -835,7 +835,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.10</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.11</p>
             </div>
 
             <div class="login-section">
@@ -1092,10 +1092,11 @@
                                 <th>Description</th>
                                 <th>Montant</th>
                                 <th>Solde Après</th>
+                                <th>Frigo Après</th>
                             </tr>
                         </thead>
                         <tbody id="movementsBody">
-                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1325,6 +1326,26 @@
                     <div id="cashCorrectionMessage"></div>
                 </div>
 
+                <div class="form-section" id="correctLiquidSection" style="display: none;">
+                    <h3>⚠️ Corriger le Solde du Liquide en Attente (Admin Seulement)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Frigo Actuel</label>
+                            <input type="text" id="currentLiquidDisplay" disabled style="background: #f0f0f0; font-weight: bold;">
+                        </div>
+                        <div class="form-group">
+                            <label for="newLiquidBalance">Nouveau Frigo ($)</label>
+                            <input type="number" id="newLiquidBalance" placeholder="0.00" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="liquidCorrectionReason">Motif de la Correction</label>
+                        <textarea id="liquidCorrectionReason" placeholder="Raison de la modification..." rows="2"></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="window.correctLiquidBalance()">✓ Appliquer la Correction</button>
+                    <div id="liquidCorrectionMessage"></div>
+                </div>
+
                 <div class="action-buttons" style="display: none;" id="adminPanel">
                     <button class="btn-secondary" onclick="window.exportData()">📥 Exporter les Données</button>
                     <button class="btn-secondary" onclick="window.clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
@@ -1332,9 +1353,9 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.10 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.11 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
-                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ FIX v2.5.10:</strong> Correction du bug du Frigo (liquide en attente) - Reset sans déduction erronée</p>
+                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ NEW v2.5.11:</strong> Colonne liquid_pending_after dans movements - Frigo stocké et corrigible</p>
                 </div>
             </div>
         </div>
@@ -1620,6 +1641,7 @@
             if (currentUser.role === 'admin') {
                 document.getElementById('settingsTab').style.display = 'block';
                 document.getElementById('correctCashSection').style.display = 'block';
+                document.getElementById('correctLiquidSection').style.display = 'block';
                 document.getElementById('adminPanel').style.display = 'flex';
             } else {
                 document.getElementById('settingsTab').style.display = 'none';
@@ -2130,7 +2152,7 @@
 
             const tbody = document.getElementById('movementsBody');
             if (movementsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
             } else {
                 tbody.innerHTML = movementsData.map(mov => `
                     <tr>
@@ -2139,6 +2161,7 @@
                         <td>${mov.description || '-'}</td>
                         <td class="success">$${mov.amount.toFixed(2)}</td>
                         <td class="success">$${mov.balance_after.toFixed(2)}</td>
+                        <td class="success">$${(mov.liquid_pending_after || 0).toFixed(2)}</td>
                     </tr>
                 `).join('');
             }
@@ -2243,32 +2266,13 @@
             document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' $';
             document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' $';
 
-            let liquidSalesTotal = 0;
-            if (lastSalesReset) {
-                const resetDate = new Date(lastSalesReset);
-                const liquidSales = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at);
-                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= resetDate;
-                });
-                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
-            } else {
-                const today = new Date().toDateString();
-                const liquidSales = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at).toDateString();
-                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate === today;
-                });
-                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            // ✅ NOUVEAU: Prendre le frigo du dernier mouvement stocké
+            let liquidPending = 0;
+            if (movementsData.length > 0) {
+                liquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
             }
-
-            let liquidDeposits = 0;
-            movementsData.forEach(mov => {
-                if (mov.type === 'depot_liquide') {
-                    liquidDeposits += parseFloat(mov.amount);
-                }
-            });
-
-            const liquidPending = liquidSalesTotal - liquidDeposits;
             document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' $';
+            document.getElementById('currentLiquidDisplay').value = liquidPending.toFixed(2) + ' $';
             
             // Mise à jour couleur du frigo
             const liquidCard = document.getElementById('liquidPendingCard');
@@ -2360,8 +2364,10 @@
 
                 if (paymentMode === 'virement') {
                     let currentBalance = 0;
+                    let currentLiquidPending = 0;
                     if (movementsData.length > 0) {
                         currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                        currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                     }
                     const newBalance = currentBalance + totalAmount;
 
@@ -2371,10 +2377,14 @@
                             type: 'depot',
                             description: `Virement vente - ${collaborator.name}`,
                             amount: totalAmount,
-                            balance_after: newBalance
+                            balance_after: newBalance,
+                            liquid_pending_after: currentLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
+                } else if (paymentMode === 'liquide') {
+                    // Pour les ventes liquides, on ne crée pas de mouvement
+                    // Le frigo sera calculé via dépôt_liquide
                 }
 
                 showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
@@ -2542,8 +2552,10 @@
                 }
 
                 let currentBalance = 0;
+                let currentLiquidPending = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                 }
 
                 const oldAmount = editingSaleData.amount;
@@ -2557,7 +2569,8 @@
                             type: 'depot',
                             description: `Conversion Liquide→Virement - ${editingSaleData.collaborator_name} ($${newTotal.toFixed(2)})`,
                             amount: newTotal,
-                            balance_after: newBalance
+                            balance_after: newBalance,
+                            liquid_pending_after: currentLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
@@ -2570,7 +2583,8 @@
                             type: 'retrait',
                             description: `Conversion Virement→Liquide - ${editingSaleData.collaborator_name} ($${oldAmount.toFixed(2)})`,
                             amount: oldAmount,
-                            balance_after: newBalance
+                            balance_after: newBalance,
+                            liquid_pending_after: currentLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
@@ -2584,7 +2598,8 @@
                             type: 'correction',
                             description: `${typeStr} montant vente modifiée - ${editingSaleData.collaborator_name}`,
                             amount: Math.abs(amountDiff),
-                            balance_after: newBalance
+                            balance_after: newBalance,
+                            liquid_pending_after: currentLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
@@ -2648,8 +2663,10 @@
 
                 if (sale.payment_mode === 'virement') {
                     let currentBalance = 0;
+                    let currentLiquidPending = 0;
                     if (movementsData.length > 0) {
                         currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                        currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                     }
                     const newBalance = currentBalance - sale.amount;
 
@@ -2659,7 +2676,8 @@
                             type: 'retrait',
                             description: `Suppression vente (Virement) - ${sale.collaborator_name}`,
                             amount: sale.amount,
-                            balance_after: newBalance
+                            balance_after: newBalance,
+                            liquid_pending_after: currentLiquidPending
                         }]);
 
                     if (movementError) throw movementError;
@@ -2692,13 +2710,22 @@
 
             try {
                 let currentBalance = 0;
+                let currentLiquidPending = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                 }
 
                 let newBalance = currentBalance;
+                let newLiquidPending = currentLiquidPending;
+
+                // ✅ Logique améliorée avec liquid_pending_after
                 if (type === 'depot' || type === 'depot_liquide') {
                     newBalance += amount;
+                    if (type === 'depot_liquide') {
+                        // Dépôt liquide = le frigo diminue
+                        newLiquidPending = Math.max(0, currentLiquidPending - amount);
+                    }
                 } else if (type === 'commission') {
                     newBalance -= amount;
                 } else {
@@ -2711,7 +2738,8 @@
                         type: type,
                         description: description,
                         amount: amount,
-                        balance_after: newBalance
+                        balance_after: newBalance,
+                        liquid_pending_after: newLiquidPending
                     }]);
 
                 if (error) throw error;
@@ -3141,8 +3169,10 @@
                 if (updateError) throw updateError;
 
                 let currentBalance = 0;
+                let currentLiquidPending = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                 }
                 const newBalance = currentBalance - amount;
 
@@ -3152,7 +3182,8 @@
                         type: 'retrait',
                         description: `Remboursement de frais`,
                         amount: amount,
-                        balance_after: newBalance
+                        balance_after: newBalance,
+                        liquid_pending_after: currentLiquidPending
                     }]);
 
                 if (movementError) throw movementError;
@@ -3199,19 +3230,25 @@
             const newBalance = parseFloat(document.getElementById('newCashBalance').value);
             const reason = document.getElementById('cashCorrectionReason').value;
 
-            if (!newBalance || !reason) {
+            if (isNaN(newBalance) || !reason) {
                 showMessage('cashCorrectionMessage', 'Tous les champs sont requis', 'error');
                 return;
             }
 
             try {
+                let currentLiquidPending = 0;
+                if (movementsData.length > 0) {
+                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
+                }
+
                 const { error } = await supabaseClient
                     .from('movements')
                     .insert([{
                         type: 'correction',
                         description: `Correction du solde: ${reason}`,
                         amount: 0,
-                        balance_after: newBalance
+                        balance_after: newBalance,
+                        liquid_pending_after: currentLiquidPending
                     }]);
 
                 if (error) throw error;
@@ -3225,35 +3262,55 @@
             }
         };
 
+        // ✅ NOUVEAU: Corriger le solde du liquide en attente
+        window.correctLiquidBalance = async function() {
+            if (currentUser.role !== 'admin') {
+                alert('Seul un admin peut corriger le frigo');
+                return;
+            }
+
+            const newLiquidPending = parseFloat(document.getElementById('newLiquidBalance').value);
+            const reason = document.getElementById('liquidCorrectionReason').value;
+
+            if (isNaN(newLiquidPending) || !reason) {
+                showMessage('liquidCorrectionMessage', 'Tous les champs sont requis', 'error');
+                return;
+            }
+
+            try {
+                let currentBalance = 0;
+                if (movementsData.length > 0) {
+                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
+                }
+
+                const { error } = await supabaseClient
+                    .from('movements')
+                    .insert([{
+                        type: 'correction_liquid',
+                        description: `Correction du Frigo: ${reason}`,
+                        amount: 0,
+                        balance_after: currentBalance,
+                        liquid_pending_after: newLiquidPending
+                    }]);
+
+                if (error) throw error;
+
+                showMessage('liquidCorrectionMessage', '✓ Frigo corrigé!', 'success');
+                document.getElementById('newLiquidBalance').value = '';
+                document.getElementById('liquidCorrectionReason').value = '';
+                loadMovements();
+            } catch (err) {
+                showMessage('liquidCorrectionMessage', 'Erreur: ' + err.message, 'error');
+            }
+        };
+
         window.openResetSalesModal = function() {
             document.getElementById('resetSalesModal').classList.add('active');
             
-            // Calcul du liquide en attente
-            let liquidSalesTotal = 0;
-            if (lastSalesReset) {
-                const resetDate = new Date(lastSalesReset);
-                const liquidSales = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at);
-                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= resetDate;
-                });
-                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
-            } else {
-                const today = new Date().toDateString();
-                const liquidSales = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at).toDateString();
-                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate === today;
-                });
-                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            let liquidPending = 0;
+            if (movementsData.length > 0) {
+                liquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
             }
-
-            let liquidDeposits = 0;
-            movementsData.forEach(mov => {
-                if (mov.type === 'depot_liquide') {
-                    liquidDeposits += parseFloat(mov.amount);
-                }
-            });
-
-            const liquidPending = liquidSalesTotal - liquidDeposits;
             
             const warningDiv = document.getElementById('resetSalesWarning');
             if (liquidPending > 0) {
@@ -3270,7 +3327,6 @@
             }
 
             try {
-                // === FIX v2.5.10: Reset simple sans manipulation du solde ===
                 const { error } = await supabaseClient
                     .from('settings')
                     .update({ last_sales_reset: new Date().toISOString() })
