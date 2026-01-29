@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.9</title>
+    <title>LE PALACE - Comptabilité v2.5.10</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -309,6 +309,10 @@
             font-size: 1.1em;
         }
 
+        .stat-card.warning {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -339,6 +343,12 @@
             background: #fee2e2;
             color: #991b1b;
             border: 1px solid #fca5a5;
+        }
+
+        .message.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
         }
 
         .logout-btn {
@@ -825,7 +835,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.9</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.10</p>
             </div>
 
             <div class="login-section">
@@ -839,7 +849,7 @@
                     <input type="password" id="pin" placeholder="Entrez votre PIN" maxlength="4" inputmode="numeric">
                 </div>
 
-                <button class="btn-primary" onclick="login()">Connexion</button>
+                <button class="btn-primary" onclick="window.login()">Connexion</button>
 
                 <div id="loginError" style="display: none; color: #ef4444; text-align: center; padding: 10px; background: #fee2e2; border-radius: 6px;"></div>
             </div>
@@ -854,7 +864,7 @@
                     </div>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span id="userDisplay" style="color: white;"></span>
-                        <button class="logout-btn" onclick="logout()">Déconnexion</button>
+                        <button class="logout-btn" onclick="window.logout()">Déconnexion</button>
                     </div>
                 </div>
             </div>
@@ -889,7 +899,7 @@
                     <h4>💵 Solde Caisse</h4>
                     <p id="cashBalance">0.00 $</p>
                 </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="stat-card" id="liquidPendingCard" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                     <h4>🧾 Liquide en Attente (Frigo)</h4>
                     <p id="liquidPending">0.00 $</p>
                 </div>
@@ -897,14 +907,14 @@
 
             <!-- TABS -->
             <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('sales')">📊 Ventes</button>
-                <button class="tab-button" id="comptaTab" onclick="switchTab('compta')" style="display: none;">📈 Compta</button>
-                <button class="tab-button" id="movementsTab" onclick="switchTab('movements')" style="display: none;">💸 Mouvements</button>
-                <button class="tab-button" onclick="switchTab('expenses')">📋 Notes de Frais</button>
-                <button class="tab-button" onclick="switchTab('collaborators')">👥 Collaborateurs</button>
-                <button class="tab-button" id="stockTab" onclick="switchTab('stock')" style="display: none;">📦 Stock</button>
-                <button class="tab-button" id="productsTab" onclick="switchTab('products')" style="display: none;">🍷 Produits</button>
-                <button class="tab-button" id="settingsTab" onclick="switchTab('settings')" style="display: none;">⚙️ Paramètres</button>
+                <button class="tab-button active" onclick="window.switchTab('sales')">📊 Ventes</button>
+                <button class="tab-button" id="comptaTab" onclick="window.switchTab('compta')" style="display: none;">📈 Compta</button>
+                <button class="tab-button" id="movementsTab" onclick="window.switchTab('movements')" style="display: none;">💸 Mouvements</button>
+                <button class="tab-button" onclick="window.switchTab('expenses')">📋 Notes de Frais</button>
+                <button class="tab-button" onclick="window.switchTab('collaborators')">👥 Collaborateurs</button>
+                <button class="tab-button" id="stockTab" onclick="window.switchTab('stock')" style="display: none;">📦 Stock</button>
+                <button class="tab-button" id="productsTab" onclick="window.switchTab('products')" style="display: none;">🍷 Produits</button>
+                <button class="tab-button" id="settingsTab" onclick="window.switchTab('settings')" style="display: none;">⚙️ Paramètres</button>
             </div>
 
             <!-- TAB 1: SALES -->
@@ -952,7 +962,7 @@
                         </div>
                     </div>
 
-                    <button class="btn-primary" onclick="recordSale()">✓ Enregistrer la Vente</button>
+                    <button class="btn-primary" onclick="window.recordSale()">✓ Enregistrer la Vente</button>
                     <div id="saleMessage"></div>
                 </div>
 
@@ -1003,7 +1013,7 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn-warning reset-sales-btn" onclick="openResetSalesModal()">🔄 Réinitialiser les Ventes (Primes)</button>
+                        <button class="btn-warning reset-sales-btn" onclick="window.openResetSalesModal()">🔄 Réinitialiser les Ventes (Primes)</button>
                     </div>
                 </div>
 
@@ -1056,7 +1066,7 @@
                                 <option value="retrait">Retrait</option>
                                 <option value="depense">Dépense</option>
                                 <option value="commission">Commission Payée</option>
-                                <option value="depot_liquide">Dépôt Liquide en Attente</option>
+                                <option value="depot_liquide">Dépôt Liquide (Frigo → Caisse)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1068,7 +1078,7 @@
                         <label for="movementDescription">Description</label>
                         <textarea id="movementDescription" placeholder="Détails du mouvement..." rows="3"></textarea>
                     </div>
-                    <button class="btn-primary" onclick="recordMovement()">✓ Enregistrer</button>
+                    <button class="btn-primary" onclick="window.recordMovement()">✓ Enregistrer</button>
                     <div id="movementMessage"></div>
                 </div>
 
@@ -1105,7 +1115,7 @@
                         <label for="expenseDescription">Description / Justification *</label>
                         <textarea id="expenseDescription" placeholder="Détails de la dépense..." rows="3" required></textarea>
                     </div>
-                    <button class="btn-primary" onclick="submitExpense()">✓ Soumettre la Demande</button>
+                    <button class="btn-primary" onclick="window.submitExpense()">✓ Soumettre la Demande</button>
                     <div id="expenseMessage"></div>
                 </div>
 
@@ -1151,13 +1161,13 @@
                             <input type="text" id="newCollaboratorPin" placeholder="1234" maxlength="4" inputmode="numeric">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="addCollaborator()">✓ Ajouter</button>
+                    <button class="btn-primary" onclick="window.addCollaborator()">✓ Ajouter</button>
                     <div id="collaboratorMessage"></div>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn-primary" id="addCollaboratorBtn" onclick="toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
-                    <button class="btn-secondary" onclick="changeMyPassword()">🔐 Changer Mon PIN</button>
+                    <button class="btn-primary" id="addCollaboratorBtn" onclick="window.toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
+                    <button class="btn-secondary" onclick="window.changeMyPassword()">🔐 Changer Mon PIN</button>
                 </div>
 
                 <div class="table-container">
@@ -1186,7 +1196,7 @@
                             <input type="number" id="addStockQuantity" placeholder="0" min="0">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="addStock()">✓ Ajouter au Stock</button>
+                    <button class="btn-primary" onclick="window.addStock()">✓ Ajouter au Stock</button>
                     <div id="addStockMessage"></div>
                 </div>
 
@@ -1208,7 +1218,7 @@
                             <input type="number" id="newStockAmount" placeholder="0" min="0">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="correctStock()">✓ Mettre à Jour</button>
+                    <button class="btn-primary" onclick="window.correctStock()">✓ Mettre à Jour</button>
                     <div id="stockCorrectionMessage"></div>
                 </div>
 
@@ -1253,12 +1263,12 @@
                             <input type="number" id="newProductStock" placeholder="0" min="0">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="addProduct()">✓ Ajouter</button>
+                    <button class="btn-primary" onclick="window.addProduct()">✓ Ajouter</button>
                     <div id="productMessage"></div>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn-primary" id="addProductBtn" onclick="toggleAddProduct()" style="display: none;">+ Ajouter Produit</button>
+                    <button class="btn-primary" id="addProductBtn" onclick="window.toggleAddProduct()" style="display: none;">+ Ajouter Produit</button>
                 </div>
 
                 <div class="table-container">
@@ -1291,7 +1301,7 @@
                             <input type="number" id="commissionRate" placeholder="30" step="0.01">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="updateSettings()">✓ Mettre à Jour</button>
+                    <button class="btn-primary" onclick="window.updateSettings()">✓ Mettre à Jour</button>
                     <div id="settingsMessage"></div>
                 </div>
 
@@ -1311,19 +1321,20 @@
                         <label for="cashCorrectionReason">Motif de la Correction</label>
                         <textarea id="cashCorrectionReason" placeholder="Raison de la modification..." rows="2"></textarea>
                     </div>
-                    <button class="btn-primary" onclick="correctCashBalance()">✓ Appliquer la Correction</button>
+                    <button class="btn-primary" onclick="window.correctCashBalance()">✓ Appliquer la Correction</button>
                     <div id="cashCorrectionMessage"></div>
                 </div>
 
                 <div class="action-buttons" style="display: none;" id="adminPanel">
-                    <button class="btn-secondary" onclick="exportData()">📥 Exporter les Données</button>
-                    <button class="btn-secondary" onclick="clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
+                    <button class="btn-secondary" onclick="window.exportData()">📥 Exporter les Données</button>
+                    <button class="btn-secondary" onclick="window.clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
                 </div>
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.9 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.10 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
+                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ FIX v2.5.10:</strong> Correction du bug du Frigo (liquide en attente) - Reset sans déduction erronée</p>
                 </div>
             </div>
         </div>
@@ -1363,9 +1374,9 @@
             <div id="editSaleMessage"></div>
 
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('editSaleModal')">Annuler</button>
-                <button class="btn-danger" onclick="confirmDeleteSale()">🗑️ Supprimer la Vente</button>
-                <button class="btn-primary" onclick="saveSaleEdit()">✓ Enregistrer</button>
+                <button class="btn-secondary" onclick="window.closeModal('editSaleModal')">Annuler</button>
+                <button class="btn-danger" onclick="window.confirmDeleteSale()">🗑️ Supprimer la Vente</button>
+                <button class="btn-primary" onclick="window.saveSaleEdit()">✓ Enregistrer</button>
             </div>
         </div>
     </div>
@@ -1387,8 +1398,8 @@
             </div>
             <div id="passwordMessage"></div>
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('changePasswordModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveNewPassword()">Mettre à jour</button>
+                <button class="btn-secondary" onclick="window.closeModal('changePasswordModal')">Annuler</button>
+                <button class="btn-primary" onclick="window.saveNewPassword()">Mettre à jour</button>
             </div>
         </div>
     </div>
@@ -1406,8 +1417,8 @@
                 </select>
             </div>
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('changeUserRoleModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveUserRole()">Appliquer</button>
+                <button class="btn-secondary" onclick="window.closeModal('changeUserRoleModal')">Annuler</button>
+                <button class="btn-primary" onclick="window.saveUserRole()">Appliquer</button>
             </div>
         </div>
     </div>
@@ -1429,8 +1440,8 @@
             </div>
             <div id="editProductMessage"></div>
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('editProductModal')">Annuler</button>
-                <button class="btn-primary" onclick="saveProductEdit()">Enregistrer</button>
+                <button class="btn-secondary" onclick="window.closeModal('editProductModal')">Annuler</button>
+                <button class="btn-primary" onclick="window.saveProductEdit()">Enregistrer</button>
             </div>
         </div>
     </div>
@@ -1438,12 +1449,12 @@
     <div id="resetSalesModal" class="modal">
         <div class="modal-content">
             <h3>⚠️ Réinitialiser les Ventes</h3>
-            <p style="color: #666; margin-bottom: 15px;">Cette action va réinitialiser le compteur de ventes. Les données sont conservées en archive.</p>
-            <p style="color: #ef4444; font-weight: bold;">Êtes-vous sûr de vouloir procéder ?</p>
+            <p style="color: #666; margin-bottom: 15px;">Cette action va réinitialiser le compteur de ventes pour les primes. Les données sont conservées en archive.</p>
+            <p id="resetSalesWarning" style="color: #ef4444; font-weight: bold;"></p>
             <div id="resetSalesMessage"></div>
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('resetSalesModal')">Annuler</button>
-                <button class="btn-danger" onclick="confirmResetSales()">✓ Réinitialiser</button>
+                <button class="btn-secondary" onclick="window.closeModal('resetSalesModal')">Annuler</button>
+                <button class="btn-danger" onclick="window.confirmResetSales()">✓ Réinitialiser</button>
             </div>
         </div>
     </div>
@@ -1455,8 +1466,8 @@
             <p style="color: #ef4444; font-weight: bold;">Êtes-vous sûr de vouloir procéder ?</p>
             <div id="deleteSaleMessage"></div>
             <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeModal('confirmDeleteSaleModal')">Annuler</button>
-                <button class="btn-danger" onclick="executeSaleDelete()">✓ Supprimer</button>
+                <button class="btn-secondary" onclick="window.closeModal('confirmDeleteSaleModal')">Annuler</button>
+                <button class="btn-danger" onclick="window.executeSaleDelete()">✓ Supprimer</button>
             </div>
         </div>
     </div>
@@ -1504,7 +1515,7 @@
         // ============================================
         // LOGIN / LOGOUT
         // ============================================
-        async function login() {
+        window.login = async function() {
             const username = document.getElementById('username').value.trim();
             const pin = document.getElementById('pin').value.trim();
             const errorDiv = document.getElementById('loginError');
@@ -1543,16 +1554,16 @@
                 errorDiv.textContent = 'Erreur: ' + err.message;
                 errorDiv.style.display = 'block';
             }
-        }
+        };
 
-        function logout() {
+        window.logout = function() {
             currentUser = null;
             document.getElementById('mainApp').classList.remove('active');
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('username').value = '';
             document.getElementById('pin').value = '';
             document.getElementById('loginError').style.display = 'none';
-        }
+        };
 
         // ============================================
         // UI UPDATES
@@ -1598,11 +1609,9 @@
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
                 document.getElementById('settingsSection').style.display = 'block';
             } else {
-                // Employé: cacher les onglets réservés
                 document.getElementById('movementsTab').style.display = 'none';
             }
 
-            // Employés : peuvent AJOUTER du stock (pas corriger)
             if (currentUser.role === 'employe' || currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addStockSection').style.display = 'block';
                 document.getElementById('stockTab').style.display = 'block';
@@ -1617,7 +1626,7 @@
             }
         }
 
-        function switchTab(tabName) {
+        window.switchTab = function(tabName) {
             currentTab = tabName;
 
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -1643,7 +1652,7 @@
             if (tabName === 'compta') {
                 loadCompta();
             }
-        }
+        };
 
         function showMessage(elementId, message, type) {
             const element = document.getElementById(elementId);
@@ -1658,9 +1667,9 @@
             }, 3000);
         }
 
-        function closeModal(modalId) {
+        window.closeModal = function(modalId) {
             document.getElementById(modalId).classList.remove('active');
-        }
+        };
 
         // ============================================
         // LOAD DATA
@@ -1730,8 +1739,8 @@
                     </div>
                     <div class="collab-actions">
                         ${currentUser.role === 'admin' ? `
-                            <button class="btn-secondary btn-small" onclick="openChangeRoleModal(${collab.id}, '${collab.name}', '${collab.role}')">Rôle</button>
-                            <button class="btn-danger btn-small" onclick="deleteCollaborator(${collab.id}, '${collab.name}')">${collab.is_active ? 'Supprimer' : 'Restaurer'}</button>
+                            <button class="btn-secondary btn-small" onclick="window.openChangeRoleModal(${collab.id}, '${collab.name.replace(/'/g, "\\'")}', '${collab.role}')">Rôle</button>
+                            <button class="btn-danger btn-small" onclick="window.deleteCollaborator(${collab.id}, '${collab.name.replace(/'/g, "\\'")}')">${collab.is_active ? 'Supprimer' : 'Restaurer'}</button>
                         ` : ''}
                     </div>
                 </div>
@@ -1778,9 +1787,9 @@
                                     <div class="product-price">$${product.price.toFixed(2)}</div>
                                     <div class="product-stock ${isLowStock ? 'low' : ''}">Stock: ${product.stock || 0}</div>
                                     <div class="quantity-controls">
-                                        <button class="qty-btn" onclick="changeQuantity(${product.id}, -1)">−</button>
+                                        <button class="qty-btn" onclick="window.changeQuantity(${product.id}, -1)">−</button>
                                         <div class="qty-display" id="qty_display_${product.id}">0</div>
-                                        <button class="qty-btn" onclick="changeQuantity(${product.id}, 1)">+</button>
+                                        <button class="qty-btn" onclick="window.changeQuantity(${product.id}, 1)">+</button>
                                     </div>
                                 </div>
                             `;
@@ -1795,14 +1804,14 @@
             });
         }
 
-        function changeQuantity(productId, change) {
+        window.changeQuantity = function(productId, change) {
             if (!productQuantities[productId]) productQuantities[productId] = 0;
             
             productQuantities[productId] = Math.max(0, productQuantities[productId] + change);
             document.getElementById(`qty_display_${productId}`).textContent = productQuantities[productId];
             
             updateTotalAmount();
-        }
+        };
 
         function renderProductsTable() {
             const tbody = document.getElementById('productsBody');
@@ -1820,8 +1829,8 @@
                         <td>${product.active ? '✓ Actif' : '✗ Inactif'}</td>
                         <td>
                             ${currentUser.role === 'admin' || currentUser.role === 'gerant' ? `
-                                <button class="btn-secondary btn-small" onclick="openEditProductModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.category.replace(/'/g, "\\'")}', ${product.price})">Modifier</button>
-                                <button class="btn-danger btn-small" onclick="deleteProduct(${product.id})">Supprimer</button>
+                                <button class="btn-secondary btn-small" onclick="window.openEditProductModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.category.replace(/'/g, "\\'")}', ${product.price})">Modifier</button>
+                                <button class="btn-danger btn-small" onclick="window.deleteProduct(${product.id})">Supprimer</button>
                             ` : ''}
                         </td>
                     </tr>
@@ -1858,7 +1867,7 @@
                         </span>
                     </td>
                     <td id="stockAction_${product.id}" style="display: none;">
-                        <button class="btn-secondary btn-small" onclick="openStockModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.stock || 0})">Corriger</button>
+                        <button class="btn-secondary btn-small" onclick="window.openStockModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.stock || 0})">Corriger</button>
                     </td>
                 </tr>
             `).join('');
@@ -1870,7 +1879,6 @@
                 });
             }
 
-            // Populate Add Stock Select
             const addSelect = document.getElementById('addStockProductSelect');
             addSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
             data.forEach(product => {
@@ -1889,7 +1897,6 @@
                 }
             };
 
-            // Populate Correct Stock Select
             const corrSelect = document.getElementById('stockProductSelect');
             corrSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
             data.forEach(product => {
@@ -1909,11 +1916,11 @@
             };
         }
 
-        function openStockModal(productId, productName, currentStock) {
+        window.openStockModal = function(productId, productName, currentStock) {
             document.getElementById('stockProductSelect').value = productId;
             document.getElementById('currentStockDisplay').value = currentStock;
             document.getElementById('newStockAmount').value = '';
-        }
+        };
 
         function updateTotalAmount() {
             let total = 0;
@@ -1957,7 +1964,6 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
             } else {
                 tbody.innerHTML = salesData.map(sale => {
-                    // === PERMISSIONS STRICTES ===
                     const isAdmin = currentUser.role === 'admin';
                     const isGerant = currentUser.role === 'gerant';
                     const isOwner = currentUser.role === 'employe' && sale.collaborator_id === currentUser.id;
@@ -1973,8 +1979,8 @@
                             <td>${sale.notes || '-'}</td>
                             <td>
                                 ${canModifyDelete ? `
-                                    <button class="btn-secondary btn-small" onclick="editSale(${sale.id})">Modifier</button>
-                                    ${isAdmin || isGerant ? `<button class="btn-danger btn-small" onclick="quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
+                                    <button class="btn-secondary btn-small" onclick="window.editSale(${sale.id})">Modifier</button>
+                                    ${isAdmin || isGerant ? `<button class="btn-danger btn-small" onclick="window.quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
                                 ` : '<span class="not-authorized">Non autorisé</span>'}
                             </td>
                         </tr>
@@ -2171,8 +2177,8 @@
                         </td>
                         <td>
                             ${expense.status === 'pending' ? `
-                                <button class="btn-primary btn-small" onclick="approveExpense(${expense.id}, ${expense.amount})">Rembourser</button>
-                                <button class="btn-danger btn-small" onclick="rejectExpense(${expense.id})">Refuser</button>
+                                <button class="btn-primary btn-small" onclick="window.approveExpense(${expense.id}, ${expense.amount})">Rembourser</button>
+                                <button class="btn-danger btn-small" onclick="window.rejectExpense(${expense.id})">Refuser</button>
                             ` : 'Validé'}
                         </td>
                     </tr>
@@ -2263,12 +2269,20 @@
 
             const liquidPending = liquidSalesTotal - liquidDeposits;
             document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' $';
+            
+            // Mise à jour couleur du frigo
+            const liquidCard = document.getElementById('liquidPendingCard');
+            if (liquidPending > 0) {
+                liquidCard.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+            } else {
+                liquidCard.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            }
         }
 
         // ============================================
         // RECORD OPERATIONS
         // ============================================
-        async function recordSale() {
+        window.recordSale = async function() {
             let collaboratorId;
             
             if (currentUser.role === 'employe') {
@@ -2306,7 +2320,6 @@
                 const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
                 const productDetailsStr = productDetails.join(', ');
 
-                // Store product quantities for later reference
                 const productQuantitiesData = {};
                 productsData.forEach(product => {
                     const qty = productQuantities[product.id] || 0;
@@ -2383,9 +2396,9 @@
             } catch (err) {
                 showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function editSale(saleId) {
+        window.editSale = async function(saleId) {
             const sale = salesData.find(s => s.id === saleId);
             if (!sale) return;
 
@@ -2396,7 +2409,6 @@
             document.getElementById('editSaleNotes').value = sale.notes || '';
             document.getElementById('editSaleTotalAmount').value = '$' + sale.amount.toFixed(2);
 
-            // Build product list with current quantities
             const productsList = document.getElementById('editSaleProductsList');
             const productQuantitiesInSale = sale.product_quantities || {};
 
@@ -2410,7 +2422,7 @@
                             <div style="text-align: center;">$${product.price.toFixed(2)}</div>
                             <input type="number" class="qty-input-edit" id="editQty_${product.id}" value="${currentQty}" min="0">
                             <div style="text-align: right;" id="editSubtotal_${product.id}">$${(product.price * currentQty).toFixed(2)}</div>
-                            <button class="btn-danger btn-small" onclick="removeProductFromEdit(${product.id})">Retirer</button>
+                            <button class="btn-danger btn-small" onclick="window.removeProductFromEdit(${product.id})">Retirer</button>
                         </div>
                     `;
                 }
@@ -2422,28 +2434,27 @@
 
             productsList.innerHTML = html;
 
-            // Add event listeners for quantity changes
             productsData.forEach(product => {
                 const input = document.getElementById(`editQty_${product.id}`);
                 if (input) {
-                    input.addEventListener('change', () => updateEditSaleTotal());
-                    input.addEventListener('input', () => updateEditSaleTotal());
+                    input.addEventListener('change', () => window.updateEditSaleTotal());
+                    input.addEventListener('input', () => window.updateEditSaleTotal());
                 }
             });
 
-            updateEditSaleTotal();
+            window.updateEditSaleTotal();
             document.getElementById('editSaleModal').classList.add('active');
-        }
+        };
 
-        function removeProductFromEdit(productId) {
+        window.removeProductFromEdit = function(productId) {
             const input = document.getElementById(`editQty_${productId}`);
             if (input) {
                 input.value = '0';
-                updateEditSaleTotal();
+                window.updateEditSaleTotal();
             }
-        }
+        };
 
-        function updateEditSaleTotal() {
+        window.updateEditSaleTotal = function() {
             let total = 0;
             let productCount = 0;
 
@@ -2465,9 +2476,9 @@
             });
 
             document.getElementById('editSaleTotalAmount').value = '$' + total.toFixed(2);
-        }
+        };
 
-        async function saveSaleEdit() {
+        window.saveSaleEdit = async function() {
             if (!editingSaleId || !editingSaleData) return;
 
             const oldPaymentMode = editingSaleData.payment_mode;
@@ -2496,10 +2507,8 @@
             }
 
             try {
-                // Get old quantities
                 const oldQuantities = editingSaleData.product_quantities || {};
 
-                // Update sale
                 const { error: updateError } = await supabaseClient
                     .from('sales')
                     .update({
@@ -2515,11 +2524,10 @@
 
                 if (updateError) throw updateError;
 
-                // Update stock for all products
                 for (const product of productsData) {
                     const oldQty = oldQuantities[product.id] || 0;
                     const newQty = newProductQuantities[product.id] || 0;
-                    const diff = oldQty - newQty; // Positive = add back to stock, Negative = remove more
+                    const diff = oldQty - newQty;
 
                     if (diff !== 0) {
                         const currentStock = product.stock || 0;
@@ -2533,7 +2541,6 @@
                     }
                 }
 
-                // === CRITICAL FIX: Handle payment mode changes and amount changes ===
                 let currentBalance = 0;
                 if (movementsData.length > 0) {
                     currentBalance = parseFloat(movementsData[0].balance_after) || 0;
@@ -2542,7 +2549,6 @@
                 const oldAmount = editingSaleData.amount;
                 const amountDiff = newTotal - oldAmount;
 
-                // Case 1: LIQUIDE -> VIREMENT (add to cash)
                 if (oldPaymentMode === 'liquide' && newPaymentMode === 'virement') {
                     const newBalance = currentBalance + newTotal;
                     const { error: movementError } = await supabaseClient
@@ -2556,7 +2562,6 @@
 
                     if (movementError) throw movementError;
                 }
-                // Case 2: VIREMENT -> LIQUIDE (remove from cash)
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'liquide') {
                     const newBalance = currentBalance - oldAmount;
                     const { error: movementError } = await supabaseClient
@@ -2570,7 +2575,6 @@
 
                     if (movementError) throw movementError;
                 }
-                // Case 3: VIREMENT -> VIREMENT (amount changed, adjust)
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'virement' && amountDiff !== 0) {
                     const newBalance = currentBalance + amountDiff;
                     const typeStr = amountDiff > 0 ? 'Augmentation' : 'Réduction';
@@ -2585,12 +2589,10 @@
 
                     if (movementError) throw movementError;
                 }
-                // Case 4: LIQUIDE -> LIQUIDE (no cash impact)
-                // Nothing to do
 
                 showMessage('editSaleMessage', '✓ Vente modifiée!', 'success');
                 setTimeout(() => {
-                    closeModal('editSaleModal');
+                    window.closeModal('editSaleModal');
                 }, 1000);
                 
                 editingSaleId = null;
@@ -2601,28 +2603,27 @@
             } catch (err) {
                 showMessage('editSaleMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function confirmDeleteSale() {
+        window.confirmDeleteSale = function() {
             if (!editingSaleId) return;
             deletingSaleId = editingSaleId;
-            closeModal('editSaleModal');
+            window.closeModal('editSaleModal');
             document.getElementById('confirmDeleteSaleModal').classList.add('active');
-        }
+        };
 
-        function quickDeleteSale(saleId) {
+        window.quickDeleteSale = function(saleId) {
             deletingSaleId = saleId;
             document.getElementById('confirmDeleteSaleModal').classList.add('active');
-        }
+        };
 
-        async function executeSaleDelete() {
+        window.executeSaleDelete = async function() {
             if (!deletingSaleId) return;
 
             const sale = salesData.find(s => s.id === deletingSaleId);
             if (!sale) return;
 
             try {
-                // Mark sale as inactive
                 const { error: deleteError } = await supabaseClient
                     .from('sales')
                     .update({ is_active: false, updated_by: currentUser.name })
@@ -2630,7 +2631,6 @@
 
                 if (deleteError) throw deleteError;
 
-                // Return stock
                 const quantities = sale.product_quantities || {};
                 for (const productId in quantities) {
                     const product = productsData.find(p => p.id == productId);
@@ -2646,7 +2646,6 @@
                     }
                 }
 
-                // Adjust cash balance ONLY if virement
                 if (sale.payment_mode === 'virement') {
                     let currentBalance = 0;
                     if (movementsData.length > 0) {
@@ -2665,11 +2664,10 @@
 
                     if (movementError) throw movementError;
                 }
-                // If liquide, cash is not affected, only "Liquide en attente" changes (auto via Realtime)
 
                 showMessage('deleteSaleMessage', '✓ Vente supprimée et stock restauré!', 'success');
                 setTimeout(() => {
-                    closeModal('confirmDeleteSaleModal');
+                    window.closeModal('confirmDeleteSaleModal');
                 }, 1000);
 
                 deletingSaleId = null;
@@ -2680,9 +2678,9 @@
             } catch (err) {
                 showMessage('deleteSaleMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function recordMovement() {
+        window.recordMovement = async function() {
             const type = document.getElementById('movementType').value;
             const amount = parseFloat(document.getElementById('movementAmount').value);
             const description = document.getElementById('movementDescription').value;
@@ -2699,14 +2697,11 @@
                 }
 
                 let newBalance = currentBalance;
-                // === CORRECTION COMMISSION: DÉDUIT la caisse ===
                 if (type === 'depot' || type === 'depot_liquide') {
                     newBalance += amount;
                 } else if (type === 'commission') {
-                    // Commission = RETRAIT (prime payée aux collaborateurs)
                     newBalance -= amount;
                 } else {
-                    // retrait, depense
                     newBalance -= amount;
                 }
 
@@ -2728,9 +2723,9 @@
             } catch (err) {
                 showMessage('movementMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function addCollaborator() {
+        window.addCollaborator = async function() {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -2760,19 +2755,19 @@
                 showMessage('collaboratorMessage', '✓ Collaborateur ajouté!', 'success');
                 document.getElementById('newCollaboratorName').value = '';
                 document.getElementById('newCollaboratorPin').value = '';
-                toggleAddCollaborator();
+                window.toggleAddCollaborator();
                 loadCollaborators();
             } catch (err) {
                 showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function toggleAddCollaborator() {
+        window.toggleAddCollaborator = function() {
             const section = document.getElementById('addCollaboratorSection');
             section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        }
+        };
 
-        async function addProduct() {
+        window.addProduct = async function() {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -2807,19 +2802,19 @@
                 document.getElementById('newProductCategory').value = '';
                 document.getElementById('newProductPrice').value = '';
                 document.getElementById('newProductStock').value = '';
-                toggleAddProduct();
+                window.toggleAddProduct();
                 loadProducts();
             } catch (err) {
                 showMessage('productMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function toggleAddProduct() {
+        window.toggleAddProduct = function() {
             const section = document.getElementById('addProductSection');
             section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        }
+        };
 
-        async function deleteProduct(productId) {
+        window.deleteProduct = async function(productId) {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut supprimer un produit');
                 return;
@@ -2842,9 +2837,9 @@
             } catch (err) {
                 showMessage('productMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function openEditProductModal(productId, name, category, price) {
+        window.openEditProductModal = function(productId, name, category, price) {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -2855,9 +2850,9 @@
             document.getElementById('editProductCategory').value = category;
             document.getElementById('editProductPrice').value = price;
             document.getElementById('editProductModal').classList.add('active');
-        }
+        };
 
-        async function saveProductEdit() {
+        window.saveProductEdit = async function() {
             if (!editingProductId) return;
 
             const name = document.getElementById('editProductName').value.trim();
@@ -2883,15 +2878,15 @@
                 if (error) throw error;
 
                 showMessage('editProductMessage', '✓ Produit modifié!', 'success');
-                closeModal('editProductModal');
+                window.closeModal('editProductModal');
                 editingProductId = null;
                 loadProducts();
             } catch (err) {
                 showMessage('editProductMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function addStock() {
+        window.addStock = async function() {
             const productId = document.getElementById('addStockProductSelect').value;
             const quantity = parseInt(document.getElementById('addStockQuantity').value);
 
@@ -2920,9 +2915,9 @@
             } catch (err) {
                 showMessage('addStockMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function correctStock() {
+        window.correctStock = async function() {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -2953,9 +2948,9 @@
             } catch (err) {
                 showMessage('stockCorrectionMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function updateSettings() {
+        window.updateSettings = async function() {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut modifier les paramètres');
                 return;
@@ -2983,16 +2978,16 @@
             } catch (err) {
                 showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function changeMyPassword() {
+        window.changeMyPassword = function() {
             document.getElementById('changePasswordModal').classList.add('active');
             document.getElementById('currentPin').value = '';
             document.getElementById('newPin').value = '';
             document.getElementById('confirmPin').value = '';
-        }
+        };
 
-        async function saveNewPassword() {
+        window.saveNewPassword = async function() {
             const currentPin = document.getElementById('currentPin').value;
             const newPin = document.getElementById('newPin').value;
             const confirmPin = document.getElementById('confirmPin').value;
@@ -3028,21 +3023,21 @@
                 currentUser.pin_code = newPin;
                 showMessage('passwordMessage', '✓ PIN mis à jour!', 'success');
                 setTimeout(() => {
-                    closeModal('changePasswordModal');
+                    window.closeModal('changePasswordModal');
                 }, 1500);
             } catch (err) {
                 showMessage('passwordMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function openChangeRoleModal(userId, userName, currentRole) {
+        window.openChangeRoleModal = function(userId, userName, currentRole) {
             document.getElementById('changeRoleUserName').textContent = 'Utilisateur: ' + userName + ' (Rôle actuel: ' + currentRole + ')';
             document.getElementById('changeRoleSelect').value = currentRole;
             document.getElementById('changeUserRoleModal').dataset.userId = userId;
             document.getElementById('changeUserRoleModal').classList.add('active');
-        }
+        };
 
-        async function saveUserRole() {
+        window.saveUserRole = async function() {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut changer les rôles');
                 return;
@@ -3060,14 +3055,14 @@
                 if (error) throw error;
 
                 showMessage('collaboratorMessage', '✓ Rôle mis à jour!', 'success');
-                closeModal('changeUserRoleModal');
+                window.closeModal('changeUserRoleModal');
                 loadCollaborators();
             } catch (err) {
                 showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function deleteCollaborator(userId, userName) {
+        window.deleteCollaborator = async function(userId, userName) {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut supprimer un utilisateur');
                 return;
@@ -3093,9 +3088,9 @@
             } catch (err) {
                 showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function submitExpense() {
+        window.submitExpense = async function() {
             const amount = parseFloat(document.getElementById('expenseAmount').value);
             const description = document.getElementById('expenseDescription').value.trim();
 
@@ -3125,9 +3120,9 @@
             } catch (err) {
                 showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function approveExpense(expenseId, amount) {
+        window.approveExpense = async function(expenseId, amount) {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -3168,9 +3163,9 @@
             } catch (err) {
                 showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function rejectExpense(expenseId) {
+        window.rejectExpense = async function(expenseId) {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Vous n\'avez pas les droits');
                 return;
@@ -3193,9 +3188,9 @@
             } catch (err) {
                 showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        async function correctCashBalance() {
+        window.correctCashBalance = async function() {
             if (currentUser.role !== 'admin') {
                 alert('Seul un admin peut corriger le solde');
                 return;
@@ -3228,40 +3223,54 @@
             } catch (err) {
                 showMessage('cashCorrectionMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function openResetSalesModal() {
+        window.openResetSalesModal = function() {
             document.getElementById('resetSalesModal').classList.add('active');
-        }
+            
+            // Calcul du liquide en attente
+            let liquidSalesTotal = 0;
+            if (lastSalesReset) {
+                const resetDate = new Date(lastSalesReset);
+                const liquidSales = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at);
+                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= resetDate;
+                });
+                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            } else {
+                const today = new Date().toDateString();
+                const liquidSales = salesData.filter(sale => {
+                    const saleDate = new Date(sale.created_at).toDateString();
+                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate === today;
+                });
+                liquidSalesTotal = liquidSales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
+            }
 
-        async function confirmResetSales() {
+            let liquidDeposits = 0;
+            movementsData.forEach(mov => {
+                if (mov.type === 'depot_liquide') {
+                    liquidDeposits += parseFloat(mov.amount);
+                }
+            });
+
+            const liquidPending = liquidSalesTotal - liquidDeposits;
+            
+            const warningDiv = document.getElementById('resetSalesWarning');
+            if (liquidPending > 0) {
+                warningDiv.textContent = `⚠️ ATTENTION: Vous avez $${liquidPending.toFixed(2)} en liquide en attente (Frigo)! Veuillez d'abord enregistrer le dépôt liquide dans Mouvements avant de réinitialiser.`;
+            } else {
+                warningDiv.textContent = '✓ Le Frigo est à 0. Vous pouvez réinitialiser.';
+            }
+        };
+
+        window.confirmResetSales = async function() {
             if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
                 alert('Seul un gérant ou admin peut réinitialiser les ventes');
                 return;
             }
 
             try {
-                // === CALCUL CRITIQUE: Liquide en attente avant reset ===
-                const oldResetDate = lastSalesReset ? new Date(lastSalesReset) : new Date(0);
-                
-                // Ventes liquides depuis dernier reset
-                const liquidSalesBeforeReset = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at);
-                    return sale.payment_mode === 'liquide' && sale.is_active && saleDate >= oldResetDate;
-                });
-                const liquidSalesTotal = liquidSalesBeforeReset.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
-                
-                // Dépôts liquides effectués depuis dernier reset
-                const liquidDepositsBeforeReset = movementsData.filter(mov => {
-                    const movDate = new Date(mov.created_at);
-                    return mov.type === 'depot_liquide' && movDate >= oldResetDate;
-                });
-                const liquidDepositsTotal = liquidDepositsBeforeReset.reduce((sum, mov) => sum + parseFloat(mov.amount), 0);
-                
-                // Montant liquide en attente = ventes - dépôts
-                const liquidPendingBeforeReset = liquidSalesTotal - liquidDepositsTotal;
-                
-                // === RESET MAINTENANT ===
+                // === FIX v2.5.10: Reset simple sans manipulation du solde ===
                 const { error } = await supabaseClient
                     .from('settings')
                     .update({ last_sales_reset: new Date().toISOString() })
@@ -3269,30 +3278,8 @@
 
                 if (error) throw error;
 
-                // === SI IL Y A DU LIQUIDE EN ATTENTE = AJOUTER MOUVEMENT DE CLÔTURE ===
-                if (liquidPendingBeforeReset > 0) {
-                    let currentBalance = 0;
-                    if (movementsData.length > 0) {
-                        currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    }
-                    
-                    // Clôture du liquide en attente = le retirer du suivi "frigo"
-                    const newBalance = currentBalance - liquidPendingBeforeReset;
-                    
-                    const { error: closureError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'depot_liquide',
-                            description: `[RESET] Clôture liquide en attente: $${liquidPendingBeforeReset.toFixed(2)}`,
-                            amount: liquidPendingBeforeReset,
-                            balance_after: newBalance
-                        }]);
-
-                    if (closureError) throw closureError;
-                }
-
                 showMessage('resetSalesMessage', '✓ Ventes réinitialisées!', 'success');
-                closeModal('resetSalesModal');
+                window.closeModal('resetSalesModal');
                 loadLastSalesReset();
                 loadMovements();
                 loadCompta();
@@ -3300,9 +3287,9 @@
             } catch (err) {
                 showMessage('resetSalesMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
-        function exportData() {
+        window.exportData = function() {
             const exportData = {
                 collaborators: collaboratorsData,
                 sales: salesData,
@@ -3320,9 +3307,9 @@
             link.download = `palace-export-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             URL.revokeObjectURL(url);
-        }
+        };
 
-        async function clearAllData() {
+        window.clearAllData = async function() {
             if (!confirm('⚠️ ATTENTION! Cette action supprimera TOUTES les données. Êtes-vous absolument sûr?')) {
                 return;
             }
@@ -3340,7 +3327,7 @@
             } catch (err) {
                 showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
             }
-        }
+        };
 
         function setupRealtimeSubscriptions() {
             supabaseClient
@@ -3380,52 +3367,9 @@
                 .subscribe();
         }
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
         window.addEventListener('load', () => {
             initSupabase();
         });
-
-        // Make functions globally accessible
-        window.login = login;
-        window.logout = logout;
-        window.switchTab = switchTab;
-        window.recordSale = recordSale;
-        window.changeQuantity = changeQuantity;
-        window.updateTotalAmount = updateTotalAmount;
-        window.recordMovement = recordMovement;
-        window.addCollaborator = addCollaborator;
-        window.toggleAddCollaborator = toggleAddCollaborator;
-        window.addProduct = addProduct;
-        window.toggleAddProduct = toggleAddProduct;
-        window.deleteProduct = deleteProduct;
-        window.openEditProductModal = openEditProductModal;
-        window.saveProductEdit = saveProductEdit;
-        window.addStock = addStock;
-        window.correctStock = correctStock;
-        window.openStockModal = openStockModal;
-        window.updateSettings = updateSettings;
-        window.changeMyPassword = changeMyPassword;
-        window.saveNewPassword = saveNewPassword;
-        window.openChangeRoleModal = openChangeRoleModal;
-        window.saveUserRole = saveUserRole;
-        window.deleteCollaborator = deleteCollaborator;
-        window.submitExpense = submitExpense;
-        window.approveExpense = approveExpense;
-        window.rejectExpense = rejectExpense;
-        window.correctCashBalance = correctCashBalance;
-        window.openResetSalesModal = openResetSalesModal;
-        window.confirmResetSales = confirmResetSales;
-        window.exportData = exportData;
-        window.clearAllData = clearAllData;
-        window.closeModal = closeModal;
-        window.editSale = editSale;
-        window.removeProductFromEdit = removeProductFromEdit;
-        window.saveSaleEdit = saveSaleEdit;
-        window.confirmDeleteSale = confirmDeleteSale;
-        window.quickDeleteSale = quickDeleteSale;
-        window.executeSaleDelete = executeSaleDelete;
     </script>
 </body>
 </html>
