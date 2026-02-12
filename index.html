@@ -1456,26 +1456,40 @@
                 </div>
 
                 <!-- CONTROL STATS -->
-                <div class="control-stats">
-                    <div class="control-stat-card">
-                        <h4>Total Mouvements</h4>
-                        <p id="controlTotalCount">0</p>
-                    </div>
-                    <div class="control-stat-card">
-                        <h4>Total Entrées</h4>
-                        <p id="controlTotalIn">0.00 $</p>
-                    </div>
-                    <div class="control-stat-card">
-                        <h4>Total Sorties</h4>
-                        <p id="controlTotalOut">0.00 $</p>
-                    </div>
-                    <div class="control-stat-card">
-                        <h4>Solde Net</h4>
-                        <p id="controlNetBalance">0.00 $</p>
-                    </div>
-                </div>
+<div class="control-stats">
+    <!-- Ce qu'il y a sur le compte (théorique) -->
+    <div class="control-stat-card" id="controlCashCard">
+        <h4>Solde Caisse Actuel</h4>
+        <p id="controlCashBalance">0.00 $</p>
+    </div>
+    <div class="control-stat-card" id="controlLiquidCard">
+        <h4>Liquide en Attente (Frigo)</h4>
+        <p id="controlLiquidPending">0.00 $</p>
+    </div>
+    <div class="control-stat-card" id="controlTotalTreasuryCard">
+        <h4>Solde Théorique Société (Caisse + Frigo)</h4>
+        <p id="controlTotalTreasury">0.00 $</p>
+    </div>
 
-                <!-- CONTROL TABLE -->
+    <!-- Composition des mouvements filtrés (période) -->
+    <div class="control-stat-card">
+        <h4>Total Mouvements (période)</h4>
+        <p id="controlTotalCount">0</p>
+    </div>
+    <div class="control-stat-card">
+        <h4>Total Entrées (période)</h4>
+        <p id="controlTotalIn">0.00 $</p>
+    </div>
+    <div class="control-stat-card">
+        <h4>Total Sorties (période)</h4>
+        <p id="controlTotalOut">0.00 $</p>
+    </div>
+    <div class="control-stat-card">
+        <h4>Résultat Net (Entrées - Sorties)</h4>
+        <p id="controlNetBalance">0.00 $</p>
+    </div>
+</div>
+<!-- CONTROL TABLE -->
                 <div class="control-results">
                     <h4>📊 Résultats des Mouvements</h4>
                     <div class="table-container">
@@ -2239,7 +2253,7 @@
                     
                     return `
                         <tr>
-                            <td>${formatDateFrance(sale.created_at)}</td>
+                            <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
                             <td>${sale.collaborator_name}</td>
                             <td class="success">$${sale.amount.toFixed(2)}</td>
                             <td>${sale.payment_mode}</td>
@@ -2402,7 +2416,7 @@
             } else {
                 tbody.innerHTML = movementsData.map(mov => `
                     <tr>
-                        <td>${formatDateFrance(mov.created_at)}</td>
+                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
                         <td><strong>${mov.type}</strong></td>
                         <td>${mov.description || '-'}</td>
                         <td class="success">$${mov.amount.toFixed(2)}</td>
@@ -2487,7 +2501,7 @@
 
                 return `
                     <tr>
-                        <td>${formatDateFrance(mov.created_at)}</td>
+                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
                         <td><span class="movement-type-badge ${typeBadge}">${mov.type}</span></td>
                         <td>${mov.description || '-'}</td>
                         <td class="success">$${mov.amount.toFixed(2)}</td>
@@ -2499,35 +2513,70 @@
         }
 
         function updateControlStats() {
-            const totalCount = filteredMovements.length;
-            
-            const totalIn = filteredMovements
-                .filter(m => ['depot', 'depot_liquide', 'vente_liquide'].includes(m.type))
-                .reduce((sum, m) => sum + parseFloat(m.amount), 0);
-            
-            const totalOut = filteredMovements
-                .filter(m => ['retrait', 'depense', 'commission'].includes(m.type))
-                .reduce((sum, m) => sum + parseFloat(m.amount), 0);
-            
-            const netBalance = totalIn - totalOut;
+    if (!movementsData) movementsData = [];
+    if (!filteredMovements) filteredMovements = [];
 
-            document.getElementById('controlTotalCount').textContent = totalCount;
-            document.getElementById('controlTotalIn').textContent = totalIn.toFixed(2) + ' $';
-            document.getElementById('controlTotalOut').textContent = totalOut.toFixed(2) + ' $';
-            document.getElementById('controlNetBalance').textContent = (netBalance >= 0 ? '+' : '') + netBalance.toFixed(2) + ' $';
+    // 1) Soldes actuels (théoriques) : basés sur le dernier mouvement enregistré
+    let cashBalance = 0;
+    let liquidPending = 0;
 
-            // Color net balance
-            const netBalanceEl = document.getElementById('controlNetBalance');
+    if (movementsData.length > 0) {
+        const lastMovement = movementsData[0]; // trié du plus récent au plus ancien
+        cashBalance = parseFloat(lastMovement.balanceafter) || 0;
+        liquidPending = parseFloat(lastMovement.liquidpendingafter) || 0;
+    }
+
+    const totalTreasury = cashBalance + liquidPending;
+
+    const cashEl = document.getElementById('controlCashBalance');
+    const liquidEl = document.getElementById('controlLiquidPending');
+    const totalTreasuryEl = document.getElementById('controlTotalTreasury');
+
+    if (cashEl) cashEl.textContent = cashBalance.toFixed(2);
+    if (liquidEl) liquidEl.textContent = liquidPending.toFixed(2);
+    if (totalTreasuryEl) totalTreasuryEl.textContent = totalTreasury.toFixed(2);
+
+    // 2) Composition de la période filtrée
+    const totalCount = filteredMovements.length;
+
+    const totalIn = filteredMovements
+        .filter(m => ['depot', 'depotliquide', 'venteliquide'].includes(m.type))
+        .reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+
+    const totalOut = filteredMovements
+        .filter(m => ['retrait', 'depense', 'commission'].includes(m.type))
+        .reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+
+    const netBalance = totalIn - totalOut;
+
+    const totalCountEl = document.getElementById('controlTotalCount');
+    const totalInEl = document.getElementById('controlTotalIn');
+    const totalOutEl = document.getElementById('controlTotalOut');
+    const netBalanceEl = document.getElementById('controlNetBalance');
+
+    if (totalCountEl) totalCountEl.textContent = totalCount;
+    if (totalInEl) totalInEl.textContent = totalIn.toFixed(2);
+    if (totalOutEl) totalOutEl.textContent = totalOut.toFixed(2);
+
+    if (netBalanceEl) {
+        netBalanceEl.textContent = netBalance >= 0
+            ? netBalance.toFixed(2)
+            : '-' + Math.abs(netBalance).toFixed(2);
+
+        const card = netBalanceEl.parentElement;
+        if (card) {
             if (netBalance > 0) {
-                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                card.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
             } else if (netBalance < 0) {
-                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                card.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
             } else {
-                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }
         }
+    }
+}
 
-        async function loadExpenses() {
+async function loadExpenses() {
             const { data, error } = await supabaseClient
                 .from('expense_requests')
                 .select('*')
@@ -2546,7 +2595,7 @@
             } else {
                 tbody.innerHTML = expensesData.map(expense => `
                     <tr style="opacity: ${expense.status === 'approved' ? '0.6' : '1'};">
-                        <td>${formatDateFrance(expense.created_at)}</td>
+                        <td>${new Date(expense.created_at).toLocaleString('fr-FR')}</td>
                         <td>${expense.employee_name}</td>
                         <td class="success">$${expense.amount.toFixed(2)}</td>
                         <td>${expense.description || '-'}</td>
@@ -3821,22 +3870,6 @@
                     loadExpenses();
                 })
                 .subscribe();
-        }
-
-        // ============================================
-        // TIMEZONE HELPER - FRANCE (Europe/Paris)
-        // ============================================
-        function formatDateFrance(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('fr-FR', {
-                timeZone: 'Europe/Paris',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
         }
 
         window.addEventListener('load', () => {
