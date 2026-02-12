@@ -1,3881 +1,477 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.14</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 1200px;
-            overflow: hidden;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .login-section {
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        label {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.95em;
-        }
-
-        input, select, textarea {
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            border-color: #dc2626;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85em;
-        }
-
-        .main-app {
-            display: none;
-            padding: 30px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .main-app.active {
-            display: block;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-            flex-wrap: wrap;
-        }
-
-        .tab-button {
-            padding: 12px 20px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-weight: 600;
-            color: #999;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-section {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .form-section h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .form-section h4 {
-            margin-bottom: 15px;
-            color: #555;
-            font-size: 1em;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
-
-        th {
-            background: #f0f0f0;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        tr:hover {
-            background: #f9f9f9;
-        }
-
-        .success {
-            color: #10b981;
-            font-weight: 600;
-        }
-
-        .error {
-            color: #ef4444;
-            font-weight: 600;
-        }
-
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f0f0f0;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .user-info span {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-card h4 {
-            opacity: 0.9;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-
-        .stat-card p {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        .stat-card.reset-date {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            font-size: 0.9em;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .stat-card.reset-date h4 {
-            font-size: 0.85em;
-        }
-
-        .stat-card.reset-date p {
-            font-size: 1.1em;
-        }
-
-        .stat-card.warning {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .action-buttons button {
-            padding: 10px 20px;
-            font-size: 0.9em;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .message.success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #6ee7b7;
-        }
-
-        .message.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-        }
-
-        .message.warning {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fcd34d;
-        }
-
-        .logout-btn {
-            padding: 10px 20px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .badge.admin {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge.gerant {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge.employe {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge.controleur {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #999;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            margin: 20px auto;
-        }
-
-        .modal-content h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .text-danger {
-            color: #ef4444;
-        }
-
-        .collaborative-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .collab-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .collab-card.inactive {
-            opacity: 0.5;
-            background: #f9f9f9;
-        }
-
-        .collab-info {
-            flex: 1;
-        }
-
-        .collab-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .stock-status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-
-        .stock-status.low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .stock-status.ok {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .products-grid-container {
-            margin-top: 15px;
-        }
-
-        .category-section {
-            margin-bottom: 30px;
-        }
-
-        .category-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-        }
-
-        .product-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .product-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .product-card.boissons {
-            border-left: 5px solid #3b82f6;
-        }
-
-        .product-card.alcools {
-            border-left: 5px solid #f59e0b;
-        }
-
-        .product-card.cocktails {
-            border-left: 5px solid #ec4899;
-        }
-
-        .product-card.autres {
-            border-left: 5px solid #10b981;
-        }
-
-        .product-card.services {
-            border-left: 5px solid #8b5cf6;
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        .product-price {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .product-stock {
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .product-stock.low {
-            color: #ef4444;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .qty-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .qty-btn:hover {
-            background: #764ba2;
-        }
-
-        .qty-btn:active {
-            transform: scale(0.95);
-        }
-
-        .qty-display {
-            width: 40px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .sale-summary {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .sale-summary h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 0.95em;
-        }
-
-        .summary-item.total {
-            border-top: 2px solid #e0e0e0;
-            padding-top: 10px;
-            margin-top: 10px;
-            font-weight: bold;
-            font-size: 1.1em;
-            color: #667eea;
-        }
-
-        .compta-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .compta-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .compta-card h4 {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-        }
-
-        .compta-card .amount {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .compta-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.95em;
-        }
-
-        .compta-table th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .compta-table td {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .compta-table tr:hover {
-            background: #f9f9f9;
-        }
-
-        .compta-table tr.total-row {
-            background: #f0f0f0;
-            font-weight: bold;
-            border-top: 2px solid #667eea;
-        }
-
-        .reset-sales-btn {
-            background: #f59e0b;
-            color: white;
-            margin-top: 10px;
-        }
-
-        .reset-sales-btn:hover {
-            background: #d97706;
-        }
-
-        .two-table-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .two-table-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .table-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            margin-top: 30px;
-        }
-
-        .edit-product-row {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: 1fr auto auto auto auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .edit-product-row input {
-            padding: 8px;
-            font-size: 0.9em;
-        }
-
-        .edit-product-row button {
-            padding: 6px 12px;
-            font-size: 0.85em;
-        }
-
-        .qty-input-edit {
-            width: 80px;
-            text-align: center;
-        }
-
-        .not-authorized {
-            color: #999;
-            font-size: 0.85em;
-            font-style: italic;
-        }
-
-        /* ============= CONTRÔLE TAB STYLES ============= */
-        .control-filters {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 2px solid #e0e0e0;
-        }
-
-        .control-filters h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .filter-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-controls .form-group {
-            margin-bottom: 0;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .filter-buttons button {
-            padding: 10px 20px;
-            font-size: 0.9em;
-        }
-
-        .control-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .control-stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .control-stat-card h4 {
-            opacity: 0.9;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-
-        .control-stat-card p {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-
-        .movement-type-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .movement-type-badge.depot {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .movement-type-badge.retrait {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .movement-type-badge.depense {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .movement-type-badge.commission {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .movement-type-badge.vente_liquide {
-            background: #f3e8ff;
-            color: #6b21a8;
-        }
-
-        .movement-type-badge.correction {
-            background: #fecaca;
-            color: #7f1d1d;
-        }
-
-        .control-results {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #e0e0e0;
-        }
-
-        .control-results h4 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-            font-style: italic;
-        }
-
-        @media (max-width: 768px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-                gap: 10px;
-            }
-
-            .product-card {
-                padding: 12px;
-            }
-
-            .qty-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 1em;
-            }
-
-            .qty-display {
-                width: 35px;
-                font-size: 0.95em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                gap: 8px;
-            }
-
-            .product-card {
-                padding: 10px;
-            }
-
-            .product-name {
-                font-size: 0.85em;
-            }
-
-            .product-price {
-                font-size: 1.1em;
-            }
-
-            .qty-btn {
-                width: 24px;
-                height: 24px;
-                font-size: 0.9em;
-            }
-
-            .qty-display {
-                width: 30px;
-                font-size: 0.85em;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LE PALACE - Onglet Contrôleur</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #667eea 0, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 1100px;
+      padding: 24px 28px 30px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .info {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .highlight {
+      font-weight: 600;
+      color: #1f2933;
+    }
+    .grid-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .card {
+      border-radius: 10px;
+      padding: 16px 18px;
+      color: #fff;
+    }
+    .card.primary {
+      background: linear-gradient(135deg, #667eea 0, #764ba2 100%);
+    }
+    .card.secondary {
+      background: linear-gradient(135deg, #10b981 0, #059669 100%);
+    }
+    .card.warning {
+      background: linear-gradient(135deg, #f59e0b 0, #d97706 100%);
+    }
+    .card h3 {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+    .card .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .card .caption {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    .inputs-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.9rem;
+    }
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+    input[type="number"],
+    input[type="text"],
+    input[type="date"] {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+    }
+    input[readonly] {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    button {
+      border-radius: 6px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea 0, #764ba2 100%);
+      color: #fff;
+    }
+    button:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    .status {
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      display: none;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .status.ok {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pill.credit {
+      background: #e0f2fe;
+      color: #075985;
+    }
+    .pill.debit {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .pill.neutre {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .delta-pos {
+      color: #16a34a;
+      font-weight: 600;
+    }
+    .delta-neg {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    .delta-zero {
+      color: #111827;
+      font-weight: 600;
+    }
+    .section-title {
+      margin-top: 18px;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .small-note {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- LOGIN SECTION -->
-        <div id="loginSection">
-            <div class="header">
-                <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.14</p>
-            </div>
+  <div class="container">
+    <h1>Onglet Contrôleur - LE PALACE</h1>
+    <p class="subtitle">
+      Vue de contrôle pour comparer le <span class="highlight">solde théorique</span> de l'application avec le
+      <span class="highlight">solde du compte bancaire</span> et comprendre sa composition.
+    </p>
 
-            <div class="login-section">
-                <div class="form-group">
-                    <label for="username">Pseudo</label>
-                    <input type="text" id="username" placeholder="Entrez votre pseudo">
-                </div>
+    <p class="info">
+      Le solde théorique est calculé à partir de la table <span class="highlight">movements</span> (champ
+      <span class="highlight">balanceafter</span>). Pour chaque mouvement, on mesure l'impact réel sur le solde et on
+      regroupe ces impacts par type de mouvement (dépôt, retrait, commission, correction, etc.).
+    </p>
 
-                <div class="form-group">
-                    <label for="pin">PIN (4 chiffres)</label>
-                    <input type="password" id="pin" placeholder="Entrez votre PIN" maxlength="4" inputmode="numeric">
-                </div>
+    <div id="status" class="status"></div>
 
-                <button class="btn-primary" onclick="window.login()">Connexion</button>
-
-                <div id="loginError" style="display: none; color: #ef4444; text-align: center; padding: 10px; background: #fee2e2; border-radius: 6px;"></div>
-            </div>
-        </div>
-
-        <!-- MAIN APP SECTION -->
-        <div id="mainApp" class="main-app">
-            <div class="header" style="padding: 20px; margin: -30px -30px 20px -30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                    <div>
-                        <h1 style="font-size: 2em;">👑 LE PALACE</h1>
-                    </div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <span id="userDisplay" style="color: white;"></span>
-                        <button class="logout-btn" onclick="window.logout()">Déconnexion</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- USER INFO -->
-            <div class="user-info">
-                <div>
-                    <span>Utilisateur: </span>
-                    <span id="userName" style="color: #667eea;"></span>
-                </div>
-                <div>
-                    <span id="userRole" class="badge"></span>
-                </div>
-            </div>
-
-            <!-- STATS (HIDDEN FOR CONTROLEUR) -->
-            <div class="stats" id="statsSection">
-                <div class="stat-card">
-                    <h4>💰 Ventes</h4>
-                    <p id="totalSalesToday">0.00 $</p>
-                    <small id="salesDateRange" style="opacity: 0.8; margin-top: 10px;">depuis le -</small>
-                </div>
-                <div class="stat-card">
-                    <h4>👥 Collaborateurs</h4>
-                    <p id="totalCollaborators">0</p>
-                </div>
-                <div class="stat-card">
-                    <h4 id="commissionHeader">📊 Commission (30%)</h4>
-                    <p id="totalCommission">0.00 $</p>
-                </div>
-                <div class="stat-card" id="cashBalanceCard">
-                    <h4>💵 Solde Caisse</h4>
-                    <p id="cashBalance">0.00 $</p>
-                </div>
-                <div class="stat-card" id="liquidPendingCard" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    <h4>🧾 Liquide en Attente (Frigo)</h4>
-                    <p id="liquidPending">0.00 $</p>
-                </div>
-            </div>
-
-            <!-- TABS -->
-            <div class="tabs">
-                <button class="tab-button active" id="salesBtn" onclick="window.switchTab('sales')">📊 Ventes</button>
-                <button class="tab-button" id="comptaTab" onclick="window.switchTab('compta')" style="display: none;">📈 Compta</button>
-                <button class="tab-button" id="movementsTab" onclick="window.switchTab('movements')" style="display: none;">💸 Mouvements</button>
-                <button class="tab-button" onclick="window.switchTab('expenses')">📋 Notes de Frais</button>
-                <button class="tab-button" onclick="window.switchTab('collaborators')">👥 Collaborateurs</button>
-                <button class="tab-button" id="stockTab" onclick="window.switchTab('stock')" style="display: none;">📦 Stock</button>
-                <button class="tab-button" id="productsTab" onclick="window.switchTab('products')" style="display: none;">🍷 Produits</button>
-                <button class="tab-button" id="controlTab" onclick="window.switchTab('control')" style="display: none;">🔍 Contrôle</button>
-                <button class="tab-button" id="settingsTab" onclick="window.switchTab('settings')" style="display: none;">⚙️ Paramètres</button>
-            </div>
-
-            <!-- TAB 1: SALES -->
-            <div id="sales" class="tab-content active">
-                <div class="form-section">
-                    <h3>Enregistrer une Vente</h3>
-                    <div class="form-row">
-                        <div class="form-group" id="collaboratorSelectGroup" style="display: none;">
-                            <label for="collaboratorSelect">Collaborateur</label>
-                            <select id="collaboratorSelect">
-                                <option value="">-- Sélectionner --</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="currentCollaboratorGroup" style="display: none;">
-                            <label>Collaborateur</label>
-                            <input type="text" id="currentCollaboratorDisplay" disabled style="background: #f0f0f0;">
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentMode">Mode de Paiement</label>
-                            <select id="paymentMode">
-                                <option value="liquide">Liquide</option>
-                                <option value="virement">Virement</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- GRILLE DE PRODUITS -->
-                    <div class="products-grid-container">
-                        <label style="display: block; margin-bottom: 15px; font-weight: 600;">📦 Sélectionner les Produits</label>
-                        <div id="productsGridList"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="saleNotes">Notes / Motif</label>
-                        <textarea id="saleNotes" placeholder="Précisions sur la commande..." rows="2"></textarea>
-                    </div>
-
-                    <!-- RÉSUMÉ DE LA VENTE -->
-                    <div class="sale-summary">
-                        <h4>📋 Résumé de la Vente</h4>
-                        <div id="saleSummaryItems" style="margin-bottom: 10px;"></div>
-                        <div class="summary-item total">
-                            <span>MONTANT TOTAL :</span>
-                            <span id="totalAmountDisplay">0.00 $</span>
-                        </div>
-                    </div>
-
-                    <button class="btn-primary" onclick="window.recordSale()">✓ Enregistrer la Vente</button>
-                    <div id="saleMessage"></div>
-                </div>
-
-                <div class="table-container">
-                    <h3>Historique des Ventes</h3>
-                    <table id="salesTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Collaborateur</th>
-                                <th>Montant</th>
-                                <th>Mode</th>
-                                <th>Produits</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesBody">
-                            <tr><td colspan="7" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 2: COMPTA -->
-            <div id="compta" class="tab-content">
-                <div class="form-section">
-                    <h3>📈 Comptabilité des Ventes</h3>
-                    <p style="color: #666; margin-bottom: 15px;">Résumé des ventes depuis le dernier réinitialisation</p>
-                    
-                    <div class="compta-summary">
-                        <div class="compta-card">
-                            <h4>Total Ventes</h4>
-                            <div class="amount" id="comptaTotalVentes">0.00 $</div>
-                        </div>
-                        <div class="compta-card">
-                            <h4>Nombre de Transactions</h4>
-                            <div class="amount" id="comptaTransactions">0</div>
-                        </div>
-                        <div class="compta-card">
-                            <h4>Ticket Moyen</h4>
-                            <div class="amount" id="comptaTicketMoyen">0.00 $</div>
-                        </div>
-                        <div class="compta-card">
-                            <h4>Dernier Reset</h4>
-                            <div style="font-size: 1.2em; font-weight: bold; color: #667eea; margin-top: 5px;" id="comptaDerniereReinit">-</div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="btn-warning reset-sales-btn" onclick="window.openResetSalesModal()">🔄 Réinitialiser les Ventes (Primes)</button>
-                    </div>
-                </div>
-
-                <div class="two-table-container">
-                    <div>
-                        <div class="table-title">Ventes par Collaborateur (Depuis Reset)</div>
-                        <table class="compta-table">
-                            <thead>
-                                <tr>
-                                    <th>Collaborateur</th>
-                                    <th style="text-align: right;">Nb Ventes</th>
-                                    <th style="text-align: right;">Montant</th>
-                                    <th style="text-align: right;">Moyen</th>
-                                </tr>
-                            </thead>
-                            <tbody id="comptaTableBody">
-                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div>
-                        <div class="table-title">Total Ventes par Collaborateur (Depuis Toujours)</div>
-                        <table class="compta-table">
-                            <thead>
-                                <tr>
-                                    <th>Collaborateur</th>
-                                    <th style="text-align: right;">Nb Ventes</th>
-                                    <th style="text-align: right;">Montant</th>
-                                    <th style="text-align: right;">Moyen</th>
-                                </tr>
-                            </thead>
-                            <tbody id="comptaTotalTableBody">
-                                <tr><td colspan="4" class="loading">Chargement...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: MOVEMENTS -->
-            <div id="movements" class="tab-content">
-                <div class="form-section">
-                    <h3>Ajouter un Mouvement de Caisse</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="movementType">Type de Mouvement</label>
-                            <select id="movementType">
-                                <option value="depot">Dépôt</option>
-                                <option value="retrait">Retrait</option>
-                                <option value="depense">Dépense</option>
-                                <option value="commission">Commission Payée</option>
-                                <option value="depot_liquide">Dépôt Liquide (Frigo → Caisse)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="movementAmount">Montant ($)</label>
-                            <input type="number" id="movementAmount" placeholder="0.00" step="0.01">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="movementDescription">Description</label>
-                        <textarea id="movementDescription" placeholder="Détails du mouvement..." rows="3"></textarea>
-                    </div>
-                    <button class="btn-primary" onclick="window.recordMovement()">✓ Enregistrer</button>
-                    <div id="movementMessage"></div>
-                </div>
-
-                <div class="table-container">
-                    <h3>Historique des Mouvements</h3>
-                    <table id="movementsTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Montant</th>
-                                <th>Solde Après</th>
-                                <th>Frigo Après</th>
-                            </tr>
-                        </thead>
-                        <tbody id="movementsBody">
-                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 4: EXPENSES -->
-            <div id="expenses" class="tab-content">
-                <div class="form-section">
-                    <h3>Demander un Remboursement</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="expenseAmount">Montant ($) *</label>
-                            <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="expenseDescription">Description / Justification *</label>
-                        <textarea id="expenseDescription" placeholder="Détails de la dépense..." rows="3" required></textarea>
-                    </div>
-                    <button class="btn-primary" onclick="window.submitExpense()">✓ Soumettre la Demande</button>
-                    <div id="expenseMessage"></div>
-                </div>
-
-                <div class="table-container" id="adminExpensesPanel" style="display: none;">
-                    <h3>Notes de Frais en Attente (Admin/Gérant)</h3>
-                    <table id="expensesTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Demandeur</th>
-                                <th>Montant</th>
-                                <th>Description</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expensesBody">
-                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 5: COLLABORATORS -->
-            <div id="collaborators" class="tab-content">
-                <div class="form-section" id="addCollaboratorSection" style="display: none;">
-                    <h3>Ajouter un Collaborateur</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="newCollaboratorName">Nom</label>
-                            <input type="text" id="newCollaboratorName" placeholder="Jean Dupont">
-                        </div>
-                        <div class="form-group">
-                            <label for="newCollaboratorRole">Rôle</label>
-                            <select id="newCollaboratorRole">
-                                <option value="employe">Employé</option>
-                                <option value="gerant">Gérant</option>
-                                <option value="admin">Admin</option>
-                                <option value="controleur">Contrôleur</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="newCollaboratorPin">PIN</label>
-                            <input type="text" id="newCollaboratorPin" placeholder="1234" maxlength="4" inputmode="numeric">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.addCollaborator()">✓ Ajouter</button>
-                    <div id="collaboratorMessage"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-primary" id="addCollaboratorBtn" onclick="window.toggleAddCollaborator()" style="display: none;">+ Ajouter Collaborateur</button>
-                    <button class="btn-secondary" onclick="window.changeMyPassword()">🔐 Changer Mon PIN</button>
-                </div>
-
-                <div class="table-container">
-                    <h3>Collaborateurs</h3>
-                    <div id="collaboratorsGrid" class="collaborative-list"></div>
-                </div>
-            </div>
-
-            <!-- TAB 6: STOCK -->
-            <div id="stock" class="tab-content">
-                <div class="form-section" id="addStockSection" style="display: none;">
-                    <h3>Ajouter du Stock</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="addStockProductSelect">Produit</label>
-                            <select id="addStockProductSelect">
-                                <option value="">-- Sélectionner --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Stock Actuel</label>
-                            <input type="text" id="addCurrentStockDisplay" disabled style="background: #f0f0f0;">
-                        </div>
-                        <div class="form-group">
-                            <label for="addStockQuantity">Quantité à Ajouter</label>
-                            <input type="number" id="addStockQuantity" placeholder="0" min="0">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.addStock()">✓ Ajouter au Stock</button>
-                    <div id="addStockMessage"></div>
-                </div>
-
-                <div class="form-section" id="correctStockSection" style="display: none;">
-                    <h3>Corriger le Stock d'un Produit</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="stockProductSelect">Produit</label>
-                            <select id="stockProductSelect">
-                                <option value="">-- Sélectionner --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Stock Actuel</label>
-                            <input type="text" id="currentStockDisplay" disabled style="background: #f0f0f0;">
-                        </div>
-                        <div class="form-group">
-                            <label for="newStockAmount">Nouveau Stock</label>
-                            <input type="number" id="newStockAmount" placeholder="0" min="0">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.correctStock()">✓ Mettre à Jour</button>
-                    <div id="stockCorrectionMessage"></div>
-                </div>
-
-                <div class="table-container">
-                    <h3>État du Stock</h3>
-                    <table id="stockTable">
-                        <thead>
-                            <tr>
-                                <th>Produit</th>
-                                <th>Catégorie</th>
-                                <th>Stock</th>
-                                <th>État</th>
-                                <th id="stockActionsHeader" style="display: none;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stockBody">
-                            <tr><td colspan="5" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 7: PRODUCTS -->
-            <div id="products" class="tab-content">
-                <div class="form-section" id="addProductSection" style="display: none;">
-                    <h3>Ajouter un Produit</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="newProductName">Nom du Produit</label>
-                            <input type="text" id="newProductName" placeholder="Ex: Bière Blonde">
-                        </div>
-                        <div class="form-group">
-                            <label for="newProductCategory">Catégorie</label>
-                            <input type="text" id="newProductCategory" placeholder="Ex: Boissons">
-                        </div>
-                        <div class="form-group">
-                            <label for="newProductPrice">Prix ($)</label>
-                            <input type="number" id="newProductPrice" placeholder="0.00" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label for="newProductStock">Stock Initial</label>
-                            <input type="number" id="newProductStock" placeholder="0" min="0">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.addProduct()">✓ Ajouter</button>
-                    <div id="productMessage"></div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-primary" id="addProductBtn" onclick="window.toggleAddProduct()" style="display: none;">+ Ajouter Produit</button>
-                </div>
-
-                <div class="table-container">
-                    <h3>Catalogue des Produits</h3>
-                    <table id="productsTable">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Catégorie</th>
-                                <th>Prix</th>
-                                <th>Stock</th>
-                                <th>État</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsBody">
-                            <tr><td colspan="6" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 8: CONTRÔLE (NEW) -->
-            <div id="control" class="tab-content">
-                <div class="control-filters">
-                    <h3>🔍 Filtres de Contrôle</h3>
-                    
-                    <div class="filter-controls">
-                        <div class="form-group">
-                            <label for="controlDateFrom">Date Début</label>
-                            <input type="date" id="controlDateFrom">
-                        </div>
-                        <div class="form-group">
-                            <label for="controlDateTo">Date Fin</label>
-                            <input type="date" id="controlDateTo">
-                        </div>
-                        <div class="form-group">
-                            <label for="controlVendor">Vendeur/Collaborateur</label>
-                            <select id="controlVendor">
-                                <option value="">-- Tous --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="controlMovementType">Type de Mouvement</label>
-                            <select id="controlMovementType">
-                                <option value="">-- Tous --</option>
-                                <option value="depot">Dépôt</option>
-                                <option value="retrait">Retrait</option>
-                                <option value="depense">Dépense</option>
-                                <option value="commission">Commission</option>
-                                <option value="vente_liquide">Vente Liquide</option>
-                                <option value="correction">Correction</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="filter-buttons">
-                        <button class="btn-primary" onclick="window.applyControlFilters()">🔍 Appliquer les Filtres</button>
-                        <button class="btn-secondary" onclick="window.resetControlFilters()">↺ Réinitialiser</button>
-                    </div>
-                </div>
-
-                <!-- CONTROL STATS -->
-<div class="control-stats">
-    <!-- Ce qu'il y a sur le compte (théorique) -->
-    <div class="control-stat-card" id="controlCashCard">
-        <h4>Solde Caisse Actuel</h4>
-        <p id="controlCashBalance">0.00 $</p>
-    </div>
-    <div class="control-stat-card" id="controlLiquidCard">
-        <h4>Liquide en Attente (Frigo)</h4>
-        <p id="controlLiquidPending">0.00 $</p>
-    </div>
-    <div class="control-stat-card" id="controlTotalTreasuryCard">
-        <h4>Solde Théorique Société (Caisse + Frigo)</h4>
-        <p id="controlTotalTreasury">0.00 $</p>
+    <div class="inputs-row">
+      <div class="field">
+        <label for="bankBalanceInput">Solde du compte bancaire (relevé)</label>
+        <input id="bankBalanceInput" type="number" step="0.01" placeholder="0.00" />
+        <span class="small-note">Montant figurant sur le dernier relevé bancaire.</span>
+      </div>
+      <div class="field">
+        <label for="statementDate">Date du relevé</label>
+        <input id="statementDate" type="date" />
+      </div>
+      <div class="field" style="align-self: flex-end;">
+        <button id="recalcButton" type="button">Recalculer l'écart</button>
+      </div>
     </div>
 
-    <!-- Composition des mouvements filtrés (période) -->
-    <div class="control-stat-card">
-        <h4>Total Mouvements (période)</h4>
-        <p id="controlTotalCount">0</p>
-    </div>
-    <div class="control-stat-card">
-        <h4>Total Entrées (période)</h4>
-        <p id="controlTotalIn">0.00 $</p>
-    </div>
-    <div class="control-stat-card">
-        <h4>Total Sorties (période)</h4>
-        <p id="controlTotalOut">0.00 $</p>
-    </div>
-    <div class="control-stat-card">
-        <h4>Résultat Net (Entrées - Sorties)</h4>
-        <p id="controlNetBalance">0.00 $</p>
-    </div>
-</div>
-
-
-                <!-- CONTROL TABLE -->
-                <div class="control-results">
-                    <h4>📊 Résultats des Mouvements</h4>
-                    <div class="table-container">
-                        <table id="controlTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Montant</th>
-                                    <th>Solde Après</th>
-                                    <th>Frigo Après</th>
-                                </tr>
-                            </thead>
-                            <tbody id="controlTableBody">
-                                <tr><td colspan="6" class="no-results">Aucun mouvement pour cette recherche</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 9: SETTINGS -->
-            <div id="settings" class="tab-content">
-                <div class="form-section" id="settingsSection" style="display: none;">
-                    <h3>Paramètres Généraux</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="commissionRate">Taux de Commission (%)</label>
-                            <input type="number" id="commissionRate" placeholder="30" step="0.01">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.updateSettings()">✓ Mettre à Jour</button>
-                    <div id="settingsMessage"></div>
-                </div>
-
-                <div class="form-section" id="correctCashSection" style="display: none;">
-                    <h3>⚠️ Corriger le Solde de Caisse (Admin Seulement)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Solde Actuel</label>
-                            <input type="text" id="currentCashDisplay" disabled style="background: #f0f0f0; font-weight: bold;">
-                        </div>
-                        <div class="form-group">
-                            <label for="newCashBalance">Nouveau Solde ($)</label>
-                            <input type="number" id="newCashBalance" placeholder="0.00" step="0.01">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="cashCorrectionReason">Motif de la Correction</label>
-                        <textarea id="cashCorrectionReason" placeholder="Raison de la modification..." rows="2"></textarea>
-                    </div>
-                    <button class="btn-primary" onclick="window.correctCashBalance()">✓ Appliquer la Correction</button>
-                    <div id="cashCorrectionMessage"></div>
-                </div>
-
-                <div class="form-section" id="correctLiquidSection" style="display: none;">
-                    <h3>⚠️ Corriger le Solde du Liquide en Attente (Admin Seulement)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Frigo Actuel</label>
-                            <input type="text" id="currentLiquidDisplay" disabled style="background: #f0f0f0; font-weight: bold;">
-                        </div>
-                        <div class="form-group">
-                            <label for="newLiquidBalance">Nouveau Frigo ($)</label>
-                            <input type="number" id="newLiquidBalance" placeholder="0.00" step="0.01">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="liquidCorrectionReason">Motif de la Correction</label>
-                        <textarea id="liquidCorrectionReason" placeholder="Raison de la modification..." rows="2"></textarea>
-                    </div>
-                    <button class="btn-primary" onclick="window.correctLiquidBalance()">✓ Appliquer la Correction</button>
-                    <div id="liquidCorrectionMessage"></div>
-                </div>
-
-                <div class="action-buttons" style="display: none;" id="adminPanel">
-                    <button class="btn-secondary" onclick="window.exportData()">📥 Exporter les Données</button>
-                    <button class="btn-secondary" onclick="window.clearAllData()" style="background: #fee2e2; color: #991b1b;">🗑️ Réinitialiser (Attention!)</button>
-                </div>
-
-                <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                    <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.14 - Comptabilité Cloud (USD)</p>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
-                    <p style="margin-top: 10px; color: #667eea; font-size: 0.9em;"><strong>✓ NEW v2.5.14:</strong> Nouveau rôle Contrôleur + onglet Contrôle avec filtres temporels, par vendeur et par type de mouvement</p>
-                </div>
-            </div>
-        </div>
+    <div class="grid-summary">
+      <div class="card primary">
+        <h3>Solde théorique (application)</h3>
+        <div class="value" id="theoreticalBalance">0.00</div>
+        <div class="caption">Dernier <code>balanceafter</code> connu dans <code>movements</code>.</div>
+      </div>
+      <div class="card secondary">
+        <h3>Solde bancaire saisi</h3>
+        <div class="value" id="bankBalance">0.00</div>
+        <div class="caption">Valeur issue du relevé bancaire.</div>
+      </div>
+      <div class="card warning">
+        <h3>Écart à justifier (banque − app)</h3>
+        <div class="value" id="gapDisplay">0.00</div>
+        <div class="caption" id="gapCaption">Un écart de 0.00 signifie que tout est cohérent.</div>
+      </div>
     </div>
 
-    <!-- MODALS -->
-    <div id="editSaleModal" class="modal">
-        <div class="modal-content" style="max-width: 750px;">
-            <h3>Modifier la Vente</h3>
-            
-            <div class="form-section" style="margin-top: 20px;">
-                <h4>Informations Principales</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="editSalePaymentMode">Mode de Paiement</label>
-                        <select id="editSalePaymentMode">
-                            <option value="liquide">Liquide</option>
-                            <option value="virement">Virement</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Montant Total</label>
-                        <input type="text" id="editSaleTotalAmount" disabled style="background: #f0f0f0; font-weight: bold;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="editSaleNotes">Notes</label>
-                    <textarea id="editSaleNotes" rows="2" placeholder="Notes sur la vente..."></textarea>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h4>Produits (Modifier les Quantités)</h4>
-                <div id="editSaleProductsList"></div>
-            </div>
-
-            <div id="editSaleMessage"></div>
-
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('editSaleModal')">Annuler</button>
-                <button class="btn-danger" onclick="window.confirmDeleteSale()">🗑️ Supprimer la Vente</button>
-                <button class="btn-primary" onclick="window.saveSaleEdit()">✓ Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="changePasswordModal" class="modal">
-        <div class="modal-content">
-            <h3>Changer le PIN</h3>
-            <div class="form-group">
-                <label for="currentPin">PIN actuel</label>
-                <input type="password" id="currentPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div class="form-group">
-                <label for="newPin">Nouveau PIN</label>
-                <input type="password" id="newPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div class="form-group">
-                <label for="confirmPin">Confirmer le PIN</label>
-                <input type="password" id="confirmPin" placeholder="****" maxlength="4" inputmode="numeric">
-            </div>
-            <div id="passwordMessage"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('changePasswordModal')">Annuler</button>
-                <button class="btn-primary" onclick="window.saveNewPassword()">Mettre à jour</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="changeUserRoleModal" class="modal">
-        <div class="modal-content">
-            <h3>Modifier le Rôle</h3>
-            <p id="changeRoleUserName"></p>
-            <div class="form-group">
-                <label for="changeRoleSelect">Nouveau Rôle</label>
-                <select id="changeRoleSelect">
-                    <option value="employe">Employé</option>
-                    <option value="gerant">Gérant</option>
-                    <option value="admin">Admin</option>
-                    <option value="controleur">Contrôleur</option>
-                </select>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('changeUserRoleModal')">Annuler</button>
-                <button class="btn-primary" onclick="window.saveUserRole()">Appliquer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="editProductModal" class="modal">
-        <div class="modal-content">
-            <h3>Modifier le Produit</h3>
-            <div class="form-group">
-                <label for="editProductName">Nom du Produit</label>
-                <input type="text" id="editProductName">
-            </div>
-            <div class="form-group">
-                <label for="editProductCategory">Catégorie</label>
-                <input type="text" id="editProductCategory">
-            </div>
-            <div class="form-group">
-                <label for="editProductPrice">Prix ($)</label>
-                <input type="number" id="editProductPrice" step="0.01">
-            </div>
-            <div id="editProductMessage"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('editProductModal')">Annuler</button>
-                <button class="btn-primary" onclick="window.saveProductEdit()">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="resetSalesModal" class="modal">
-        <div class="modal-content">
-            <h3>⚠️ Réinitialiser les Ventes</h3>
-            <p style="color: #666; margin-bottom: 15px;">Cette action va réinitialiser le compteur de ventes pour les primes. Les données sont conservées en archive.</p>
-            <p id="resetSalesWarning" style="color: #ef4444; font-weight: bold;"></p>
-            <div id="resetSalesMessage"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('resetSalesModal')">Annuler</button>
-                <button class="btn-danger" onclick="window.confirmResetSales()">✓ Réinitialiser</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="confirmDeleteSaleModal" class="modal">
-        <div class="modal-content">
-            <h3>⚠️ Supprimer la Vente</h3>
-            <p style="color: #666; margin-bottom: 15px;">Cette action va supprimer la vente et restaurer le stock.</p>
-            <p style="color: #ef4444; font-weight: bold;">Êtes-vous sûr de vouloir procéder ?</p>
-            <div id="deleteSaleMessage"></div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="window.closeModal('confirmDeleteSaleModal')">Annuler</button>
-                <button class="btn-danger" onclick="window.executeSaleDelete()">✓ Supprimer</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ============================================
-        // CONFIGURATION SUPABASE
-        // ============================================
-        const SUPABASE_URL = 'https://wjhbnyrjyjaezaktueny.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc';
-
-        let supabaseClient = null;
-
-        function initSupabase() {
-            if (window.supabase && window.supabase.createClient) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-                if (SUPABASE_URL.includes('YOUR_PROJECT')) {
-                    alert('❌ Erreur: Configurez d\'abord vos clés Supabase!\n\nRemplissez SUPABASE_URL et SUPABASE_ANON_KEY dans le code.');
-                }
-            } else {
-                alert('❌ Erreur: La librairie Supabase n\'a pas pu être chargée!');
-            }
-        }
-
-        // ============================================
-        // STATE MANAGEMENT
-        // ============================================
-        let currentUser = null;
-        let currentTab = 'sales';
-        let salesData = [];
-        let movementsData = [];
-        let collaboratorsData = [];
-        let productsData = [];
-        let expensesData = [];
-        let settingsData = null;
-        let productQuantities = {};
-        let editingSaleId = null;
-        let editingSaleData = null;
-        let editingProductId = null;
-        let lastSalesReset = null;
-        let liquidPendingTotal = 0;
-        let deletingSaleId = null;
-
-        // Control tab filters
-        let controlFilters = {
-            dateFrom: null,
-            dateTo: null,
-            vendor: null,
-            movementType: null
-        };
-        let filteredMovements = [];
-
-        // ============================================
-        // LOGIN / LOGOUT
-        // ============================================
-        window.login = async function() {
-            const username = document.getElementById('username').value.trim();
-            const pin = document.getElementById('pin').value.trim();
-            const errorDiv = document.getElementById('loginError');
-
-            if (!username || !pin) {
-                errorDiv.textContent = 'Veuillez remplir tous les champs';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('collaborators')
-                    .select('*')
-                    .eq('name', username)
-                    .eq('pin_code', pin)
-                    .eq('is_active', true)
-                    .single();
-
-                if (error || !data) {
-                    errorDiv.textContent = 'Identifiants incorrects ou compte désactivé';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-
-                currentUser = data;
-                errorDiv.style.display = 'none';
-
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('mainApp').classList.add('active');
-
-                updateUserDisplay();
-                loadAllData();
-                setupRealtimeSubscriptions();
-            } catch (err) {
-                errorDiv.textContent = 'Erreur: ' + err.message;
-                errorDiv.style.display = 'block';
-            }
-        };
-
-        window.logout = function() {
-            currentUser = null;
-            document.getElementById('mainApp').classList.remove('active');
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('username').value = '';
-            document.getElementById('pin').value = '';
-            document.getElementById('loginError').style.display = 'none';
-        };
-
-        // ============================================
-        // UI UPDATES
-        // ============================================
-        function updateUserDisplay() {
-            const roleMap = {
-                'admin': 'Admin 👑',
-                'gerant': 'Gérant 📋',
-                'employe': 'Employé 💼',
-                'controleur': 'Contrôleur 🔍'
-            };
-
-            document.getElementById('userName').textContent = currentUser.name;
-            const userRole = document.getElementById('userRole');
-            userRole.textContent = roleMap[currentUser.role] || currentUser.role;
-            userRole.className = `badge ${currentUser.role}`;
-
-            document.getElementById('userDisplay').textContent = currentUser.name + ' (' + roleMap[currentUser.role] + ')';
-
-            // ✅ CONTRÔLEUR: Only Control tab visible
-            if (currentUser.role === 'controleur') {
-                // Hide all tabs except Control
-                document.getElementById('salesBtn').style.display = 'none';
-                document.getElementById('comptaTab').style.display = 'none';
-                document.getElementById('movementsTab').style.display = 'none';
-                document.querySelectorAll('.tab-button')[3].style.display = 'none'; // expenses
-                document.querySelectorAll('.tab-button')[4].style.display = 'none'; // collaborators
-                document.getElementById('stockTab').style.display = 'none';
-                document.getElementById('productsTab').style.display = 'none';
-                document.getElementById('settingsTab').style.display = 'none';
-                
-                // Show Control tab
-                document.getElementById('controlTab').style.display = 'block';
-                
-                // Hide stats
-                document.getElementById('statsSection').style.display = 'none';
-                
-                // Switch to Control tab
-                window.switchTab('control');
-            }
-            // EMPLOYÉ
-            else if (currentUser.role === 'employe') {
-                document.getElementById('collaboratorSelectGroup').style.display = 'none';
-                document.getElementById('currentCollaboratorGroup').style.display = 'block';
-                document.getElementById('currentCollaboratorDisplay').value = currentUser.name;
-                document.getElementById('cashBalanceCard').style.display = 'none';
-                document.getElementById('movementsTab').style.display = 'none';
-                document.getElementById('controlTab').style.display = 'none';
-            }
-            // GÉRANT or ADMIN
-            else {
-                document.getElementById('collaboratorSelectGroup').style.display = 'block';
-                document.getElementById('currentCollaboratorGroup').style.display = 'none';
-                document.getElementById('cashBalanceCard').style.display = 'block';
-                document.getElementById('addCollaboratorBtn').style.display = 'block';
-                document.getElementById('addProductBtn').style.display = 'block';
-                document.getElementById('productsTab').style.display = 'block';
-                document.getElementById('movementsTab').style.display = 'block';
-                document.getElementById('comptaTab').style.display = 'block';
-                document.getElementById('adminExpensesPanel').style.display = 'block';
-                document.getElementById('stockTab').style.display = 'block';
-                document.getElementById('correctStockSection').style.display = 'block';
-                document.getElementById('stockActionsHeader').style.display = 'table-cell';
-                document.getElementById('settingsSection').style.display = 'block';
-                document.getElementById('controlTab').style.display = 'block'; // Gérant + Admin can see Control
-            }
-
-            if (currentUser.role === 'employe' || currentUser.role === 'admin' || currentUser.role === 'gerant') {
-                document.getElementById('addStockSection').style.display = 'block';
-                document.getElementById('stockTab').style.display = 'block';
-            }
-
-            if (currentUser.role === 'admin') {
-                document.getElementById('settingsTab').style.display = 'block';
-                document.getElementById('correctCashSection').style.display = 'block';
-                document.getElementById('correctLiquidSection').style.display = 'block';
-                document.getElementById('adminPanel').style.display = 'flex';
-            }
-        }
-
-        window.switchTab = function(tabName) {
-            currentTab = tabName;
-
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById(tabName).classList.add('active');
-
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-
-            if (tabName === 'products') {
-                loadProducts();
-            }
-            if (tabName === 'stock') {
-                loadStock();
-            }
-            if (tabName === 'compta') {
-                loadCompta();
-            }
-            if (tabName === 'control') {
-                loadControlTab();
-            }
-        };
-
-        function showMessage(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
-
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
-        }
-
-        window.closeModal = function(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        };
-
-        // ============================================
-        // LOAD DATA
-        // ============================================
-        async function loadAllData() {
-            await Promise.all([
-                loadCollaborators(),
-                loadProducts(),
-                loadSales(),
-                loadMovements(),
-                loadExpenses(),
-                loadSettings(),
-                loadStock(),
-                loadLastSalesReset()
-            ]);
-        }
-
-        async function loadLastSalesReset() {
-            const { data, error } = await supabaseClient
-                .from('settings')
-                .select('last_sales_reset')
-                .single();
-
-            if (!error && data) {
-                lastSalesReset = data.last_sales_reset;
-            } else {
-                lastSalesReset = null;
-            }
-        }
-
-        async function loadCollaborators() {
-            const { data, error } = await supabaseClient
-                .from('collaborators')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error loading collaborators:', error);
-                return;
-            }
-
-            collaboratorsData = data || [];
-
-            const select = document.getElementById('collaboratorSelect');
-            select.innerHTML = '<option value="">-- Sélectionner --</option>';
-            collaboratorsData.filter(c => c.is_active).forEach(collab => {
-                const option = document.createElement('option');
-                option.value = collab.id;
-                option.textContent = collab.name;
-                select.appendChild(option);
-            });
-
-            // Load vendors for Control tab
-            const vendorSelect = document.getElementById('controlVendor');
-            vendorSelect.innerHTML = '<option value="">-- Tous --</option>';
-            collaboratorsData.filter(c => c.is_active).forEach(collab => {
-                const option = document.createElement('option');
-                option.value = collab.name;
-                option.textContent = collab.name;
-                vendorSelect.appendChild(option);
-            });
-
-            renderCollaboratorsGrid();
-            document.getElementById('totalCollaborators').textContent = collaboratorsData.filter(c => c.is_active).length;
-        }
-
-        function renderCollaboratorsGrid() {
-            const grid = document.getElementById('collaboratorsGrid');
-            const roleMap = { 'admin': 'Admin 👑', 'gerant': 'Gérant 📋', 'employe': 'Employé 💼', 'controleur': 'Contrôleur 🔍' };
-
-            grid.innerHTML = collaboratorsData.map(collab => `
-                <div class="collab-card ${!collab.is_active ? 'inactive' : ''}">
-                    <div class="collab-info">
-                        <strong>${collab.name}</strong><br>
-                        <span class="badge ${collab.role}">${roleMap[collab.role]}</span>
-                        ${!collab.is_active ? '<br><span class="text-danger">Désactivé</span>' : ''}
-                    </div>
-                    <div class="collab-actions">
-                        ${currentUser.role === 'admin' ? `
-                            <button class="btn-secondary btn-small" onclick="window.openChangeRoleModal(${collab.id}, '${collab.name.replace(/'/g, "\\'")}', '${collab.role}')">Rôle</button>
-                            <button class="btn-danger btn-small" onclick="window.deleteCollaborator(${collab.id}, '${collab.name.replace(/'/g, "\\'")}')">${collab.is_active ? 'Supprimer' : 'Restaurer'}</button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function loadProducts() {
-            const { data, error } = await supabaseClient
-                .from('products')
-                .select('*')
-                .eq('active', true)
-                .order('category', { ascending: true });
-
-            if (error) {
-                console.error('Error loading products:', error);
-                return;
-            }
-
-            productsData = data || [];
-            renderProductsGrid();
-            renderProductsTable();
-        }
-
-        function renderProductsGrid() {
-            const container = document.getElementById('productsGridList');
-            if (!container) return;
-
-            const grouped = {};
-            productsData.forEach(p => {
-                if (!grouped[p.category]) grouped[p.category] = [];
-                grouped[p.category].push(p);
-            });
-
-            container.innerHTML = Object.keys(grouped).map(category => `
-                <div class="category-section">
-                    <div class="category-title">${category}</div>
-                    <div class="products-grid">
-                        ${grouped[category].map(product => {
-                            const categoryClass = category.toLowerCase().replace(/\s+/g, '-');
-                            const isLowStock = (product.stock || 0) < 10;
-                            return `
-                                <div class="product-card ${categoryClass}">
-                                    <div class="product-name">${product.name}</div>
-                                    <div class="product-price">$${product.price.toFixed(2)}</div>
-                                    <div class="product-stock ${isLowStock ? 'low' : ''}">Stock: ${product.stock || 0}</div>
-                                    <div class="quantity-controls">
-                                        <button class="qty-btn" onclick="window.changeQuantity(${product.id}, -1)">−</button>
-                                        <div class="qty-display" id="qty_display_${product.id}">0</div>
-                                        <button class="qty-btn" onclick="window.changeQuantity(${product.id}, 1)">+</button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `).join('');
-
-            productQuantities = {};
-            productsData.forEach(p => {
-                productQuantities[p.id] = 0;
-            });
-        }
-
-        window.changeQuantity = function(productId, change) {
-            if (!productQuantities[productId]) productQuantities[productId] = 0;
-            
-            productQuantities[productId] = Math.max(0, productQuantities[productId] + change);
-            document.getElementById(`qty_display_${productId}`).textContent = productQuantities[productId];
-            
-            updateTotalAmount();
-        };
-
-        function renderProductsTable() {
-            const tbody = document.getElementById('productsBody');
-            if (!tbody) return;
-
-            if (productsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucun produit</td></tr>';
-            } else {
-                tbody.innerHTML = productsData.map(product => `
-                    <tr>
-                        <td><strong>${product.name}</strong></td>
-                        <td>${product.category}</td>
-                        <td class="success">$${product.price.toFixed(2)}</td>
-                        <td>${product.stock || 0}</td>
-                        <td>${product.active ? '✓ Actif' : '✗ Inactif'}</td>
-                        <td>
-                            ${currentUser.role === 'admin' || currentUser.role === 'gerant' ? `
-                                <button class="btn-secondary btn-small" onclick="window.openEditProductModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', '${product.category.replace(/'/g, "\\'")}', ${product.price})">Modifier</button>
-                                <button class="btn-danger btn-small" onclick="window.deleteProduct(${product.id})">Supprimer</button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        async function loadStock() {
-            const { data, error } = await supabaseClient
-                .from('products')
-                .select('*')
-                .eq('active', true)
-                .order('category', { ascending: true });
-
-            if (error) {
-                console.error('Error loading stock:', error);
-                return;
-            }
-
-            const tbody = document.getElementById('stockBody');
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Aucun produit</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.map(product => `
-                <tr>
-                    <td><strong>${product.name}</strong></td>
-                    <td>${product.category}</td>
-                    <td style="font-weight: bold;">${product.stock || 0}</td>
-                    <td>
-                        <span class="stock-status ${(product.stock || 0) < 10 ? 'low' : 'ok'}">
-                            ${(product.stock || 0) < 10 ? '⚠️ Faible' : '✓ OK'}
-                        </span>
-                    </td>
-                    <td id="stockAction_${product.id}" style="display: none;">
-                        <button class="btn-secondary btn-small" onclick="window.openStockModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.stock || 0})">Corriger</button>
-                    </td>
-                </tr>
-            `).join('');
-
-            if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
-                data.forEach(p => {
-                    const elem = document.getElementById(`stockAction_${p.id}`);
-                    if (elem) elem.style.display = 'table-cell';
-                });
-            }
-
-            const addSelect = document.getElementById('addStockProductSelect');
-            addSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
-            data.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.id;
-                option.textContent = `${product.name} (Stock: ${product.stock || 0})`;
-                option.dataset.stock = product.stock || 0;
-                addSelect.appendChild(option);
-            });
-
-            addSelect.onchange = function() {
-                if (this.value) {
-                    const selected = data.find(p => p.id == this.value);
-                    document.getElementById('addCurrentStockDisplay').value = selected.stock || 0;
-                    document.getElementById('addStockQuantity').value = '';
-                }
-            };
-
-            const corrSelect = document.getElementById('stockProductSelect');
-            corrSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
-            data.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.id;
-                option.textContent = `${product.name} (Stock: ${product.stock || 0})`;
-                option.dataset.stock = product.stock || 0;
-                corrSelect.appendChild(option);
-            });
-
-            corrSelect.onchange = function() {
-                if (this.value) {
-                    const selected = data.find(p => p.id == this.value);
-                    document.getElementById('currentStockDisplay').value = selected.stock || 0;
-                    document.getElementById('newStockAmount').value = '';
-                }
-            };
-        }
-
-        window.openStockModal = function(productId, productName, currentStock) {
-            document.getElementById('stockProductSelect').value = productId;
-            document.getElementById('currentStockDisplay').value = currentStock;
-            document.getElementById('newStockAmount').value = '';
-        };
-
-        function updateTotalAmount() {
-            let total = 0;
-            let items = [];
-
-            productsData.forEach(product => {
-                const qty = productQuantities[product.id] || 0;
-                if (qty > 0) {
-                    const subtotal = product.price * qty;
-                    total += subtotal;
-                    items.push(`${product.name} x${qty}: $${subtotal.toFixed(2)}`);
-                }
-            });
-
-            document.getElementById('totalAmountDisplay').textContent = total.toFixed(2) + ' $';
-
-            const summaryDiv = document.getElementById('saleSummaryItems');
-            if (items.length > 0) {
-                summaryDiv.innerHTML = items.map(item => `<div class="summary-item">${item}</div>`).join('');
-            } else {
-                summaryDiv.innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
-            }
-        }
-
-        async function loadSales() {
-            const { data, error } = await supabaseClient
-                .from('sales')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error loading sales:', error);
-                return;
-            }
-
-            salesData = data || [];
-
-            const tbody = document.getElementById('salesBody');
-            if (salesData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Aucune vente enregistrée</td></tr>';
-            } else {
-                tbody.innerHTML = salesData.map(sale => {
-                    const isAdmin = currentUser.role === 'admin';
-                    const isGerant = currentUser.role === 'gerant';
-                    const isOwner = currentUser.role === 'employe' && sale.collaborator_id === currentUser.id;
-                    const canModifyDelete = isAdmin || isGerant || isOwner;
-                    
-                    return `
-                        <tr>
-                            <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
-                            <td>${sale.collaborator_name}</td>
-                            <td class="success">$${sale.amount.toFixed(2)}</td>
-                            <td>${sale.payment_mode}</td>
-                            <td>${sale.product_details || '-'}</td>
-                            <td>${sale.notes || '-'}</td>
-                            <td>
-                                ${canModifyDelete ? `
-                                    <button class="btn-secondary btn-small" onclick="window.editSale(${sale.id})">Modifier</button>
-                                    ${isAdmin || isGerant ? `<button class="btn-danger btn-small" onclick="window.quickDeleteSale(${sale.id})">Supprimer</button>` : ''}
-                                ` : '<span class="not-authorized">Non autorisé</span>'}
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            updateStats();
-        }
-
-        async function loadCompta() {
-            const { data, error } = await supabaseClient
-                .from('sales')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error loading compta:', error);
-                return;
-            }
-
-            const sales = data || [];
-
-            let salesSinceReset = sales;
-            if (lastSalesReset) {
-                const resetDate = new Date(lastSalesReset);
-                salesSinceReset = sales.filter(s => new Date(s.created_at) >= resetDate);
-            }
-
-            const totalVentes = salesSinceReset.reduce((sum, s) => sum + parseFloat(s.amount), 0);
-            const nombreTransactions = salesSinceReset.length;
-            const ticketMoyen = nombreTransactions > 0 ? totalVentes / nombreTransactions : 0;
-
-            document.getElementById('comptaTotalVentes').textContent = totalVentes.toFixed(2) + ' $';
-            document.getElementById('comptaTransactions').textContent = nombreTransactions;
-            document.getElementById('comptaTicketMoyen').textContent = ticketMoyen.toFixed(2) + ' $';
-
-            if (lastSalesReset) {
-                const resetDate = new Date(lastSalesReset);
-                document.getElementById('comptaDerniereReinit').textContent = resetDate.toLocaleDateString('fr-FR');
-            } else {
-                document.getElementById('comptaDerniereReinit').textContent = 'Jamais';
-            }
-
-            const byCollabReset = {};
-            salesSinceReset.forEach(sale => {
-                if (!byCollabReset[sale.collaborator_name]) {
-                    byCollabReset[sale.collaborator_name] = {
-                        count: 0,
-                        total: 0
-                    };
-                }
-                byCollabReset[sale.collaborator_name].count++;
-                byCollabReset[sale.collaborator_name].total += parseFloat(sale.amount);
-            });
-
-            const tbody1 = document.getElementById('comptaTableBody');
-            let html1 = '';
-            let grandTotal1 = 0;
-            let grandCount1 = 0;
-
-            Object.keys(byCollabReset).sort().forEach(name => {
-                const data = byCollabReset[name];
-                const moyen = data.total / data.count;
-                grandTotal1 += data.total;
-                grandCount1 += data.count;
-                html1 += `
-                    <tr>
-                        <td><strong>${name}</strong></td>
-                        <td style="text-align: right;">${data.count}</td>
-                        <td style="text-align: right; color: #10b981; font-weight: bold;">$${data.total.toFixed(2)}</td>
-                        <td style="text-align: right;">$${moyen.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            const moyenTotal1 = grandCount1 > 0 ? grandTotal1 / grandCount1 : 0;
-            html1 += `
-                <tr class="total-row">
-                    <td>TOTAL</td>
-                    <td style="text-align: right;">${grandCount1}</td>
-                    <td style="text-align: right;">$${grandTotal1.toFixed(2)}</td>
-                    <td style="text-align: right;">$${moyenTotal1.toFixed(2)}</td>
-                </tr>
-            `;
-
-            tbody1.innerHTML = html1;
-
-            const byCollabTotal = {};
-            sales.forEach(sale => {
-                if (!byCollabTotal[sale.collaborator_name]) {
-                    byCollabTotal[sale.collaborator_name] = {
-                        count: 0,
-                        total: 0
-                    };
-                }
-                byCollabTotal[sale.collaborator_name].count++;
-                byCollabTotal[sale.collaborator_name].total += parseFloat(sale.amount);
-            });
-
-            const tbody2 = document.getElementById('comptaTotalTableBody');
-            let html2 = '';
-            let grandTotal2 = 0;
-            let grandCount2 = 0;
-
-            Object.keys(byCollabTotal).sort().forEach(name => {
-                const data = byCollabTotal[name];
-                const moyen = data.total / data.count;
-                grandTotal2 += data.total;
-                grandCount2 += data.count;
-                html2 += `
-                    <tr>
-                        <td><strong>${name}</strong></td>
-                        <td style="text-align: right;">${data.count}</td>
-                        <td style="text-align: right; color: #667eea; font-weight: bold;">$${data.total.toFixed(2)}</td>
-                        <td style="text-align: right;">$${moyen.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            const moyenTotal2 = grandCount2 > 0 ? grandTotal2 / grandCount2 : 0;
-            html2 += `
-                <tr class="total-row">
-                    <td>TOTAL</td>
-                    <td style="text-align: right;">${grandCount2}</td>
-                    <td style="text-align: right;">$${grandTotal2.toFixed(2)}</td>
-                    <td style="text-align: right;">$${moyenTotal2.toFixed(2)}</td>
-                </tr>
-            `;
-
-            tbody2.innerHTML = html2;
-        }
-
-        async function loadMovements() {
-            const { data, error } = await supabaseClient
-                .from('movements')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error loading movements:', error);
-                return;
-            }
-
-            movementsData = data || [];
-
-            const tbody = document.getElementById('movementsBody');
-            if (movementsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucun mouvement</td></tr>';
-            } else {
-                tbody.innerHTML = movementsData.map(mov => `
-                    <tr>
-                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
-                        <td><strong>${mov.type}</strong></td>
-                        <td>${mov.description || '-'}</td>
-                        <td class="success">$${mov.amount.toFixed(2)}</td>
-                        <td class="success">$${mov.balance_after.toFixed(2)}</td>
-                        <td class="success">$${(mov.liquid_pending_after || 0).toFixed(2)}</td>
-                    </tr>
-                `).join('');
-            }
-
-            updateStats();
-        }
-
-        // ============================================
-        // CONTROL TAB FUNCTIONS
-        // ============================================
-        async function loadControlTab() {
-            // Initialize date inputs with today
-            const today = new Date().toISOString().split('T')[0];
-            const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
-            
-            document.getElementById('controlDateFrom').value = thirtyDaysAgo;
-            document.getElementById('controlDateTo').value = today;
-            
-            await window.applyControlFilters(); updateControlStats();
-        }
-
-        window.applyControlFilters = async function() {
-            const dateFrom = document.getElementById('controlDateFrom').value;
-            const dateTo = document.getElementById('controlDateTo').value;
-            const vendor = document.getElementById('controlVendor').value;
-            const movementType = document.getElementById('controlMovementType').value;
-
-            // Filter movements
-            filteredMovements = movementsData.filter(mov => {
-                const movDate = new Date(mov.created_at).toISOString().split('T')[0];
-                
-                let passDateFilter = true;
-                if (dateFrom && movDate < dateFrom) passDateFilter = false;
-                if (dateTo && movDate > dateTo) passDateFilter = false;
-                
-                let passVendorFilter = true;
-                if (vendor && !mov.description.includes(vendor)) passVendorFilter = false;
-                
-                let passTypeFilter = true;
-                if (movementType && mov.type !== movementType) passTypeFilter = false;
-                
-                return passDateFilter && passVendorFilter && passTypeFilter;
-            });
-
-            // Render results
-            renderControlResults();
-            updateControlStats();
-        };
-
-        window.resetControlFilters = function() {
-            document.getElementById('controlDateFrom').value = '';
-            document.getElementById('controlDateTo').value = '';
-            document.getElementById('controlVendor').value = '';
-            document.getElementById('controlMovementType').value = '';
-            
-            filteredMovements = movementsData;
-            renderControlResults();
-            updateControlStats();
-        };
-
-        function renderControlResults() {
-            const tbody = document.getElementById('controlTableBody');
-            
-            if (filteredMovements.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="no-results">Aucun mouvement pour cette recherche</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = filteredMovements.map(mov => {
-                let typeBadge = '';
-                if (mov.type === 'depot') typeBadge = 'depot';
-                else if (mov.type === 'retrait') typeBadge = 'retrait';
-                else if (mov.type === 'depense') typeBadge = 'depense';
-                else if (mov.type === 'commission') typeBadge = 'commission';
-                else if (mov.type === 'vente_liquide') typeBadge = 'vente_liquide';
-                else typeBadge = 'correction';
-
-                return `
-                    <tr>
-                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
-                        <td><span class="movement-type-badge ${typeBadge}">${mov.type}</span></td>
-                        <td>${mov.description || '-'}</td>
-                        <td class="success">$${mov.amount.toFixed(2)}</td>
-                        <td class="success">$${mov.balance_after.toFixed(2)}</td>
-                        <td class="success">$${(mov.liquid_pending_after || 0).toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function updateControlStats() {
-    if (!movementsData) movementsData = [];
-    if (!filteredMovements) filteredMovements = [];
-
-    // 1) Soldes actuels (théoriques) : basés sur le DERNIER mouvement (index 0 car trié descending)
-    let cashBalance = 0;
-    let liquidPending = 0;
-
-    if (movementsData.length > 0) {
-        const lastMovement = movementsData[0];
-        cashBalance = parseFloat(lastMovement.balanceafter) || 0;
-        liquidPending = parseFloat(lastMovement.liquidpendingafter) || 0;
+    <h2 class="section-title">Composition du solde théorique</h2>
+    <p class="small-note">
+      Pour chaque type de mouvement, on cumule l'impact net sur le solde (différence du <code>balanceafter</code> avant/après mouvement).
+      La somme de toutes les lignes est égale au solde théorique.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Catégorie</th>
+          <th class="text-center">Type</th>
+          <th class="text-right">Impact net sur le solde</th>
+        </tr>
+      </thead>
+      <tbody id="compositionBody">
+        <tr>
+          <td colspan="3" class="text-center">Chargement des mouvements...</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total (doit = solde théorique)</th>
+          <th></th>
+          <th class="text-right" id="totalComposition">0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script>
+    // ⚙️ CONFIGURATION SUPABASE
+    // Remplacez ces valeurs par celles de votre projet Supabase (les mêmes que dans votre fichier principal LE PALACE)
+    const SUPABASE_URL = "wjhbnyrjyjaezaktueny.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaGJueXJqeWphZXpha3R1ZW55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNTI4NjQsImV4cCI6MjA4NDkyODg2NH0.c0MAaZdNyj_l0ccso78YO2Ca39Me-MSbvauo5Hjkxuc";
+
+    let supabaseClient = null;
+    let movementsData = [];
+    let theoreticalBalance = 0;
+
+    function showStatus(message, type = "ok") {
+      const el = document.getElementById("status");
+      el.textContent = message;
+      el.className = "status " + (type === "error" ? "error" : "ok");
+      el.style.display = "block";
     }
 
-    const totalTreasury = cashBalance + liquidPending;
-
-    const cashEl = document.getElementById('controlCashBalance');
-    const liquidEl = document.getElementById('controlLiquidPending');
-    const totalTreasuryEl = document.getElementById('controlTotalTreasury');
-
-    if (cashEl) cashEl.textContent = cashBalance.toFixed(2);
-    if (liquidEl) liquidEl.textContent = liquidPending.toFixed(2);
-    if (totalTreasuryEl) totalTreasuryEl.textContent = totalTreasury.toFixed(2);
-
-    // 2) Stats de la période filtrée
-    const totalCount = filteredMovements.length;
-
-    const totalIn = filteredMovements
-        .filter(m => ['depot', 'depotliquide', 'venteliquide'].includes(m.type))
-        .reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
-
-    const totalOut = filteredMovements
-        .filter(m => ['retrait', 'depense', 'commission'].includes(m.type))
-        .reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
-
-    const netBalance = totalIn - totalOut;
-
-    const totalCountEl = document.getElementById('controlTotalCount');
-    const totalInEl = document.getElementById('controlTotalIn');
-    const totalOutEl = document.getElementById('controlTotalOut');
-    const netBalanceEl = document.getElementById('controlNetBalance');
-
-    if (totalCountEl) totalCountEl.textContent = totalCount;
-    if (totalInEl) totalInEl.textContent = totalIn.toFixed(2);
-    if (totalOutEl) totalOutEl.textContent = totalOut.toFixed(2);
-
-    if (netBalanceEl) {
-        netBalanceEl.textContent = netBalance >= 0 
-            ? netBalance.toFixed(2) 
-            : '-' + Math.abs(netBalance).toFixed(2);
-
-        const card = netBalanceEl.parentElement;
-        if (card) {
-            if (netBalance > 0) {
-                card.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-            } else if (netBalance < 0) {
-                card.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-            } else {
-                card.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            }
-        }
+    function hideStatus() {
+      const el = document.getElementById("status");
+      el.style.display = "none";
     }
-}
-async function loadExpenses() {
-            const { data, error } = await supabaseClient
-                .from('expense_requests')
-                .select('*')
-                .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error('Error loading expenses:', error);
-                return;
-            }
+    function formatAmount(value) {
+      const n = Number(value) || 0;
+      return n.toFixed(2);
+    }
 
-            expensesData = data || [];
+    function labelForType(type) {
+      const map = {
+        depot: "Dépôts / virements vers la banque",
+        retrait: "Retraits / sorties de caisse",
+        depense: "Dépenses directes",
+        commission: "Commissions payées",
+        depotliquide: "Dépôts de liquide (frigo → banque)",
+        annulationliquide: "Annulations de ventes liquides",
+        venteliquide: "Ventes liquides (mouvements liés)",
+        venteliquidecorrection: "Corrections ventes liquides",
+        correction: "Corrections manuelles de solde",
+        correctionliquid: "Corrections frigo",
+        conversion: "Conversions liquide / virement",
+      };
+      if (map[type]) return map[type];
+      const clean = String(type || "autre").toLowerCase();
+      return "Autre type : " + clean;
+    }
 
-            const tbody = document.getElementById('expensesBody');
-            if (expensesData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Aucune demande de remboursement</td></tr>';
-            } else {
-                tbody.innerHTML = expensesData.map(expense => `
-                    <tr style="opacity: ${expense.status === 'approved' ? '0.6' : '1'};">
-                        <td>${new Date(expense.created_at).toLocaleString('fr-FR')}</td>
-                        <td>${expense.employee_name}</td>
-                        <td class="success">$${expense.amount.toFixed(2)}</td>
-                        <td>${expense.description || '-'}</td>
-                        <td>
-                            <span class="badge ${expense.status === 'pending' ? '' : 'admin'}" 
-                                  style="background: ${expense.status === 'pending' ? '#fef3c7' : '#d1fae5'}; color: ${expense.status === 'pending' ? '#92400e' : '#065f46'};">
-                                ${expense.status === 'pending' ? 'En Attente' : 'Approuvé'}
-                            </span>
-                        </td>
-                        <td>
-                            ${expense.status === 'pending' ? `
-                                <button class="btn-primary btn-small" onclick="window.approveExpense(${expense.id}, ${expense.amount})">Rembourser</button>
-                                <button class="btn-danger btn-small" onclick="window.rejectExpense(${expense.id})">Refuser</button>
-                            ` : 'Validé'}
-                        </td>
-                    </tr>
-                `).join('');
-            }
+    function pillClassForNet(value) {
+      if (value > 0.0001) return "pill credit";
+      if (value < -0.0001) return "pill debit";
+      return "pill neutre";
+    }
+
+    function pillLabelForNet(value) {
+      if (value > 0.0001) return "Crédit";
+      if (value < -0.0001) return "Débit";
+      return "Neutre";
+    }
+
+    function deltaClass(value) {
+      if (Math.abs(value) < 0.0001) return "delta-zero";
+      return value > 0 ? "delta-pos" : "delta-neg";
+    }
+
+    function initSupabase() {
+      if (!window.supabase) {
+        showStatus("La librairie Supabase n'a pas pu être chargée.", "error");
+        return false;
+      }
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes("VOTRE_URL_SUPABASE")) {
+        showStatus("Configurez d'abord SUPABASE_URL et SUPABASE_ANON_KEY dans le code de l'onglet Contrôleur.", "error");
+        return false;
+      }
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return true;
+    }
+
+    async function loadMovements() {
+      const tbody = document.getElementById("compositionBody");
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center">Chargement des mouvements...</td></tr>';
+      theoreticalBalance = 0;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("movements")
+          .select("id, type, description, amount, balanceafter, liquidpendingafter, createdat")
+          .order("createdat", { ascending: true });
+
+        if (error) throw error;
+        movementsData = data || [];
+
+        if (!movementsData.length) {
+          tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucun mouvement trouvé.</td></tr>';
+          theoreticalBalance = 0;
+          document.getElementById("theoreticalBalance").textContent = "0.00";
+          document.getElementById("totalComposition").textContent = "0.00";
+          showStatus("Aucun mouvement dans la table movements.", "ok");
+          return;
         }
 
-        async function loadSettings() {
-            const { data, error } = await supabaseClient
-                .from('settings')
-                .select('*')
-                .single();
-
-            if (error) {
-                console.error('Error loading settings:', error);
-                return;
-            }
-
-            settingsData = data;
-            document.getElementById('commissionRate').value = settingsData?.commission_rate || 30;
-            updateCommissionHeader();
-        }
-
-        function updateCommissionHeader() {
-            const rate = settingsData?.commission_rate || 30;
-            document.getElementById('commissionHeader').textContent = `📊 Commission (${rate}%)`;
-        }
-
-        function updateStats() {
-            let totalToday = 0;
-            let dateRange = '';
-
-            if (lastSalesReset) {
-                const resetDate = new Date(lastSalesReset);
-                const salesToday = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at);
-                    return saleDate >= resetDate;
-                });
-                totalToday = salesToday.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
-                dateRange = resetDate.toLocaleDateString('fr-FR');
-            } else {
-                const today = new Date().toDateString();
-                const todaySales = salesData.filter(sale => {
-                    const saleDate = new Date(sale.created_at).toDateString();
-                    return saleDate === today;
-                });
-                totalToday = todaySales.reduce((sum, sale) => sum + parseFloat(sale.amount), 0);
-                dateRange = new Date().toLocaleDateString('fr-FR');
-            }
-
-            document.getElementById('totalSalesToday').textContent = totalToday.toFixed(2) + ' $';
-            document.getElementById('salesDateRange').textContent = 'depuis le ' + dateRange;
-
-            const commissionRate = settingsData?.commission_rate || 30;
-            const totalCommission = (totalToday * commissionRate) / 100;
-            document.getElementById('totalCommission').textContent = totalCommission.toFixed(2) + ' $';
-
-            let cashBalance = 0;
-            if (movementsData.length > 0) {
-                cashBalance = parseFloat(movementsData[0].balance_after) || 0;
-            }
-            document.getElementById('cashBalance').textContent = cashBalance.toFixed(2) + ' $';
-            document.getElementById('currentCashDisplay').value = cashBalance.toFixed(2) + ' $';
-
-            let liquidPending = 0;
-            if (movementsData.length > 0) {
-                liquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-            }
-            document.getElementById('liquidPending').textContent = liquidPending.toFixed(2) + ' $';
-            document.getElementById('currentLiquidDisplay').value = liquidPending.toFixed(2) + ' $';
-            
-            const liquidCard = document.getElementById('liquidPendingCard');
-            if (liquidPending > 0) {
-                liquidCard.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-            } else {
-                liquidCard.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-            }
-        }
-
-        // ============================================
-        // RECORD OPERATIONS (SALES, MOVEMENTS, etc.)
-        // ============================================
-        window.recordSale = async function() {
-            // [Code identical à v2.5.13...]
-            let collaboratorId;
-            
-            if (currentUser.role === 'employe') {
-                collaboratorId = currentUser.id;
-            } else {
-                collaboratorId = document.getElementById('collaboratorSelect').value;
-                if (!collaboratorId) {
-                    showMessage('saleMessage', 'Sélectionnez un collaborateur', 'error');
-                    return;
-                }
-            }
-
-            const paymentMode = document.getElementById('paymentMode').value;
-            const notes = document.getElementById('saleNotes').value;
-
-            let totalAmount = 0;
-            let productDetails = [];
-            let hasProducts = false;
-
-            productsData.forEach(product => {
-                const qty = productQuantities[product.id] || 0;
-                if (qty > 0) {
-                    hasProducts = true;
-                    totalAmount += product.price * qty;
-                    productDetails.push(`${product.name} x${qty}`);
-                }
-            });
-
-            if (!hasProducts) {
-                showMessage('saleMessage', 'Sélectionnez au moins un produit', 'error');
-                return;
-            }
-
-            try {
-                const collaborator = collaboratorsData.find(c => c.id == collaboratorId);
-                const productDetailsStr = productDetails.join(', ');
-
-                const productQuantitiesData = {};
-                productsData.forEach(product => {
-                    const qty = productQuantities[product.id] || 0;
-                    if (qty > 0) {
-                        productQuantitiesData[product.id] = qty;
-                    }
-                });
-
-                const { data: saleData, error: saleError } = await supabaseClient
-                    .from('sales')
-                    .insert([{
-                        collaborator_id: collaboratorId,
-                        collaborator_name: collaborator.name,
-                        amount: totalAmount,
-                        payment_mode: paymentMode,
-                        product_details: productDetailsStr,
-                        product_quantities: productQuantitiesData,
-                        notes: notes,
-                        is_active: true,
-                        updated_by: currentUser.name
-                    }])
-                    .select();
-
-                if (saleError) throw saleError;
-
-                for (const product of productsData) {
-                    const qty = productQuantities[product.id] || 0;
-                    if (qty > 0) {
-                        const newStock = (product.stock || 0) - qty;
-                        const { error: stockError } = await supabaseClient
-                            .from('products')
-                            .update({ stock: newStock })
-                            .eq('id', product.id);
-
-                        if (stockError) throw stockError;
-                    }
-                }
-
-                let currentBalance = 0;
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-
-                if (paymentMode === 'virement') {
-                    const newBalance = currentBalance + totalAmount;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'depot',
-                            description: `Virement vente - ${collaborator.name}`,
-                            amount: totalAmount,
-                            balance_after: newBalance,
-                            liquid_pending_after: currentLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                } else if (paymentMode === 'liquide') {
-                    const newLiquidPending = currentLiquidPending + totalAmount;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'vente_liquide',
-                            description: `Vente liquide - ${collaborator.name}`,
-                            amount: totalAmount,
-                            balance_after: currentBalance,
-                            liquid_pending_after: newLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-
-                showMessage('saleMessage', '✓ Vente enregistrée!', 'success');
-                document.getElementById('collaboratorSelect').value = '';
-                document.getElementById('saleNotes').value = '';
-                
-                productQuantities = {};
-                productsData.forEach(p => {
-                    productQuantities[p.id] = 0;
-                    const display = document.getElementById(`qty_display_${p.id}`);
-                    if (display) display.textContent = '0';
-                });
-                document.getElementById('totalAmountDisplay').textContent = '0.00 $';
-                document.getElementById('saleSummaryItems').innerHTML = '<div style="color: #999; font-size: 0.9em;">Aucun produit sélectionné</div>';
-                
-                loadSales();
-                loadMovements();
-                loadStock();
-            } catch (err) {
-                showMessage('saleMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.editSale = async function(saleId) {
-            const sale = salesData.find(s => s.id === saleId);
-            if (!sale) return;
-
-            editingSaleId = saleId;
-            editingSaleData = sale;
-
-            document.getElementById('editSalePaymentMode').value = sale.payment_mode;
-            document.getElementById('editSaleNotes').value = sale.notes || '';
-            document.getElementById('editSaleTotalAmount').value = '$' + sale.amount.toFixed(2);
-
-            const productsList = document.getElementById('editSaleProductsList');
-            const productQuantitiesInSale = sale.product_quantities || {};
-
-            let html = '';
-            productsData.forEach(product => {
-                const currentQty = productQuantitiesInSale[product.id] || 0;
-                if (currentQty > 0) {
-                    html += `
-                        <div class="edit-product-row">
-                            <div>${product.name}</div>
-                            <div style="text-align: center;">$${product.price.toFixed(2)}</div>
-                            <input type="number" class="qty-input-edit" id="editQty_${product.id}" value="${currentQty}" min="0">
-                            <div style="text-align: right;" id="editSubtotal_${product.id}">$${(product.price * currentQty).toFixed(2)}</div>
-                            <button class="btn-danger btn-small" onclick="window.removeProductFromEdit(${product.id})">Retirer</button>
-                        </div>
-                    `;
-                }
-            });
-
-            if (html === '') {
-                html = '<p style="color: #999;">Aucun produit dans cette vente</p>';
-            }
-
-            productsList.innerHTML = html;
-
-            productsData.forEach(product => {
-                const input = document.getElementById(`editQty_${product.id}`);
-                if (input) {
-                    input.addEventListener('change', () => window.updateEditSaleTotal());
-                    input.addEventListener('input', () => window.updateEditSaleTotal());
-                }
-            });
-
-            window.updateEditSaleTotal();
-            document.getElementById('editSaleModal').classList.add('active');
-        };
-
-        window.removeProductFromEdit = function(productId) {
-            const input = document.getElementById(`editQty_${productId}`);
-            if (input) {
-                input.value = '0';
-                window.updateEditSaleTotal();
-            }
-        };
-
-        window.updateEditSaleTotal = function() {
-            let total = 0;
-            let productCount = 0;
-
-            productsData.forEach(product => {
-                const input = document.getElementById(`editQty_${product.id}`);
-                if (input) {
-                    const qty = parseInt(input.value) || 0;
-                    if (qty > 0) {
-                        const subtotal = product.price * qty;
-                        total += subtotal;
-                        productCount++;
-
-                        const subtotalEl = document.getElementById(`editSubtotal_${product.id}`);
-                        if (subtotalEl) {
-                            subtotalEl.textContent = '$' + subtotal.toFixed(2);
-                        }
-                    }
-                }
-            });
-
-            document.getElementById('editSaleTotalAmount').value = '$' + total.toFixed(2);
-        };
-
-        window.saveSaleEdit = async function() {
-            if (!editingSaleId || !editingSaleData) return;
-
-            const oldPaymentMode = editingSaleData.payment_mode;
-            const newPaymentMode = document.getElementById('editSalePaymentMode').value;
-            const newNotes = document.getElementById('editSaleNotes').value;
-
-            const newProductQuantities = {};
-            let newTotal = 0;
-            let productDetails = [];
-
-            productsData.forEach(product => {
-                const input = document.getElementById(`editQty_${product.id}`);
-                if (input) {
-                    const qty = parseInt(input.value) || 0;
-                    if (qty > 0) {
-                        newProductQuantities[product.id] = qty;
-                        newTotal += product.price * qty;
-                        productDetails.push(`${product.name} x${qty}`);
-                    }
-                }
-            });
-
-            if (Object.keys(newProductQuantities).length === 0) {
-                showMessage('editSaleMessage', 'Vous devez conserver au moins un produit', 'error');
-                return;
-            }
-
-            try {
-                const oldQuantities = editingSaleData.product_quantities || {};
-
-                const { error: updateError } = await supabaseClient
-                    .from('sales')
-                    .update({
-                        amount: newTotal,
-                        payment_mode: newPaymentMode,
-                        product_details: productDetails.join(', '),
-                        product_quantities: newProductQuantities,
-                        notes: newNotes,
-                        updated_by: currentUser.name,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', editingSaleId);
-
-                if (updateError) throw updateError;
-
-                for (const product of productsData) {
-                    const oldQty = oldQuantities[product.id] || 0;
-                    const newQty = newProductQuantities[product.id] || 0;
-                    const diff = oldQty - newQty;
-
-                    if (diff !== 0) {
-                        const currentStock = product.stock || 0;
-                        const newStock = currentStock + diff;
-                        const { error: stockError } = await supabaseClient
-                            .from('products')
-                            .update({ stock: newStock })
-                            .eq('id', product.id);
-
-                        if (stockError) throw stockError;
-                    }
-                }
-
-                let currentBalance = 0;
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-
-                const oldAmount = editingSaleData.amount;
-                const amountDiff = newTotal - oldAmount;
-
-                if (oldPaymentMode === 'liquide' && newPaymentMode === 'virement') {
-                    const newBalance = currentBalance + newTotal;
-                    const newLiquidPending = Math.max(0, currentLiquidPending - oldAmount);
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'conversion',
-                            description: `Conversion Liquide→Virement - ${editingSaleData.collaborator_name}`,
-                            amount: newTotal,
-                            balance_after: newBalance,
-                            liquid_pending_after: newLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-                else if (oldPaymentMode === 'virement' && newPaymentMode === 'liquide') {
-                    const newBalance = currentBalance - oldAmount;
-                    const newLiquidPending = currentLiquidPending + newTotal;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'conversion',
-                            description: `Conversion Virement→Liquide - ${editingSaleData.collaborator_name}`,
-                            amount: oldAmount,
-                            balance_after: newBalance,
-                            liquid_pending_after: newLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-                else if (oldPaymentMode === 'liquide' && newPaymentMode === 'liquide' && amountDiff !== 0) {
-                    const newLiquidPending = currentLiquidPending + amountDiff;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'vente_liquide_correction',
-                            description: `Correction vente liquide - ${editingSaleData.collaborator_name}`,
-                            amount: Math.abs(amountDiff),
-                            balance_after: currentBalance,
-                            liquid_pending_after: newLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-                else if (oldPaymentMode === 'virement' && newPaymentMode === 'virement' && amountDiff !== 0) {
-                    const newBalance = currentBalance + amountDiff;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'correction',
-                            description: `Correction montant vente - ${editingSaleData.collaborator_name}`,
-                            amount: Math.abs(amountDiff),
-                            balance_after: newBalance,
-                            liquid_pending_after: currentLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-
-                showMessage('editSaleMessage', '✓ Vente modifiée!', 'success');
-                setTimeout(() => {
-                    window.closeModal('editSaleModal');
-                }, 1000);
-                
-                editingSaleId = null;
-                editingSaleData = null;
-                loadSales();
-                loadMovements();
-                loadStock();
-            } catch (err) {
-                showMessage('editSaleMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.confirmDeleteSale = function() {
-            if (!editingSaleId) return;
-            deletingSaleId = editingSaleId;
-            window.closeModal('editSaleModal');
-            document.getElementById('confirmDeleteSaleModal').classList.add('active');
-        };
-
-        window.quickDeleteSale = function(saleId) {
-            deletingSaleId = saleId;
-            document.getElementById('confirmDeleteSaleModal').classList.add('active');
-        };
-
-        window.executeSaleDelete = async function() {
-            if (!deletingSaleId) return;
-
-            const sale = salesData.find(s => s.id === deletingSaleId);
-            if (!sale) return;
-
-            try {
-                const { error: deleteError } = await supabaseClient
-                    .from('sales')
-                    .update({ is_active: false, updated_by: currentUser.name })
-                    .eq('id', deletingSaleId);
-
-                if (deleteError) throw deleteError;
-
-                const quantities = sale.product_quantities || {};
-                for (const productId in quantities) {
-                    const product = productsData.find(p => p.id == productId);
-                    if (product) {
-                        const qty = quantities[productId];
-                        const newStock = (product.stock || 0) + qty;
-                        const { error: stockError } = await supabaseClient
-                            .from('products')
-                            .update({ stock: newStock })
-                            .eq('id', productId);
-
-                        if (stockError) throw stockError;
-                    }
-                }
-
-                let currentBalance = 0;
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-
-                if (sale.payment_mode === 'virement') {
-                    const newBalance = currentBalance - sale.amount;
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'retrait',
-                            description: `Suppression vente (Virement) - ${sale.collaborator_name}`,
-                            amount: sale.amount,
-                            balance_after: newBalance,
-                            liquid_pending_after: currentLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                } else if (sale.payment_mode === 'liquide') {
-                    const newLiquidPending = Math.max(0, currentLiquidPending - sale.amount);
-
-                    const { error: movementError } = await supabaseClient
-                        .from('movements')
-                        .insert([{
-                            type: 'annulation_liquide',
-                            description: `Suppression vente liquide - ${sale.collaborator_name}`,
-                            amount: sale.amount,
-                            balance_after: currentBalance,
-                            liquid_pending_after: newLiquidPending
-                        }]);
-
-                    if (movementError) throw movementError;
-                }
-
-                showMessage('deleteSaleMessage', '✓ Vente supprimée et stock restauré!', 'success');
-                setTimeout(() => {
-                    window.closeModal('confirmDeleteSaleModal');
-                }, 1000);
-
-                deletingSaleId = null;
-                editingSaleId = null;
-                loadSales();
-                loadMovements();
-                loadStock();
-            } catch (err) {
-                showMessage('deleteSaleMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.recordMovement = async function() {
-            const type = document.getElementById('movementType').value;
-            const amount = parseFloat(document.getElementById('movementAmount').value);
-            const description = document.getElementById('movementDescription').value;
-
-            if (!amount || amount <= 0) {
-                showMessage('movementMessage', 'Montant invalide', 'error');
-                return;
-            }
-
-            try {
-                let currentBalance = 0;
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-
-                let newBalance = currentBalance;
-                let newLiquidPending = currentLiquidPending;
-
-                if (type === 'depot' || type === 'depot_liquide') {
-                    newBalance += amount;
-                    if (type === 'depot_liquide') {
-                        newLiquidPending = Math.max(0, currentLiquidPending - amount);
-                    }
-                } else if (type === 'commission') {
-                    newBalance -= amount;
-                } else {
-                    newBalance -= amount;
-                }
-
-                const { error } = await supabaseClient
-                    .from('movements')
-                    .insert([{
-                        type: type,
-                        description: description,
-                        amount: amount,
-                        balance_after: newBalance,
-                        liquid_pending_after: newLiquidPending
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('movementMessage', '✓ Mouvement enregistré!', 'success');
-                document.getElementById('movementAmount').value = '';
-                document.getElementById('movementDescription').value = '';
-                loadMovements();
-            } catch (err) {
-                showMessage('movementMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.addCollaborator = async function() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            const name = document.getElementById('newCollaboratorName').value.trim();
-            const role = document.getElementById('newCollaboratorRole').value;
-            const pin = document.getElementById('newCollaboratorPin').value.trim();
-
-            if (!name || !pin || pin.length !== 4) {
-                showMessage('collaboratorMessage', 'Tous les champs sont requis (PIN: 4 chiffres)', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .insert([{
-                        name: name,
-                        role: role,
-                        pin_code: pin,
-                        is_active: true
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('collaboratorMessage', '✓ Collaborateur ajouté!', 'success');
-                document.getElementById('newCollaboratorName').value = '';
-                document.getElementById('newCollaboratorPin').value = '';
-                window.toggleAddCollaborator();
-                loadCollaborators();
-            } catch (err) {
-                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.toggleAddCollaborator = function() {
-            const section = document.getElementById('addCollaboratorSection');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        };
-
-        window.addProduct = async function() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            const name = document.getElementById('newProductName').value.trim();
-            const category = document.getElementById('newProductCategory').value.trim();
-            const price = parseFloat(document.getElementById('newProductPrice').value);
-            const stock = parseInt(document.getElementById('newProductStock').value) || 0;
-
-            if (!name || !category || !price || price <= 0) {
-                showMessage('productMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .insert([{
-                        name: name,
-                        category: category,
-                        price: price,
-                        stock: stock,
-                        active: true,
-                        created_by: currentUser.name
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('productMessage', '✓ Produit ajouté!', 'success');
-                document.getElementById('newProductName').value = '';
-                document.getElementById('newProductCategory').value = '';
-                document.getElementById('newProductPrice').value = '';
-                document.getElementById('newProductStock').value = '';
-                window.toggleAddProduct();
-                loadProducts();
-            } catch (err) {
-                showMessage('productMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.toggleAddProduct = function() {
-            const section = document.getElementById('addProductSection');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        };
-
-        window.deleteProduct = async function(productId) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer un produit');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit?')) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({ active: false })
-                    .eq('id', productId);
-
-                if (error) throw error;
-
-                showMessage('productMessage', '✓ Produit supprimé!', 'success');
-                loadProducts();
-            } catch (err) {
-                showMessage('productMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.openEditProductModal = function(productId, name, category, price) {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            editingProductId = productId;
-            document.getElementById('editProductName').value = name;
-            document.getElementById('editProductCategory').value = category;
-            document.getElementById('editProductPrice').value = price;
-            document.getElementById('editProductModal').classList.add('active');
-        };
-
-        window.saveProductEdit = async function() {
-            if (!editingProductId) return;
-
-            const name = document.getElementById('editProductName').value.trim();
-            const category = document.getElementById('editProductCategory').value.trim();
-            const price = parseFloat(document.getElementById('editProductPrice').value);
-
-            if (!name || !category || !price || price <= 0) {
-                showMessage('editProductMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({
-                        name: name,
-                        category: category,
-                        price: price,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', editingProductId);
-
-                if (error) throw error;
-
-                showMessage('editProductMessage', '✓ Produit modifié!', 'success');
-                window.closeModal('editProductModal');
-                editingProductId = null;
-                loadProducts();
-            } catch (err) {
-                showMessage('editProductMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.addStock = async function() {
-            const productId = document.getElementById('addStockProductSelect').value;
-            const quantity = parseInt(document.getElementById('addStockQuantity').value);
-
-            if (!productId || !quantity || quantity <= 0) {
-                showMessage('addStockMessage', 'Sélectionnez un produit et une quantité', 'error');
-                return;
-            }
-
-            try {
-                const product = productsData.find(p => p.id == productId);
-                const newStock = (product.stock || 0) + quantity;
-
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({ stock: newStock })
-                    .eq('id', productId);
-
-                if (error) throw error;
-
-                showMessage('addStockMessage', '✓ Stock augmenté!', 'success');
-                document.getElementById('addStockProductSelect').value = '';
-                document.getElementById('addCurrentStockDisplay').value = '';
-                document.getElementById('addStockQuantity').value = '';
-                loadStock();
-                loadProducts();
-            } catch (err) {
-                showMessage('addStockMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.correctStock = async function() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            const productId = document.getElementById('stockProductSelect').value;
-            const newStock = parseInt(document.getElementById('newStockAmount').value);
-
-            if (!productId || isNaN(newStock)) {
-                showMessage('stockCorrectionMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('products')
-                    .update({ stock: newStock })
-                    .eq('id', productId);
-
-                if (error) throw error;
-
-                showMessage('stockCorrectionMessage', '✓ Stock mis à jour!', 'success');
-                document.getElementById('stockProductSelect').value = '';
-                document.getElementById('currentStockDisplay').value = '';
-                document.getElementById('newStockAmount').value = '';
-                loadStock();
-                loadProducts();
-            } catch (err) {
-                showMessage('stockCorrectionMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.updateSettings = async function() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut modifier les paramètres');
-                return;
-            }
-
-            const commissionRate = parseFloat(document.getElementById('commissionRate').value);
-
-            if (!commissionRate || commissionRate < 0) {
-                showMessage('settingsMessage', 'Pourcentage invalide', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .update({ commission_rate: commissionRate })
-                    .eq('id', settingsData.id);
-
-                if (error) throw error;
-
-                settingsData.commission_rate = commissionRate;
-                updateCommissionHeader();
-                updateStats();
-                showMessage('settingsMessage', '✓ Paramètres mis à jour!', 'success');
-            } catch (err) {
-                showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.changeMyPassword = function() {
-            document.getElementById('changePasswordModal').classList.add('active');
-            document.getElementById('currentPin').value = '';
-            document.getElementById('newPin').value = '';
-            document.getElementById('confirmPin').value = '';
-        };
-
-        window.saveNewPassword = async function() {
-            const currentPin = document.getElementById('currentPin').value;
-            const newPin = document.getElementById('newPin').value;
-            const confirmPin = document.getElementById('confirmPin').value;
-
-            if (!currentPin || !newPin || !confirmPin) {
-                showMessage('passwordMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            if (currentPin !== currentUser.pin_code) {
-                showMessage('passwordMessage', 'PIN actuel incorrect', 'error');
-                return;
-            }
-
-            if (newPin !== confirmPin) {
-                showMessage('passwordMessage', 'Les nouveaux PINs ne correspondent pas', 'error');
-                return;
-            }
-
-            if (newPin.length !== 4) {
-                showMessage('passwordMessage', 'Le PIN doit contenir 4 chiffres', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ pin_code: newPin })
-                    .eq('id', currentUser.id);
-
-                if (error) throw error;
-
-                currentUser.pin_code = newPin;
-                showMessage('passwordMessage', '✓ PIN mis à jour!', 'success');
-                setTimeout(() => {
-                    window.closeModal('changePasswordModal');
-                }, 1500);
-            } catch (err) {
-                showMessage('passwordMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.openChangeRoleModal = function(userId, userName, currentRole) {
-            document.getElementById('changeRoleUserName').textContent = 'Utilisateur: ' + userName + ' (Rôle actuel: ' + currentRole + ')';
-            document.getElementById('changeRoleSelect').value = currentRole;
-            document.getElementById('changeUserRoleModal').dataset.userId = userId;
-            document.getElementById('changeUserRoleModal').classList.add('active');
-        };
-
-        window.saveUserRole = async function() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut changer les rôles');
-                return;
-            }
-
-            const userId = document.getElementById('changeUserRoleModal').dataset.userId;
-            const newRole = document.getElementById('changeRoleSelect').value;
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ role: newRole, updated_by: currentUser.name })
-                    .eq('id', userId);
-
-                if (error) throw error;
-
-                showMessage('collaboratorMessage', '✓ Rôle mis à jour!', 'success');
-                window.closeModal('changeUserRoleModal');
-                loadCollaborators();
-            } catch (err) {
-                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.deleteCollaborator = async function(userId, userName) {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut supprimer un utilisateur');
-                return;
-            }
-
-            const user = collaboratorsData.find(c => c.id === userId);
-            const action = user.is_active ? 'désactiver' : 'réactiver';
-
-            if (!confirm(`Êtes-vous sûr de vouloir ${action} ${userName}?`)) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('collaborators')
-                    .update({ is_active: !user.is_active, updated_by: currentUser.name })
-                    .eq('id', userId);
-
-                if (error) throw error;
-
-                showMessage('collaboratorMessage', `✓ Utilisateur ${action}!`, 'success');
-                loadCollaborators();
-            } catch (err) {
-                showMessage('collaboratorMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.submitExpense = async function() {
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const description = document.getElementById('expenseDescription').value.trim();
-
-            if (!amount || amount <= 0 || !description) {
-                showMessage('expenseMessage', 'Le montant et la description sont obligatoires', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('expense_requests')
-                    .insert([{
-                        employee_id: currentUser.id,
-                        employee_name: currentUser.name,
-                        amount: amount,
-                        description: description,
-                        status: 'pending',
-                        created_at: new Date().toISOString()
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('expenseMessage', '✓ Demande soumise!', 'success');
-                document.getElementById('expenseAmount').value = '';
-                document.getElementById('expenseDescription').value = '';
-                loadExpenses();
-            } catch (err) {
-                showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.approveExpense = async function(expenseId, amount) {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            if (!confirm(`Rembourser $${amount.toFixed(2)}? Cela déduira du solde de caisse.`)) {
-                return;
-            }
-
-            try {
-                const { error: updateError } = await supabaseClient
-                    .from('expense_requests')
-                    .update({ status: 'approved' })
-                    .eq('id', expenseId);
-
-                if (updateError) throw updateError;
-
-                let currentBalance = 0;
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-                const newBalance = currentBalance - amount;
-
-                const { error: movementError } = await supabaseClient
-                    .from('movements')
-                    .insert([{
-                        type: 'retrait',
-                        description: `Remboursement de frais`,
-                        amount: amount,
-                        balance_after: newBalance,
-                        liquid_pending_after: currentLiquidPending
-                    }]);
-
-                if (movementError) throw movementError;
-
-                showMessage('expenseMessage', '✓ Remboursement effectué!', 'success');
-                loadExpenses();
-                loadMovements();
-            } catch (err) {
-                showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.rejectExpense = async function(expenseId) {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Vous n\'avez pas les droits');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr de vouloir refuser cette demande?')) {
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('expense_requests')
-                    .delete()
-                    .eq('id', expenseId);
-
-                if (error) throw error;
-
-                showMessage('expenseMessage', '✓ Demande refusée!', 'success');
-                loadExpenses();
-            } catch (err) {
-                showMessage('expenseMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.correctCashBalance = async function() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut corriger le solde');
-                return;
-            }
-
-            const newBalance = parseFloat(document.getElementById('newCashBalance').value);
-            const reason = document.getElementById('cashCorrectionReason').value;
-
-            if (isNaN(newBalance) || !reason) {
-                showMessage('cashCorrectionMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                let currentLiquidPending = 0;
-                if (movementsData.length > 0) {
-                    currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-                }
-
-                const { error } = await supabaseClient
-                    .from('movements')
-                    .insert([{
-                        type: 'correction',
-                        description: `Correction du solde: ${reason}`,
-                        amount: 0,
-                        balance_after: newBalance,
-                        liquid_pending_after: currentLiquidPending
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('cashCorrectionMessage', '✓ Solde corrigé!', 'success');
-                document.getElementById('newCashBalance').value = '';
-                document.getElementById('cashCorrectionReason').value = '';
-                loadMovements();
-            } catch (err) {
-                showMessage('cashCorrectionMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.correctLiquidBalance = async function() {
-            if (currentUser.role !== 'admin') {
-                alert('Seul un admin peut corriger le frigo');
-                return;
-            }
-
-            const newLiquidPending = parseFloat(document.getElementById('newLiquidBalance').value);
-            const reason = document.getElementById('liquidCorrectionReason').value;
-
-            if (isNaN(newLiquidPending) || !reason) {
-                showMessage('liquidCorrectionMessage', 'Tous les champs sont requis', 'error');
-                return;
-            }
-
-            try {
-                let currentBalance = 0;
-                if (movementsData.length > 0) {
-                    currentBalance = parseFloat(movementsData[0].balance_after) || 0;
-                }
-
-                const { error } = await supabaseClient
-                    .from('movements')
-                    .insert([{
-                        type: 'correction_liquid',
-                        description: `Correction du Frigo: ${reason}`,
-                        amount: 0,
-                        balance_after: currentBalance,
-                        liquid_pending_after: newLiquidPending
-                    }]);
-
-                if (error) throw error;
-
-                showMessage('liquidCorrectionMessage', '✓ Frigo corrigé!', 'success');
-                document.getElementById('newLiquidBalance').value = '';
-                document.getElementById('liquidCorrectionReason').value = '';
-                loadMovements();
-            } catch (err) {
-                showMessage('liquidCorrectionMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.openResetSalesModal = function() {
-            document.getElementById('resetSalesModal').classList.add('active');
-            
-            let liquidPending = 0;
-            if (movementsData.length > 0) {
-                liquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
-            }
-            
-            const warningDiv = document.getElementById('resetSalesWarning');
-            if (liquidPending > 0) {
-                warningDiv.textContent = `⚠️ ATTENTION: Vous avez $${liquidPending.toFixed(2)} en liquide en attente (Frigo)! Veuillez d'abord enregistrer le dépôt liquide dans Mouvements avant de réinitialiser.`;
-            } else {
-                warningDiv.textContent = '✓ Le Frigo est à 0. Vous pouvez réinitialiser.';
-            }
-        };
-
-        window.confirmResetSales = async function() {
-            if (currentUser.role !== 'admin' && currentUser.role !== 'gerant') {
-                alert('Seul un gérant ou admin peut réinitialiser les ventes');
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .update({ last_sales_reset: new Date().toISOString() })
-                    .eq('id', settingsData.id);
-
-                if (error) throw error;
-
-                showMessage('resetSalesMessage', '✓ Ventes réinitialisées!', 'success');
-                window.closeModal('resetSalesModal');
-                loadLastSalesReset();
-                loadMovements();
-                loadCompta();
-                updateStats();
-            } catch (err) {
-                showMessage('resetSalesMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        window.exportData = function() {
-            const exportData = {
-                collaborators: collaboratorsData,
-                sales: salesData,
-                movements: movementsData,
-                products: productsData,
-                expenses: expensesData,
-                exportDate: new Date().toISOString()
-            };
-
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `palace-export-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
-        };
-
-        window.clearAllData = async function() {
-            if (!confirm('⚠️ ATTENTION! Cette action supprimera TOUTES les données. Êtes-vous absolument sûr?')) {
-                return;
-            }
-
-            if (!confirm('⚠️ DERNIÈRE CONFIRMATION - Cette action ne peut pas être annulée!')) {
-                return;
-            }
-
-            try {
-                await supabaseClient.from('sales').delete().gt('id', 0);
-                await supabaseClient.from('movements').delete().gt('id', 0);
-
-                loadAllData();
-                showMessage('settingsMessage', '✓ Données supprimées!', 'success');
-            } catch (err) {
-                showMessage('settingsMessage', 'Erreur: ' + err.message, 'error');
-            }
-        };
-
-        function setupRealtimeSubscriptions() {
-            supabaseClient
-                .channel('sales-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
-                    loadSales();
-                })
-                .subscribe();
-
-            supabaseClient
-                .channel('movements-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'movements' }, () => {
-                    loadMovements();
-                })
-                .subscribe();
-
-            supabaseClient
-                .channel('collaborators-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'collaborators' }, () => {
-                    loadCollaborators();
-                })
-                .subscribe();
-
-            supabaseClient
-                .channel('products-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-                    loadProducts();
-                    loadStock();
-                })
-                .subscribe();
-
-            supabaseClient
-                .channel('expenses-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_requests' }, () => {
-                    loadExpenses();
-                })
-                .subscribe();
-        }
-
-        window.addEventListener('load', () => {
-            initSupabase();
-        });
-    </script>
+        computeComposition();
+        hideStatus();
+      } catch (err) {
+        console.error("Erreur loadMovements", err);
+        showStatus("Erreur lors du chargement des mouvements : " + err.message, "error");
+      }
+    }
+
+    function computeComposition() {
+      const tbody = document.getElementById("compositionBody");
+      const totalsByType = {};
+
+      let currentBalance = 0;
+      for (const m of movementsData) {
+        const type = m.type || "autre";
+        const nextBalance = Number(m.balanceafter) || 0;
+        const delta = nextBalance - currentBalance;
+        currentBalance = nextBalance;
+
+        if (!totalsByType[type]) totalsByType[type] = 0;
+        totalsByType[type] += delta;
+      }
+
+      theoreticalBalance = currentBalance;
+      document.getElementById("theoreticalBalance").textContent = formatAmount(theoreticalBalance);
+
+      const entries = Object.entries(totalsByType).sort(([a], [b]) => a.localeCompare(b));
+
+      if (!entries.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucun mouvement exploitable.</td></tr>';
+        document.getElementById("totalComposition").textContent = formatAmount(theoreticalBalance);
+        return;
+      }
+
+      let html = "";
+      let totalNet = 0;
+      for (const [type, net] of entries) {
+        totalNet += net;
+        const label = labelForType(type);
+        const pillClass = pillClassForNet(net);
+        const pillLabel = pillLabelForNet(net);
+        html += `
+          <tr>
+            <td>${label}</td>
+            <td class="text-center"><span class="${pillClass}">${pillLabel}</span></td>
+            <td class="text-right ${deltaClass(net)}">${formatAmount(net)}</td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = html;
+      document.getElementById("totalComposition").textContent = formatAmount(totalNet);
+    }
+
+    function recalcGapFromInput() {
+      const raw = (document.getElementById("bankBalanceInput").value || "").trim();
+      const bank = raw === "" ? 0 : Number(raw);
+      if (isNaN(bank)) {
+        showStatus("Le solde bancaire saisi n'est pas un nombre valide.", "error");
+        return;
+      }
+
+      document.getElementById("bankBalance").textContent = formatAmount(bank);
+      const gap = bank - theoreticalBalance;
+      const gapEl = document.getElementById("gapDisplay");
+      const caption = document.getElementById("gapCaption");
+      gapEl.textContent = formatAmount(gap);
+      gapEl.className = deltaClass(gap);
+
+      if (Math.abs(gap) < 0.0001) {
+        caption.textContent = "Un écart de 0.00 signifie que le solde théorique correspond exactement au relevé bancaire.";
+      } else if (gap > 0) {
+        caption.textContent = "Écart positif : il manque des crédits ou des dépôts dans l'application (ou des débits en trop).";
+      } else {
+        caption.textContent = "Écart négatif : il manque des sorties (retraits, commissions, remboursements) ou des crédits ont été surévalués.";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!initSupabase()) return;
+      await loadMovements();
+
+      const btn = document.getElementById("recalcButton");
+      btn.addEventListener("click", recalcGapFromInput);
+    });
+  </script>
 </body>
 </html>
