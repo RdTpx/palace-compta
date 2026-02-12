@@ -1489,7 +1489,9 @@
         <p id="controlNetBalance">0.00 $</p>
     </div>
 </div>
-<!-- CONTROL TABLE -->
+
+
+                <!-- CONTROL TABLE -->
                 <div class="control-results">
                     <h4>📊 Résultats des Mouvements</h4>
                     <div class="table-container">
@@ -2440,7 +2442,7 @@
             document.getElementById('controlDateFrom').value = thirtyDaysAgo;
             document.getElementById('controlDateTo').value = today;
             
-            await window.applyControlFilters();
+            await window.applyControlFilters(); updateControlStats();
         }
 
         window.applyControlFilters = async function() {
@@ -2516,12 +2518,12 @@
     if (!movementsData) movementsData = [];
     if (!filteredMovements) filteredMovements = [];
 
-    // 1) Soldes actuels (théoriques) : basés sur le dernier mouvement enregistré
+    // 1) Soldes actuels (théoriques) : basés sur le DERNIER mouvement (index 0 car trié descending)
     let cashBalance = 0;
     let liquidPending = 0;
 
     if (movementsData.length > 0) {
-        const lastMovement = movementsData[0]; // trié du plus récent au plus ancien
+        const lastMovement = movementsData[0];
         cashBalance = parseFloat(lastMovement.balanceafter) || 0;
         liquidPending = parseFloat(lastMovement.liquidpendingafter) || 0;
     }
@@ -2536,7 +2538,7 @@
     if (liquidEl) liquidEl.textContent = liquidPending.toFixed(2);
     if (totalTreasuryEl) totalTreasuryEl.textContent = totalTreasury.toFixed(2);
 
-    // 2) Composition de la période filtrée
+    // 2) Stats de la période filtrée
     const totalCount = filteredMovements.length;
 
     const totalIn = filteredMovements
@@ -2559,8 +2561,8 @@
     if (totalOutEl) totalOutEl.textContent = totalOut.toFixed(2);
 
     if (netBalanceEl) {
-        netBalanceEl.textContent = netBalance >= 0
-            ? netBalance.toFixed(2)
+        netBalanceEl.textContent = netBalance >= 0 
+            ? netBalance.toFixed(2) 
             : '-' + Math.abs(netBalance).toFixed(2);
 
         const card = netBalanceEl.parentElement;
@@ -2575,7 +2577,6 @@
         }
     }
 }
-
 async function loadExpenses() {
             const { data, error } = await supabaseClient
                 .from('expense_requests')
