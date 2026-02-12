@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE PALACE - Comptabilité v2.5.12</title>
+    <title>LE PALACE - Comptabilité v2.5.14</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
@@ -388,6 +388,11 @@
             color: #1e40af;
         }
 
+        .badge.controleur {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
         .loading {
             text-align: center;
             padding: 20px;
@@ -502,7 +507,6 @@
             color: #065f46;
         }
 
-        /* ============= GRILLE DE PRODUITS ============= */
         .products-grid-container {
             margin-top: 15px;
         }
@@ -624,59 +628,6 @@
             font-size: 1.1em;
         }
 
-        @media (max-width: 768px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-                gap: 10px;
-            }
-
-            .product-card {
-                padding: 12px;
-            }
-
-            .qty-btn {
-                width: 26px;
-                height: 26px;
-                font-size: 1em;
-            }
-
-            .qty-display {
-                width: 35px;
-                font-size: 0.95em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                gap: 8px;
-            }
-
-            .product-card {
-                padding: 10px;
-            }
-
-            .product-name {
-                font-size: 0.85em;
-            }
-
-            .product-price {
-                font-size: 1.1em;
-            }
-
-            .qty-btn {
-                width: 24px;
-                height: 24px;
-                font-size: 0.9em;
-            }
-
-            .qty-display {
-                width: 30px;
-                font-size: 0.85em;
-            }
-        }
-
-        /* ============= SECTION RÉSUMÉ ============= */
         .sale-summary {
             background: #f0f0f0;
             padding: 15px;
@@ -706,7 +657,6 @@
             color: #667eea;
         }
 
-        /* ============= COMPTA TAB ============= */
         .compta-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -795,7 +745,6 @@
             margin-top: 30px;
         }
 
-        /* ============= MODAL EDIT VENTE ============= */
         .edit-product-row {
             background: #f9f9f9;
             padding: 10px;
@@ -827,6 +776,178 @@
             font-size: 0.85em;
             font-style: italic;
         }
+
+        /* ============= CONTRÔLE TAB STYLES ============= */
+        .control-filters {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .control-filters h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-controls .form-group {
+            margin-bottom: 0;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-buttons button {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+
+        .control-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .control-stat-card h4 {
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .control-stat-card p {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .movement-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .movement-type-badge.depot {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .movement-type-badge.retrait {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .movement-type-badge.depense {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .movement-type-badge.commission {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .movement-type-badge.vente_liquide {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .movement-type-badge.correction {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .control-results {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .control-results h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+
+            .product-card {
+                padding: 12px;
+            }
+
+            .qty-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 1em;
+            }
+
+            .qty-display {
+                width: 35px;
+                font-size: 0.95em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 8px;
+            }
+
+            .product-card {
+                padding: 10px;
+            }
+
+            .product-name {
+                font-size: 0.85em;
+            }
+
+            .product-price {
+                font-size: 1.1em;
+            }
+
+            .qty-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 0.9em;
+            }
+
+            .qty-display {
+                width: 30px;
+                font-size: 0.85em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -835,7 +956,7 @@
         <div id="loginSection">
             <div class="header">
                 <h1>👑 LE PALACE</h1>
-                <p>Système de Comptabilité pour Bars & Restaurants v2.5.12</p>
+                <p>Système de Comptabilité pour Bars & Restaurants v2.5.14</p>
             </div>
 
             <div class="login-section">
@@ -880,8 +1001,8 @@
                 </div>
             </div>
 
-            <!-- STATS -->
-            <div class="stats">
+            <!-- STATS (HIDDEN FOR CONTROLEUR) -->
+            <div class="stats" id="statsSection">
                 <div class="stat-card">
                     <h4>💰 Ventes</h4>
                     <p id="totalSalesToday">0.00 $</p>
@@ -907,13 +1028,14 @@
 
             <!-- TABS -->
             <div class="tabs">
-                <button class="tab-button active" onclick="window.switchTab('sales')">📊 Ventes</button>
+                <button class="tab-button active" id="salesBtn" onclick="window.switchTab('sales')">📊 Ventes</button>
                 <button class="tab-button" id="comptaTab" onclick="window.switchTab('compta')" style="display: none;">📈 Compta</button>
                 <button class="tab-button" id="movementsTab" onclick="window.switchTab('movements')" style="display: none;">💸 Mouvements</button>
                 <button class="tab-button" onclick="window.switchTab('expenses')">📋 Notes de Frais</button>
                 <button class="tab-button" onclick="window.switchTab('collaborators')">👥 Collaborateurs</button>
                 <button class="tab-button" id="stockTab" onclick="window.switchTab('stock')" style="display: none;">📦 Stock</button>
                 <button class="tab-button" id="productsTab" onclick="window.switchTab('products')" style="display: none;">🍷 Produits</button>
+                <button class="tab-button" id="controlTab" onclick="window.switchTab('control')" style="display: none;">🔍 Contrôle</button>
                 <button class="tab-button" id="settingsTab" onclick="window.switchTab('settings')" style="display: none;">⚙️ Paramètres</button>
             </div>
 
@@ -1155,6 +1277,7 @@
                                 <option value="employe">Employé</option>
                                 <option value="gerant">Gérant</option>
                                 <option value="admin">Admin</option>
+                                <option value="controleur">Contrôleur</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1292,7 +1415,90 @@
                 </div>
             </div>
 
-            <!-- TAB 8: SETTINGS -->
+            <!-- TAB 8: CONTRÔLE (NEW) -->
+            <div id="control" class="tab-content">
+                <div class="control-filters">
+                    <h3>🔍 Filtres de Contrôle</h3>
+                    
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="controlDateFrom">Date Début</label>
+                            <input type="date" id="controlDateFrom">
+                        </div>
+                        <div class="form-group">
+                            <label for="controlDateTo">Date Fin</label>
+                            <input type="date" id="controlDateTo">
+                        </div>
+                        <div class="form-group">
+                            <label for="controlVendor">Vendeur/Collaborateur</label>
+                            <select id="controlVendor">
+                                <option value="">-- Tous --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="controlMovementType">Type de Mouvement</label>
+                            <select id="controlMovementType">
+                                <option value="">-- Tous --</option>
+                                <option value="depot">Dépôt</option>
+                                <option value="retrait">Retrait</option>
+                                <option value="depense">Dépense</option>
+                                <option value="commission">Commission</option>
+                                <option value="vente_liquide">Vente Liquide</option>
+                                <option value="correction">Correction</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-buttons">
+                        <button class="btn-primary" onclick="window.applyControlFilters()">🔍 Appliquer les Filtres</button>
+                        <button class="btn-secondary" onclick="window.resetControlFilters()">↺ Réinitialiser</button>
+                    </div>
+                </div>
+
+                <!-- CONTROL STATS -->
+                <div class="control-stats">
+                    <div class="control-stat-card">
+                        <h4>Total Mouvements</h4>
+                        <p id="controlTotalCount">0</p>
+                    </div>
+                    <div class="control-stat-card">
+                        <h4>Total Entrées</h4>
+                        <p id="controlTotalIn">0.00 $</p>
+                    </div>
+                    <div class="control-stat-card">
+                        <h4>Total Sorties</h4>
+                        <p id="controlTotalOut">0.00 $</p>
+                    </div>
+                    <div class="control-stat-card">
+                        <h4>Solde Net</h4>
+                        <p id="controlNetBalance">0.00 $</p>
+                    </div>
+                </div>
+
+                <!-- CONTROL TABLE -->
+                <div class="control-results">
+                    <h4>📊 Résultats des Mouvements</h4>
+                    <div class="table-container">
+                        <table id="controlTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Montant</th>
+                                    <th>Solde Après</th>
+                                    <th>Frigo Après</th>
+                                </tr>
+                            </thead>
+                            <tbody id="controlTableBody">
+                                <tr><td colspan="6" class="no-results">Aucun mouvement pour cette recherche</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: SETTINGS -->
             <div id="settings" class="tab-content">
                 <div class="form-section" id="settingsSection" style="display: none;">
                     <h3>Paramètres Généraux</h3>
@@ -1353,9 +1559,9 @@
 
                 <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin-top: 20px;">
                     <h3>À Propos</h3>
-                    <p>LE PALACE v2.5.12 - Comptabilité Cloud (USD)</p>
+                    <p>LE PALACE v2.5.14 - Comptabilité Cloud (USD)</p>
                     <p style="margin-top: 10px; color: #666; font-size: 0.95em;">Gestion des ventes, produits, stock, collaborateurs, notes de frais, mouvements de caisse et comptabilité</p>
-                    <p style="margin-top: 10px; color: #10b981; font-size: 0.9em;"><strong>✓ NEW v2.5.12:</strong> Vente LIQUIDE incrémente le frigo + modification et suppression corrigent le frigo</p>
+                    <p style="margin-top: 10px; color: #667eea; font-size: 0.9em;"><strong>✓ NEW v2.5.14:</strong> Nouveau rôle Contrôleur + onglet Contrôle avec filtres temporels, par vendeur et par type de mouvement</p>
                 </div>
             </div>
         </div>
@@ -1435,6 +1641,7 @@
                     <option value="employe">Employé</option>
                     <option value="gerant">Gérant</option>
                     <option value="admin">Admin</option>
+                    <option value="controleur">Contrôleur</option>
                 </select>
             </div>
             <div class="modal-buttons">
@@ -1533,6 +1740,15 @@
         let liquidPendingTotal = 0;
         let deletingSaleId = null;
 
+        // Control tab filters
+        let controlFilters = {
+            dateFrom: null,
+            dateTo: null,
+            vendor: null,
+            movementType: null
+        };
+        let filteredMovements = [];
+
         // ============================================
         // LOGIN / LOGOUT
         // ============================================
@@ -1593,7 +1809,8 @@
             const roleMap = {
                 'admin': 'Admin 👑',
                 'gerant': 'Gérant 📋',
-                'employe': 'Employé 💼'
+                'employe': 'Employé 💼',
+                'controleur': 'Contrôleur 🔍'
             };
 
             document.getElementById('userName').textContent = currentUser.name;
@@ -1603,22 +1820,41 @@
 
             document.getElementById('userDisplay').textContent = currentUser.name + ' (' + roleMap[currentUser.role] + ')';
 
-            if (currentUser.role === 'employe') {
+            // ✅ CONTRÔLEUR: Only Control tab visible
+            if (currentUser.role === 'controleur') {
+                // Hide all tabs except Control
+                document.getElementById('salesBtn').style.display = 'none';
+                document.getElementById('comptaTab').style.display = 'none';
+                document.getElementById('movementsTab').style.display = 'none';
+                document.querySelectorAll('.tab-button')[3].style.display = 'none'; // expenses
+                document.querySelectorAll('.tab-button')[4].style.display = 'none'; // collaborators
+                document.getElementById('stockTab').style.display = 'none';
+                document.getElementById('productsTab').style.display = 'none';
+                document.getElementById('settingsTab').style.display = 'none';
+                
+                // Show Control tab
+                document.getElementById('controlTab').style.display = 'block';
+                
+                // Hide stats
+                document.getElementById('statsSection').style.display = 'none';
+                
+                // Switch to Control tab
+                window.switchTab('control');
+            }
+            // EMPLOYÉ
+            else if (currentUser.role === 'employe') {
                 document.getElementById('collaboratorSelectGroup').style.display = 'none';
                 document.getElementById('currentCollaboratorGroup').style.display = 'block';
                 document.getElementById('currentCollaboratorDisplay').value = currentUser.name;
-            } else {
+                document.getElementById('cashBalanceCard').style.display = 'none';
+                document.getElementById('movementsTab').style.display = 'none';
+                document.getElementById('controlTab').style.display = 'none';
+            }
+            // GÉRANT or ADMIN
+            else {
                 document.getElementById('collaboratorSelectGroup').style.display = 'block';
                 document.getElementById('currentCollaboratorGroup').style.display = 'none';
-            }
-
-            if (currentUser.role === 'employe') {
-                document.getElementById('cashBalanceCard').style.display = 'none';
-            } else {
                 document.getElementById('cashBalanceCard').style.display = 'block';
-            }
-
-            if (currentUser.role === 'admin' || currentUser.role === 'gerant') {
                 document.getElementById('addCollaboratorBtn').style.display = 'block';
                 document.getElementById('addProductBtn').style.display = 'block';
                 document.getElementById('productsTab').style.display = 'block';
@@ -1629,8 +1865,7 @@
                 document.getElementById('correctStockSection').style.display = 'block';
                 document.getElementById('stockActionsHeader').style.display = 'table-cell';
                 document.getElementById('settingsSection').style.display = 'block';
-            } else {
-                document.getElementById('movementsTab').style.display = 'none';
+                document.getElementById('controlTab').style.display = 'block'; // Gérant + Admin can see Control
             }
 
             if (currentUser.role === 'employe' || currentUser.role === 'admin' || currentUser.role === 'gerant') {
@@ -1643,8 +1878,6 @@
                 document.getElementById('correctCashSection').style.display = 'block';
                 document.getElementById('correctLiquidSection').style.display = 'block';
                 document.getElementById('adminPanel').style.display = 'flex';
-            } else {
-                document.getElementById('settingsTab').style.display = 'none';
             }
         }
 
@@ -1673,6 +1906,9 @@
             }
             if (tabName === 'compta') {
                 loadCompta();
+            }
+            if (tabName === 'control') {
+                loadControlTab();
             }
         };
 
@@ -1744,13 +1980,23 @@
                 select.appendChild(option);
             });
 
+            // Load vendors for Control tab
+            const vendorSelect = document.getElementById('controlVendor');
+            vendorSelect.innerHTML = '<option value="">-- Tous --</option>';
+            collaboratorsData.filter(c => c.is_active).forEach(collab => {
+                const option = document.createElement('option');
+                option.value = collab.name;
+                option.textContent = collab.name;
+                vendorSelect.appendChild(option);
+            });
+
             renderCollaboratorsGrid();
             document.getElementById('totalCollaborators').textContent = collaboratorsData.filter(c => c.is_active).length;
         }
 
         function renderCollaboratorsGrid() {
             const grid = document.getElementById('collaboratorsGrid');
-            const roleMap = { 'admin': 'Admin 👑', 'gerant': 'Gérant 📋', 'employe': 'Employé 💼' };
+            const roleMap = { 'admin': 'Admin 👑', 'gerant': 'Gérant 📋', 'employe': 'Employé 💼', 'controleur': 'Contrôleur 🔍' };
 
             grid.innerHTML = collaboratorsData.map(collab => `
                 <div class="collab-card ${!collab.is_active ? 'inactive' : ''}">
@@ -1993,7 +2239,7 @@
                     
                     return `
                         <tr>
-                            <td>${new Date(sale.created_at).toLocaleString('fr-FR')}</td>
+                            <td>${formatDateFrance(sale.created_at)}</td>
                             <td>${sale.collaborator_name}</td>
                             <td class="success">$${sale.amount.toFixed(2)}</td>
                             <td>${sale.payment_mode}</td>
@@ -2156,7 +2402,7 @@
             } else {
                 tbody.innerHTML = movementsData.map(mov => `
                     <tr>
-                        <td>${new Date(mov.created_at).toLocaleString('fr-FR')}</td>
+                        <td>${formatDateFrance(mov.created_at)}</td>
                         <td><strong>${mov.type}</strong></td>
                         <td>${mov.description || '-'}</td>
                         <td class="success">$${mov.amount.toFixed(2)}</td>
@@ -2167,6 +2413,118 @@
             }
 
             updateStats();
+        }
+
+        // ============================================
+        // CONTROL TAB FUNCTIONS
+        // ============================================
+        async function loadControlTab() {
+            // Initialize date inputs with today
+            const today = new Date().toISOString().split('T')[0];
+            const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
+            
+            document.getElementById('controlDateFrom').value = thirtyDaysAgo;
+            document.getElementById('controlDateTo').value = today;
+            
+            await window.applyControlFilters();
+        }
+
+        window.applyControlFilters = async function() {
+            const dateFrom = document.getElementById('controlDateFrom').value;
+            const dateTo = document.getElementById('controlDateTo').value;
+            const vendor = document.getElementById('controlVendor').value;
+            const movementType = document.getElementById('controlMovementType').value;
+
+            // Filter movements
+            filteredMovements = movementsData.filter(mov => {
+                const movDate = new Date(mov.created_at).toISOString().split('T')[0];
+                
+                let passDateFilter = true;
+                if (dateFrom && movDate < dateFrom) passDateFilter = false;
+                if (dateTo && movDate > dateTo) passDateFilter = false;
+                
+                let passVendorFilter = true;
+                if (vendor && !mov.description.includes(vendor)) passVendorFilter = false;
+                
+                let passTypeFilter = true;
+                if (movementType && mov.type !== movementType) passTypeFilter = false;
+                
+                return passDateFilter && passVendorFilter && passTypeFilter;
+            });
+
+            // Render results
+            renderControlResults();
+            updateControlStats();
+        };
+
+        window.resetControlFilters = function() {
+            document.getElementById('controlDateFrom').value = '';
+            document.getElementById('controlDateTo').value = '';
+            document.getElementById('controlVendor').value = '';
+            document.getElementById('controlMovementType').value = '';
+            
+            filteredMovements = movementsData;
+            renderControlResults();
+            updateControlStats();
+        };
+
+        function renderControlResults() {
+            const tbody = document.getElementById('controlTableBody');
+            
+            if (filteredMovements.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-results">Aucun mouvement pour cette recherche</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredMovements.map(mov => {
+                let typeBadge = '';
+                if (mov.type === 'depot') typeBadge = 'depot';
+                else if (mov.type === 'retrait') typeBadge = 'retrait';
+                else if (mov.type === 'depense') typeBadge = 'depense';
+                else if (mov.type === 'commission') typeBadge = 'commission';
+                else if (mov.type === 'vente_liquide') typeBadge = 'vente_liquide';
+                else typeBadge = 'correction';
+
+                return `
+                    <tr>
+                        <td>${formatDateFrance(mov.created_at)}</td>
+                        <td><span class="movement-type-badge ${typeBadge}">${mov.type}</span></td>
+                        <td>${mov.description || '-'}</td>
+                        <td class="success">$${mov.amount.toFixed(2)}</td>
+                        <td class="success">$${mov.balance_after.toFixed(2)}</td>
+                        <td class="success">$${(mov.liquid_pending_after || 0).toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateControlStats() {
+            const totalCount = filteredMovements.length;
+            
+            const totalIn = filteredMovements
+                .filter(m => ['depot', 'depot_liquide', 'vente_liquide'].includes(m.type))
+                .reduce((sum, m) => sum + parseFloat(m.amount), 0);
+            
+            const totalOut = filteredMovements
+                .filter(m => ['retrait', 'depense', 'commission'].includes(m.type))
+                .reduce((sum, m) => sum + parseFloat(m.amount), 0);
+            
+            const netBalance = totalIn - totalOut;
+
+            document.getElementById('controlTotalCount').textContent = totalCount;
+            document.getElementById('controlTotalIn').textContent = totalIn.toFixed(2) + ' $';
+            document.getElementById('controlTotalOut').textContent = totalOut.toFixed(2) + ' $';
+            document.getElementById('controlNetBalance').textContent = (netBalance >= 0 ? '+' : '') + netBalance.toFixed(2) + ' $';
+
+            // Color net balance
+            const netBalanceEl = document.getElementById('controlNetBalance');
+            if (netBalance > 0) {
+                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            } else if (netBalance < 0) {
+                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            } else {
+                netBalanceEl.parentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
         }
 
         async function loadExpenses() {
@@ -2188,7 +2546,7 @@
             } else {
                 tbody.innerHTML = expensesData.map(expense => `
                     <tr style="opacity: ${expense.status === 'approved' ? '0.6' : '1'};">
-                        <td>${new Date(expense.created_at).toLocaleString('fr-FR')}</td>
+                        <td>${formatDateFrance(expense.created_at)}</td>
                         <td>${expense.employee_name}</td>
                         <td class="success">$${expense.amount.toFixed(2)}</td>
                         <td>${expense.description || '-'}</td>
@@ -2282,9 +2640,10 @@
         }
 
         // ============================================
-        // RECORD OPERATIONS
+        // RECORD OPERATIONS (SALES, MOVEMENTS, etc.)
         // ============================================
         window.recordSale = async function() {
+            // [Code identical à v2.5.13...]
             let collaboratorId;
             
             if (currentUser.role === 'employe') {
@@ -2382,7 +2741,6 @@
 
                     if (movementError) throw movementError;
                 } else if (paymentMode === 'liquide') {
-                    // ✅ NOUVEAU: Vente liquide crée un mouvement pour tracker le frigo
                     const newLiquidPending = currentLiquidPending + totalAmount;
 
                     const { error: movementError } = await supabaseClient
@@ -2572,9 +2930,7 @@
                 const oldAmount = editingSaleData.amount;
                 const amountDiff = newTotal - oldAmount;
 
-                // ✅ NOUVEAU: Gère les changements de mode de paiement ET du liquide
                 if (oldPaymentMode === 'liquide' && newPaymentMode === 'virement') {
-                    // Liquide → Virement: enlever du frigo, ajouter à la caisse
                     const newBalance = currentBalance + newTotal;
                     const newLiquidPending = Math.max(0, currentLiquidPending - oldAmount);
 
@@ -2591,7 +2947,6 @@
                     if (movementError) throw movementError;
                 }
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'liquide') {
-                    // Virement → Liquide: enlever de la caisse, ajouter au frigo
                     const newBalance = currentBalance - oldAmount;
                     const newLiquidPending = currentLiquidPending + newTotal;
 
@@ -2608,7 +2963,6 @@
                     if (movementError) throw movementError;
                 }
                 else if (oldPaymentMode === 'liquide' && newPaymentMode === 'liquide' && amountDiff !== 0) {
-                    // Liquide → Liquide avec montant changé: ajuster le frigo
                     const newLiquidPending = currentLiquidPending + amountDiff;
 
                     const { error: movementError } = await supabaseClient
@@ -2624,7 +2978,6 @@
                     if (movementError) throw movementError;
                 }
                 else if (oldPaymentMode === 'virement' && newPaymentMode === 'virement' && amountDiff !== 0) {
-                    // Virement → Virement avec montant changé
                     const newBalance = currentBalance + amountDiff;
 
                     const { error: movementError } = await supabaseClient
@@ -2703,7 +3056,6 @@
                     currentLiquidPending = parseFloat(movementsData[0].liquid_pending_after) || 0;
                 }
 
-                // ✅ NOUVEAU: Suppression corrige aussi le liquide
                 if (sale.payment_mode === 'virement') {
                     const newBalance = currentBalance - sale.amount;
 
@@ -2719,7 +3071,6 @@
 
                     if (movementError) throw movementError;
                 } else if (sale.payment_mode === 'liquide') {
-                    // Suppression vente liquide: retirer du frigo
                     const newLiquidPending = Math.max(0, currentLiquidPending - sale.amount);
 
                     const { error: movementError } = await supabaseClient
@@ -3470,6 +3821,22 @@
                     loadExpenses();
                 })
                 .subscribe();
+        }
+
+        // ============================================
+        // TIMEZONE HELPER - FRANCE (Europe/Paris)
+        // ============================================
+        function formatDateFrance(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('fr-FR', {
+                timeZone: 'Europe/Paris',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
 
         window.addEventListener('load', () => {
